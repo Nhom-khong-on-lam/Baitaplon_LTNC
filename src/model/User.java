@@ -19,9 +19,28 @@ public class User extends BaseEntity {
         this.accountStatus = accountStatus;
     }
 
+    //GETTER
+    public String getUsername() {
+        return this.username;
+    }
+
+    public String getPasswordHash() {
+        return this.passwordHash;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public AccountStatus getAccountStatus() {
+        return this.accountStatus;
+    }
+
     public void login() {}
 
     public void logout() {}
 
-    public boolean isAdmin() {}
+    public boolean isAdmin() {
+        return false;
+    }
 }
