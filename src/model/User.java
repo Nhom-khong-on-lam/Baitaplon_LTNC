@@ -1,4 +1,27 @@
 package model;
 
-public class User {
+import Enum.SystemRole;
+import Enum.AccountStatus;
+
+public class User extends BaseEntity {
+    private String username;
+    private String passwordHash;
+    private String email;
+    private SystemRole systemRole;
+    private AccountStatus accountStatus;
+
+    public User(Long id, String username, String passwordHash, String email, SystemRole systemRole) {
+        //super(id);
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.email = email;
+        this.systemRole = systemRole;
+        this.accountStatus = accountStatus;
+    }
+
+    public void login() {}
+
+    public void logout() {}
+
+    public boolean isAdmin() {}
 }
