@@ -23,5 +23,7 @@ public class User extends BaseEntity {
 
     public void logout() {}
 
-    public boolean isAdmin() {}
+    public boolean isAdmin() {
+        return false;
+    }
 }
