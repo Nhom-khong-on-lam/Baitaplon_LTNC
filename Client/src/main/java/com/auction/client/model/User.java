@@ -1,7 +1,7 @@
-package model;
+package com.auction.client.model;
 
-import Enum.SystemRole;
-import Enum.AccountStatus;
+import com.auction.client.Enum.SystemRole;
+import com.auction.client.Enum.AccountStatus;
 
 public class User extends BaseEntity {
     private String username;
