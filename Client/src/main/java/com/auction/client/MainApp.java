@@ -16,6 +16,7 @@ public class MainApp extends Application {
         Scene scene = new Scene(fxmlLoader.load(),900,650);
 
         stage.setTitle("Auction System");
+        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.setResizable(true);
         stage.show();
