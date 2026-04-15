@@ -1,0 +1,58 @@
+.overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.75);
+}
+
+.auth-card {
+    -fx-background-color: rgba(20, 20, 20, 0.92);
+    -fx-background-radius: 25;
+    -fx-border-color: #d4af37;
+    -fx-border-radius: 25;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 20, 0, 0, 0);
+}
+
+.header-label {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d4af37;
+    -fx-padding: 0 0 10 0;
+}
+
+.custom-input {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #666;
+    -fx-background-radius: 12;
+    -fx-border-color: #333;
+    -fx-border-radius: 12;
+    -fx-padding: 12;
+}
+
+.custom-input:focused {
+    -fx-border-color: #d4af37;
+    -fx-background-color: #222;
+}
+
+.primary-button {
+    -fx-background-color: #d4af37;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12;
+    -fx-padding: 14;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #f1c40f;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.switch-link {
+    -fx-text-fill: #888;
+    -fx-underline: false;
+}
+
+.switch-link:hover {
+    -fx-text-fill: #d4af37;
+}
