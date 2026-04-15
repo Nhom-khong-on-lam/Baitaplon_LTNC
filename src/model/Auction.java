@@ -4,6 +4,7 @@ import Enum.AuctionStatus;
 import observer.Observer;
 
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class Auction extends BaseEntity {
 
     private List<BidTransaction> bidHistory = new ArrayList<>();
     private List<Observer> observers = new ArrayList<>();
-
+    private List<AutoBidConfig> autoBidConfigs = new ArrayList<>();
     private double currentPrice;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -65,5 +66,24 @@ public class Auction extends BaseEntity {
         for (Observer o : observers) {
             o.update(this);
         }
+    }
+
+    public LocalDateTime getStartTime() {
+        return null;
+    }
+
+    public LocalDateTime getEndTime() {
+        return null;
+    }
+
+    public AuctionStatus getStatus() {
+        return null;
+    }
+
+    public void setStatus(AuctionStatus status) {
+    }
+
+    public List<AutoBidConfig> getAutoBidConfigs() {
+        return autoBidConfigs;
     }
 }

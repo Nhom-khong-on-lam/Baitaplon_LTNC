@@ -51,4 +51,9 @@ public class AutoBidConfig {
                 ", active=" + active +
                 '}';
     }
+
+    public double getIncrement() {
+        return stepIncrement;
+    }
+
 }

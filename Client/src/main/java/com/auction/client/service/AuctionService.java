@@ -1,10 +1,10 @@
-package service;
+package com.auction.client.service;
 
-import model.Auction;
-import model.AutoBidConfig;
-import model.BidTransaction;
-import model.User;
-import Enum.AuctionStatus;
+import com.auction.client.model.Auction;
+import com.auction.client.model.AutoBidConfig;
+import com.auction.client.model.BidTransaction;
+import com.auction.client.model.User;
+import com.auction.client.Enum.AuctionStatus;
 
 import java.time.LocalDateTime;
 
@@ -16,19 +16,19 @@ public class AuctionService {
         LocalDateTime now = LocalDateTime.now();
 
         if (now.isBefore(auction.getStartTime())) {
-            System.out.println(" Auction chưa bắt đầu!");
+            System.out.println(" Buổi đấu giá chưa bắt đầu!");
             return false;
         }
 
 
         if (now.isAfter(auction.getEndTime())) {
-            System.out.println(" Auction đã kết thúc!");
+            System.out.println(" Buổi đấu giá đã kết thúc!");
             return false;
         }
 
         if (auction.getStatus() != AuctionStatus.OPEN) {
 
-            System.out.println("Auction không cho phép bid!");
+            System.out.println("Buổi đấu giá không cho phép bid!");
             return false;
         }
 
@@ -42,7 +42,7 @@ public class AuctionService {
 
         auction.addBid(bid);
         handleAutoBid(auction);
-        System.out.println(" Bid thành công!");
+        System.out.println(" Đặt giá thành công!");
         return true;
     }
 
