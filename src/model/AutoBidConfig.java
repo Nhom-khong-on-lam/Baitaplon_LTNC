@@ -2,40 +2,53 @@ package model;
 
 import java.time.LocalDateTime;
 
-public class BidTransaction {
+public class AutoBidConfig {
     private User bidder;
-    private double amount;
-    private LocalDateTime bidTime;
-    private boolean autoBid;
+    private double maxPrice;
+    private double stepIncrement;
+    private boolean active;
+    private LocalDateTime registeredAt;
 
-    public BidTransaction(User bidder, double amount, boolean autoBid) {
+    public AutoBidConfig(User bidder, double maxPrice, double stepIncrement) {
         this.bidder = bidder;
-        this.amount = amount;
-        this.autoBid = autoBid;
-        this.bidTime = LocalDateTime.now();
+        this.maxPrice = maxPrice;
+        this.stepIncrement = stepIncrement;
+        this.active = true;
+        this.registeredAt = LocalDateTime.now();
     }
     public User getBidder() {
         return bidder;
     }
-    public double getAmount() {
-        return amount;
+    public double getMaxPrice() {
+        return maxPrice;
     }
-    public LocalDateTime getBidTime() {
-        return bidTime;
+    public double getStepIncrement() {
+        return stepIncrement;
     }
-    public boolean isAutoBid() {
-        return autoBid;
+    public boolean isActive() {
+        return active;
     }
-    public boolean isValid(double currentPrice, double step) {
-        return amount >= currentPrice + step;
+    public void deactivate() {
+        this.active = false;
+    }
+    public LocalDateTime getRegisteredAt() {
+        return registeredAt;
+    }
+    public double getNextBid(double currentPrice) {
+        if (!active) return -1;
+        double next = currentPrice + stepIncrement;
+        if (next <= maxPrice) {
+            return next;
+        }
+        return -1;
     }
     @Override
     public String toString() {
-        return "BidTransaction{" +
+        return "AutoBidConfig{" +
                 "bidder=" + bidder.getUsername() +
-                ", amount=" + amount +
-                ", time=" + bidTime +
-                ", autoBid=" + autoBid +
+                ", maxPrice=" + maxPrice +
+                ", step=" + stepIncrement +
+                ", active=" + active +
                 '}';
     }
 }
