@@ -20,28 +20,18 @@ public class Auction extends BaseEntity {
     private LocalDateTime endTime;
     private AuctionStatus status;
 
-    // ================= METHODS =================
-
-    // Thêm bid mới
     public void addBid(BidTransaction bid) {
-        // TODO:
-        // 1. Kiểm tra bid hợp lệ (bid.getAmount() > currentPrice)
-        // 2. Cập nhật currentPrice
-        // 3. Cập nhật highestBidder
-        // 4. Lưu vào bidHistory
-        // 5. notifyObservers()
+
     }
 
-    // Đóng auction
+
     public void closeAuction() {
-        // TODO:
-        // cập nhật status = CLOSED
+
     }
 
-    // Gia hạn thời gian
+
     public void extendEndTime(int seconds) {
-        // TODO:
-        // endTime = endTime + seconds
+
     }
 
     public double getCurrentPrice() {
@@ -52,7 +42,7 @@ public class Auction extends BaseEntity {
         return highestBidder;
     }
 
-    // ================= OBSERVER =================
+
 
     public void registerObserver(Observer observer) {
         observers.add(observer);

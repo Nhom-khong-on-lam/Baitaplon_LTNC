@@ -11,7 +11,6 @@ public class User extends BaseEntity {
     private AccountStatus accountStatus;
 
     public User(Long id, String username, String passwordHash, String email, SystemRole systemRole) {
-        //super(id);
         this.username = username;
         this.passwordHash = passwordHash;
         this.email = email;
@@ -19,13 +18,16 @@ public class User extends BaseEntity {
         this.accountStatus = accountStatus;
     }
 
-    //GETTER
     public String getUsername() {
         return this.username;
     }
 
     public String getPasswordHash() {
         return this.passwordHash;
+    }
+
+    public SystemRole getSystemRole(){
+        return this.systemRole;
     }
 
     public String getEmail() {
@@ -41,6 +43,7 @@ public class User extends BaseEntity {
     public void logout() {}
 
     public boolean isAdmin() {
-        return false;
+
+        return systemRole == SystemRole.ADMIN;
     }
 }

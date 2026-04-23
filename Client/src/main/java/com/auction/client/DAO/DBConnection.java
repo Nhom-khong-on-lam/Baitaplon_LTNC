@@ -1,4 +1,4 @@
-package DAO;
+package com.auction.client.DAO;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

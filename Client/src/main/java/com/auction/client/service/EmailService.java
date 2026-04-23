@@ -5,8 +5,8 @@ import jakarta.mail.internet.*;
 import java.util.Properties;
 
 public class EmailService {
-    private final String username = "your-email@gmail.com"; // Email của bạn
-    private final String appPassword = "xxxx xxxx xxxx xxxx"; // Mật khẩu ứng dụng
+    private final String username = "your-email@gmail.com";
+    private final String appPassword = "xxxx xxxx xxxx xxxx";
 
     public void sendOTP(String toEmail, String otp) throws MessagingException {
         Properties props = new Properties();

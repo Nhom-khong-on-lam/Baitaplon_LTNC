@@ -1,0 +1,208 @@
+/* === userHome.css - User Panel Style === */
+/* Dựa trên phong cách Gold/Black, đồng bộ với admin nhưng có thể điều chỉnh riêng */
+
+.root {
+    -fx-background-color: #0a0a0a;
+    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
+}
+
+/* === TOP BAR === */
+.top-bar {
+    -fx-background-color: #111111;
+    -fx-border-color: #d4af37;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 5, 0, 0, 1);
+}
+
+.app-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+}
+
+.admin-name {  /* dùng chung cho user name */
+    -fx-text-fill: #cccccc;
+    -fx-font-size: 14px;
+    -fx-font-style: italic;
+}
+
+.logout-btn {
+    -fx-background-color: #8b0000;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 5 15 5 15;
+    -fx-cursor: hand;
+}
+.logout-btn:hover {
+    -fx-background-color: #b22222;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+    -fx-background-color: #111111;
+    -fx-border-color: #d4af37;
+    -fx-border-width: 0 1 0 0;
+    -fx-pref-width: 240;
+}
+
+.menu-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #dddddd;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 15 12 15;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.menu-btn:hover {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #d4af37;
+    -fx-border-color: #d4af37;
+    -fx-border-width: 0 0 0 3;
+}
+.menu-btn:pressed {
+    -fx-background-color: #2c2c2c;
+}
+
+.menu-btn-danger {
+    -fx-background-color: #3e1a1a;
+    -fx-text-fill: #ffaa66;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 15 12 15;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.menu-btn-danger:hover {
+    -fx-background-color: #5c2828;
+    -fx-text-fill: #ffcc88;
+}
+
+/* === CONTENT AREA === */
+.content-area {
+    -fx-background-color: transparent; /* để hiện background ảnh từ stackpane */
+    -fx-padding: 20;
+}
+
+/* === CARD STYLE === */
+.card {
+    -fx-background-color: rgba(20, 20, 20, 0.95);
+    -fx-background-radius: 20;
+    -fx-border-color: #d4af37;
+    -fx-border-radius: 20;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 15, 0, 0, 0);
+    -fx-padding: 20;
+}
+
+.section-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d4af37;
+    -fx-padding: 0 0 15 0;
+}
+
+/* === TABLE STYLE === */
+.table-view {
+    -fx-background-color: #1a1a1a;
+    -fx-background-radius: 10;
+    -fx-border-color: #d4af37;
+    -fx-border-radius: 10;
+    -fx-table-cell-border-color: #333;
+}
+.table-view .column-header {
+    -fx-background-color: #111111;
+    -fx-border-color: #d4af37;
+    -fx-border-width: 0 0 1 0;
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+.table-view .column-header .label {
+    -fx-text-fill: #d4af37;
+}
+.table-row-cell {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #eeeeee;
+    -fx-table-cell-border-color: #2a2a2a;
+}
+.table-row-cell:odd {
+    -fx-background-color: #222222;
+}
+.table-row-cell:selected {
+    -fx-background-color: #2c2c2c;
+    -fx-border-color: #d4af37;
+}
+.table-cell {
+    -fx-text-fill: #f0f0f0;
+}
+
+/* === BUTTONS === */
+.button-primary {
+    -fx-background-color: #d4af37;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+.button-primary:hover {
+    -fx-background-color: #f1c40f;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.button-danger {
+    -fx-background-color: #8b0000;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+.button-danger:hover {
+    -fx-background-color: #b22222;
+}
+
+/* === TEXT FIELD / COMBOBOX === */
+.text-field, .combo-box {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #888888;
+    -fx-background-radius: 8;
+    -fx-border-color: #444;
+    -fx-border-radius: 8;
+    -fx-padding: 8;
+}
+.text-field:focused, .combo-box:focused {
+    -fx-border-color: #d4af37;
+}
+
+/* === STAT CARD (dashboard) === */
+.stat-card {
+    -fx-background-color: #1a1a1a;
+    -fx-background-radius: 15;
+    -fx-border-color: #d4af37;
+    -fx-border-radius: 15;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8, 0, 0, 2);
+}
+.stat-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #bbbbbb;
+}
+.stat-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d4af37;
+}
+
+/* === ScrollPane (nếu cần) === */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
