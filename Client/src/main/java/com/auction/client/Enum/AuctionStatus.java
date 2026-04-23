@@ -2,6 +2,9 @@ package com.auction.client.Enum;
 
 public enum AuctionStatus {
     OPEN,
-    CLOSED,
-    CANCELLED
+    RUNNING,
+    CANCELLED,
+    FINISHED,
+    PAID
+
 }
