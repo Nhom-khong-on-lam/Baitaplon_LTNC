@@ -1,5 +1,6 @@
 package com.auction.client.controller;
 
+import com.auction.client.Enum.AccountStatus;
 import com.auction.client.model.User;
 import com.auction.client.service.AuthService;
 import javafx.fxml.FXMLLoader;
@@ -31,16 +32,18 @@ public class LoginController {
             return;
         }
 
-        // Xác thực
         User currentUser = authService.authenticate(userInput, passInput);
         if (currentUser == null) {
             parent.showMessage(loginMsg, "Invalid username or password!", false);
             return;
         }
-
+        if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
+            parent.showMessage(loginMsg, "Your account is blocked. Contact admin.", false);
+            return;
+        }
         parent.showMessage(loginMsg, "Login successful! Redirecting...", true);
 
-        // Chuyển scene dựa trên role
+
         String fxmlPath;
         if (currentUser.isAdmin()) {
             fxmlPath = "/com/auction/client/adminHome.fxml";

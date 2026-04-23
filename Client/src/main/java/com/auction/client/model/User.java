@@ -38,6 +38,10 @@ public class User extends BaseEntity {
         return this.accountStatus;
     }
 
+    public void setAccountStatus(AccountStatus accountStatus) {
+        this.accountStatus = accountStatus;
+    }
+
     public void login() {}
 
     public void logout() {}
@@ -45,5 +49,8 @@ public class User extends BaseEntity {
     public boolean isAdmin() {
 
         return systemRole == SystemRole.ADMIN;
+    }
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 }

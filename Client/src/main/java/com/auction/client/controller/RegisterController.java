@@ -85,13 +85,13 @@ public class RegisterController {
             return;
         }
 
-        authService.saveUser(user, email);
+        // SỬA Ở ĐÂY: thêm pass làm tham số thứ 3
+        authService.saveUser(user, email, pass);
         parent.showMessage(regMsg, "Registration successful!", true);
 
         generatedOTP = null;
         parent.autoFillAndSwitch(user, pass);
     }
-
 
     public void handleSendForgotOTP() {
         String email = parent.safeGet(forgotEmail);
