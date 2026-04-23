@@ -12,79 +12,92 @@ public class AuctionService {
 
 
     public boolean placeBid(Auction auction, User bidder, double amount) {
-
         LocalDateTime now = LocalDateTime.now();
 
+
         if (now.isBefore(auction.getStartTime())) {
-            System.out.println(" Buổi đấu giá chưa bắt đầu!");
+            System.out.println("Thất bại: Buổi đấu giá chưa đến giờ bắt đầu!");
             return false;
         }
-
 
         if (now.isAfter(auction.getEndTime())) {
-            System.out.println(" Buổi đấu giá đã kết thúc!");
+            System.out.println("Thất bại: Buổi đấu giá đã kết thúc thời gian!");
             return false;
         }
 
-        if (auction.getStatus() != AuctionStatus.OPEN) {
-
-            System.out.println("Buổi đấu giá không cho phép bid!");
+        if (auction.getStatus() != AuctionStatus.RUNNING) {
+            System.out.println("Thất bại: Trạng thái hiện tại (" + auction.getStatus() + ") không cho phép đặt giá!");
             return false;
         }
 
 
         if (amount <= auction.getCurrentPrice()) {
-            System.out.println(" Giá phải cao hơn giá hiện tại!");
+            System.out.println("Thất bại: Giá đặt phải cao hơn giá hiện tại (" + auction.getCurrentPrice() + ")!");
             return false;
         }
 
-        BidTransaction bid = new BidTransaction(bidder, amount, false);
 
+        BidTransaction bid = new BidTransaction(bidder, amount, false);
         auction.addBid(bid);
+
+
         handleAutoBid(auction);
-        System.out.println(" Đặt giá thành công!");
+
+        System.out.println("Thành công: Đã đặt giá " + amount + " cho người dùng " + bidder.getUsername());
         return true;
     }
 
 
     public void startAuction(Auction auction) {
-        auction.setStatus(AuctionStatus.OPEN);
+        if (auction.getStatus() == AuctionStatus.OPEN) {
+            auction.setStatus(AuctionStatus.RUNNING);
+            System.out.println("Thông báo: Buổi đấu giá đã chính thức bắt đầu (RUNNING).");
+        } else {
+            System.out.println("Lỗi: Không thể bắt đầu buổi đấu giá từ trạng thái " + auction.getStatus());
+        }
+    }
+
+    public void finishAuction(Auction auction) {
+        auction.setStatus(AuctionStatus.FINISHED);
+        System.out.println("Thông báo: Buổi đấu giá đã kết thúc thành công.");
     }
 
 
-    public void finishAuction(Auction auction) {
-        auction.setStatus(AuctionStatus.CLOSED);
+    public void processPayment(Auction auction) {
+        if (auction.getStatus() == AuctionStatus.FINISHED) {
+            auction.setStatus(AuctionStatus.PAID);
+            System.out.println("Thông báo: Đơn hàng đã được thanh toán hoàn tất.");
+        } else {
+            System.out.println("Lỗi: Chỉ có thể thanh toán cho các buổi đấu giá đã FINISHED.");
+        }
     }
 
 
     public void cancelAuction(Auction auction) {
-        auction.setStatus(AuctionStatus.CANCELLED);
+        if (auction.getStatus() != AuctionStatus.PAID) {
+            auction.setStatus(AuctionStatus.CANCELLED);
+            System.out.println("Thông báo: Buổi đấu giá đã bị hủy.");
+        } else {
+            System.out.println("Lỗi: Không thể hủy buổi đấu giá đã thanh toán.");
+        }
     }
+
     private void handleAutoBid(Auction auction) {
-
         boolean updated;
-
         do {
             updated = false;
-
             for (AutoBidConfig config : auction.getAutoBidConfigs()) {
-
                 if (!config.isActive()) continue;
-
                 if (config.getBidder().equals(auction.getHighestBidder())) continue;
 
                 double nextPrice = auction.getCurrentPrice() + config.getIncrement();
 
                 if (nextPrice <= config.getMaxPrice()) {
-
                     BidTransaction bid = new BidTransaction(config.getBidder(), nextPrice, true);
-
                     auction.addBid(bid);
                     updated = true;
                 }
             }
-
         } while (updated);
     }
-
 }

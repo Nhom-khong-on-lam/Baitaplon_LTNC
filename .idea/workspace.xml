@@ -5,13 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/Launcher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/Enum/AuctionStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/Enum/AuctionStatus.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diagram/diagram.png" beforeDir="false" afterPath="$PROJECT_DIR$/diagram/diagram.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ArtFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ArtFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ElectronicsFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ElectronicsFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ItemFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ItemFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/VehicleFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/VehicleFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuctionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuctionService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +129,7 @@
       <workItem from="1776346640663" duration="1244000" />
       <workItem from="1776366223593" duration="228000" />
       <workItem from="1776935121474" duration="2085000" />
-      <workItem from="1776937893360" duration="5864000" />
+      <workItem from="1776937893360" duration="8491000" />
     </task>
     <servers />
   </component>
