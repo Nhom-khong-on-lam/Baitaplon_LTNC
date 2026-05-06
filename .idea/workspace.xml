@@ -5,16 +5,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/1c51dd04-cdc9-4594-b9f0-bc35004fb068.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/1c51dd04-cdc9-4594-b9f0-bc35004fb068/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/1c51dd04-cdc9-4594-b9f0-bc35004fb068/storage_v2/_src_/schema/mysql.osA4Bg.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/1c51dd04-cdc9-4594-b9f0-bc35004fb068/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/1c51dd04-cdc9-4594-b9f0-bc35004fb068/storage_v2/_src_/schema/sys.zb4BAA.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/56c773ca-6fdc-487f-9b2d-4a5b0bcc0d9c.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/56c773ca-6fdc-487f-9b2d-4a5b0bcc0d9c/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/56c773ca-6fdc-487f-9b2d-4a5b0bcc0d9c/storage_v2/_src_/schema/mysql.osA4Bg.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/56c773ca-6fdc-487f-9b2d-4a5b0bcc0d9c/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/56c773ca-6fdc-487f-9b2d-4a5b0bcc0d9c/storage_v2/_src_/schema/sys.zb4BAA.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/f89b9c79-0571-4441-9faa-1348da6f5751.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/f89b9c79-0571-4441-9faa-1348da6f5751/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/f89b9c79-0571-4441-9faa-1348da6f5751/storage_v2/_src_/schema/mysql.osA4Bg.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/f89b9c79-0571-4441-9faa-1348da6f5751/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/f89b9c79-0571-4441-9faa-1348da6f5751/storage_v2/_src_/schema/sys.zb4BAA.meta" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/data_source_mapping.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diagram/database.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/UserHomeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/UserHomeController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/model/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/model/Item.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuthService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diagram/DATABASE.sql" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/diagram/database.mwb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diagram/database.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diagram/database.png" beforeDir="false" afterPath="$PROJECT_DIR$/diagram/database.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +76,7 @@
     "Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
@@ -162,7 +180,7 @@
       <workItem from="1777826714911" duration="764000" />
       <workItem from="1777888966499" duration="2235000" />
       <workItem from="1777965535119" duration="270000" />
-      <workItem from="1778074487933" duration="6545000" />
+      <workItem from="1778074487933" duration="6855000" />
     </task>
     <servers />
   </component>
