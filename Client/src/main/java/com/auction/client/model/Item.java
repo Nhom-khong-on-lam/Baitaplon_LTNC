@@ -14,9 +14,7 @@ public class Item {
     private LocalDateTime endTime;
     private String status;
 
-    public Item() {}
-
-
+    public Item(){}
     public Item(Long id, String name, String description, double startingPrice,
                 Long sellerId, String sellerName, LocalDateTime endTime) {
         this.id = id;

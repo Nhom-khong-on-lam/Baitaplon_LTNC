@@ -231,7 +231,7 @@ public class UserHomeController {
             return;
         }
 
-        Item newItem = new Item();
+        Item newItem = new Item ();
         newItem.setName(nameRes.get());
         newItem.setDescription(descRes.get());
         newItem.setStartingPrice(startPrice);

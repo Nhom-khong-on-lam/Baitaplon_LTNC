@@ -84,9 +84,6 @@ public class AuthService {
     }
 
 
-
-
-
     public void updateUserStatus(Long userId, AccountStatus newStatus) {
         User user = getUserById(userId);
         if (user != null) {
