@@ -1,6 +1,6 @@
 package server.repository;
 
-import com.auction.client.DAO.DBConnection;
+import database.DBConnection;
 import com.auction.client.model.AutoBidConfig;
 import com.auction.client.model.User;
 
