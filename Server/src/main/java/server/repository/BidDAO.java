@@ -1,4 +1,4 @@
-package com.auction.client.DAO;
+package server.repository;
 
 import com.auction.client.model.BidTransaction;
 import com.auction.client.model.User;
