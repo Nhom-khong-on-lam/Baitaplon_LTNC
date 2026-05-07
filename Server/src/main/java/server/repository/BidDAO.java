@@ -1,5 +1,6 @@
 package server.repository;
 
+import server.database.DBConnection;
 import com.auction.client.model.BidTransaction;
 import com.auction.client.model.User;
 import java.sql.*;
