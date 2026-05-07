@@ -1,4 +1,4 @@
-package com.auction.client.DAO;
+package server.repository;
 
 public class UserSessionDAO {
 }
