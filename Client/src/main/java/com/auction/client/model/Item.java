@@ -2,7 +2,7 @@ package com.auction.client.model;
 
 import java.time.LocalDateTime;
 
-public class Item {
+public abstract class Item {
     private Long id;
     private String name;
     private String description;
@@ -38,9 +38,8 @@ public class Item {
         this.status = "ACTIVE";
     }
 
-    public String getCategory() {
-        return "General";
-    }
+    public abstract String getCategory();
+
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
