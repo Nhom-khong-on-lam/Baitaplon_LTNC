@@ -18,5 +18,19 @@
         </introspection-scope>
       </schema-mapping>
     </data-source>
+    <data-source name="auction_db" uuid="47706e5f-bbff-4ef5-80bc-0738429b09f7">
+      <database-info product="MySQL" version="8.0.11-TiDB-v8.5.3-serverless" jdbc-version="4.2" driver-name="MySQL Connector/J" driver-version="mysql-connector-java-8.0.25 (Revision: 08be9e9b4cba6aa115f9b27b215887af40b159e0)" dbms="TIDB" exact-version="8.5.3" exact-driver-version="8.0">
+        <extra-name-characters>#@</extra-name-characters>
+        <identifier-quote-string>`</identifier-quote-string>
+        <jdbc-catalog-is-schema>true</jdbc-catalog-is-schema>
+      </database-info>
+      <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
+      <secret-storage>master_key</secret-storage>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema" qname="@" />
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
   </component>
 </project>

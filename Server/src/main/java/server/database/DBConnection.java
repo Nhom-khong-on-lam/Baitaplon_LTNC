@@ -9,7 +9,6 @@ import java.util.Properties;
 public class DBConnection {
     private static final Properties props = new Properties();
 
-    // Khối static này sẽ tự động chạy ngay khi class DBConnection được nạp
     static {
         try (InputStream is = DBConnection.class.getClassLoader().getResourceAsStream("db.properties")) {
             if (is == null) {
@@ -27,35 +26,40 @@ public class DBConnection {
     public static Connection getConnection() {
         Connection conn = null;
         try {
-            // Lấy thông tin từ file properties thông qua các key đã đặt
             String url = props.getProperty("db.url");
             String user = props.getProperty("db.user");
             String pass = props.getProperty("db.password");
+            String driver = props.getProperty("db.driver"); // Lấy driver từ file properties
 
+            // Nạp Driver
+            if (driver != null) {
+                Class.forName(driver);
+            }
 
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            // Tạo kết nối
             conn = DriverManager.getConnection(url, user, pass);
         } catch (ClassNotFoundException e) {
-            System.err.println("LỖI: Thiếu Driver MySQL (JAR file)!");
+            System.err.println("LỖI: Không tìm thấy Driver MySQL trong hệ thống! Hãy kiểm tra Maven.");
             e.printStackTrace();
         } catch (SQLException e) {
-            System.err.println("LỖI: Không thể kết nối đến MySQL. Kiểm tra URL/User/Pass trong file properties!");
-            e.printStackTrace();
+            System.err.println("LỖI: Kết nối thất bại! Kiểm tra lại URL/User/Pass trong db.properties.");
+            System.err.println("Chi tiết lỗi: " + e.getMessage());
         }
         return conn;
     }
 
-    // Hàm main để bạn chuột phải vào và chọn "Run" để kiểm tra ngay
     public static void main(String[] args) {
+        System.out.println("Đang thử kết nối đến Cloud Database...");
         Connection testConn = getConnection();
 
         if (testConn != null) {
             System.out.println("------------------------------------------");
-            System.out.println("KẾT NỐI THÀNH CÔNG (Dùng file properties)!");
+            System.out.println("CHÚC MỪNG ÔNG! KẾT NỐI THÀNH CÔNG RỒI.");
             System.out.println("------------------------------------------");
             try { testConn.close(); } catch (SQLException e) {}
+        } else {
+            System.out.println("------------------------------------------");
+            System.out.println("VẪN THẤT BẠI. Hãy kiểm tra lại file pom.xml và db.properties.");
+            System.out.println("------------------------------------------");
         }
     }
 }
