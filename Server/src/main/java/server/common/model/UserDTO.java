@@ -1,7 +1,7 @@
 package server.common.model;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 /**
  * UserDTO nằm trong thư mục server/common/model.
  * Dùng để vận chuyển dữ liệu giữa Server và Client.
@@ -15,7 +15,7 @@ public class UserDTO implements Serializable {
     private String email;
     private String systemRole;
     private String accountStatus;
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     // 1. Constructor mặc định
     public UserDTO() {
@@ -60,8 +60,8 @@ public class UserDTO implements Serializable {
     public String getAccountStatus() { return accountStatus; }
     public void setAccountStatus(String accountStatus) { this.accountStatus = accountStatus; }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     @Override
     public String toString() {
