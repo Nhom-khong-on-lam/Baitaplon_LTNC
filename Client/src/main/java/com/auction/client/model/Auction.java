@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Auction extends BaseEntity {
-    private Item item;
+    private Item item ;
     private User seller;
     private User highestBidder;
     private List<BidTransaction> bidHistory = new ArrayList<>();
