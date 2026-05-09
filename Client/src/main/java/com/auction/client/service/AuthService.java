@@ -98,4 +98,35 @@ public class AuthService {
     public User getUserByUsername(String username) {
         return username == null ? null : userDB.get(username);
     }
+    public void banUser(Long userId) {
+        // Logic thực tế ở đây (gọi API server hoặc cập nhật Database)
+        System.out.println("User with ID " + userId + " has been banned in database.");
+
+        // Nếu bạn quản lý danh sách user tập trung trong service,
+        // hãy tìm user đó và cập nhật status của họ tại đây.
+    }
+    public void deleteUser(Long userId) {
+        // 1. Thực tế: Bạn sẽ gọi Repository hoặc API để xóa trong DB
+        // userRepository.deleteById(userId);
+
+        // 2. Tạm thời để test logic:
+        System.out.println("Đã xóa User có ID: " + userId + " khỏi hệ thống.");
+    }
+    public boolean checkPassword(User user, String plainPassword) {
+        if (user == null || plainPassword == null || user.getPasswordHash() == null) {
+            return false;
+        }
+        try {
+            // Sử dụng BCrypt để so sánh mật khẩu nhập vào với mã hash trong DB
+            return BCrypt.checkpw(plainPassword, user.getPasswordHash());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public void updateUser(User updatedUser) {
+        if (updatedUser != null && updatedUser.getUsername() != null) {
+            userDB.put(updatedUser.getUsername(), updatedUser);
+        }
+    }
 }

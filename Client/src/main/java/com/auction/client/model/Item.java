@@ -20,8 +20,8 @@ public abstract class Item {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.startingPrice = startingPrice;
-        this.currentPrice = startingPrice;
+        this.startingPrice = (startingPrice < 0) ? 0 : startingPrice;
+        this.currentPrice = this.startingPrice;
         this.sellerId = sellerId;
         this.sellerName = sellerName;
         this.startTime = LocalDateTime.now();

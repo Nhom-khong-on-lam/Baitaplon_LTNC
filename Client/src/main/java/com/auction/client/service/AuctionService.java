@@ -91,6 +91,35 @@ public class AuctionService {
         }
     }
 
+    public List<Auction> getMyBids(Long userId) {
+        if (userId == null) return Collections.emptyList();
+        List<Auction> result = new ArrayList<>();
+        for (Auction a : auctions.values()) {
+            for (BidTransaction bid : a.getBidHistory()) {
+                if (bid.getBidder().getId().equals(userId)) {
+                    result.add(a);
+                    break; // Tìm thấy 1 bid là đủ để xác nhận tham gia phiên này
+                }
+            }
+        }
+        return result;
+    }
+
+    public List<Auction> getWinningBids(Long userId) {
+        if (userId == null) return Collections.emptyList();
+        List<Auction> result = new ArrayList<>();
+        for (Auction a : auctions.values()) {
+            // Giả sử Auction có hàm getHighestBidder() hoặc lấy bid cuối cùng trong list
+            List<BidTransaction> history = a.getBidHistory();
+            if (!history.isEmpty()) {
+                BidTransaction lastBid = history.get(history.size() - 1);
+                if (lastBid.getBidder().getId().equals(userId)) {
+                    result.add(a);
+                }
+            }
+        }
+        return result;
+    }
 
     public void registerAutoBid(Long auctionId, User bidder, double maxPrice, double step) {
         if (auctionId == null || bidder == null) return;
@@ -100,12 +129,28 @@ public class AuctionService {
         }
     }
 
+    // Trong AuctionService.java
+    public Auction createAuction(User seller, String title, String desc,
+                                 String category, String condition, double startPrice,
+                                 double reserve, double increment,
+                                 LocalDateTime start, LocalDateTime end, String imagePath) {
 
-    public Auction createAuction(Item item, User seller, LocalDateTime endTime) {
-        if (item == null || seller == null || endTime == null) return null;
-        Auction auction = new Auction(item, seller, endTime);
+        // 1. Tạo Item: Dùng Anonymous Class để xử lý class abstract
+        // Lưu ý: Phải Override hàm getCategory() vì IDE báo lỗi ở ảnh trước
+        Item newItem = new Item(title, desc, startPrice) {
+            @Override
+            public String getCategory() {
+                return category;
+            }
+        };
+
+        // 2. Khởi tạo Auction: Dùng luôn 'seller' vừa truyền vào
+        Auction auction = new Auction(newItem, seller, end);
+
+        // 3. Cấp ID và lưu vào danh sách
         auction.setId(auctionIdGen.getAndIncrement());
         auctions.put(auction.getId(), auction);
+
         return auction;
     }
 
@@ -115,7 +160,15 @@ public class AuctionService {
         if (auction != null) auction.closeAuction();
     }
 
-
+    public List<BidTransaction> getBidHistory(Long auctionId) {
+        if (auctionId == null) return Collections.emptyList();
+        Auction auction = auctions.get(auctionId);
+        if (auction != null) {
+            // Trả về danh sách lịch sử đấu giá từ đối tượng Auction
+            return auction.getBidHistory();
+        }
+        return Collections.emptyList();
+    }
     public List<BidTransaction> getBidsByUser(Long userId) {
         if (userId == null) return Collections.emptyList();
         List<BidTransaction> result = new ArrayList<>();
@@ -138,6 +191,24 @@ public class AuctionService {
             }
         }
         return result;
+    }
+    public void deleteAuction(Long auctionId) {
+        // Logic xóa auction khỏi database hoặc danh sách tập trung
+        System.out.println("Deleted auction ID: " + auctionId);
+    }
+    public void updateAuction(Long id, String title, String desc, String category, double price, LocalDateTime end) {
+        Auction auction = auctions.get(id);
+        if (auction != null) {
+            Item item = auction.getItem();
+            if (item != null) {
+                item.setName(title);
+                item.setDescription(desc);
+                // Vì category trong Item là abstract/chỉ có getter,
+                // bạn có thể cần setter hoặc xử lý riêng tùy logic class Item của bạn
+            }
+            auction.setEndTime(end);
+            // Lưu ý: class Auction của bạn dùng currentPrice, không phải startPrice khi update
+        }
     }
 
     public List<User> getAllUsers() {

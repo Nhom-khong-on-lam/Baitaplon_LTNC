@@ -3,70 +3,116 @@ package com.auction.client.controller;
 import com.auction.client.Enum.AccountStatus;
 import com.auction.client.model.User;
 import com.auction.client.service.AuthService;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import com.auction.client.controller.AnimationUtil;
+import com.auction.client.controller.SceneManager;
+import com.auction.client.controller.SessionManager;
+import javafx.animation.PauseTransition;
+import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import java.io.IOException;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class LoginController {
-    private AuthController parent;
-    private TextField loginUser;
-    private PasswordField loginPass;
-    private Label loginMsg;
+
+    @FXML private TextField    loginUser;
+    @FXML private PasswordField loginPass;
+    @FXML private CheckBox     rememberCheck;
+    @FXML private Label        loginMsg;
+    @FXML private Button       loginBtn;
+    @FXML private VBox         formPanel;
+
     private final AuthService authService = new AuthService();
 
-    public void inject(AuthController parent, TextField user, PasswordField pass, Label msg) {
-        this.parent = parent;
-        this.loginUser = user;
-        this.loginPass = pass;
-        this.loginMsg = msg;
+    @FXML
+    public void initialize() {
+        // Slide in form từ phải
+        AnimationUtil.slideUp(formPanel, 24, 500);
+
+        // Enter key = login
+        loginUser.setOnAction(e -> loginPass.requestFocus());
+        loginPass.setOnAction(e -> handleLogin());
+
+        // Xóa error khi bắt đầu gõ
+        loginUser.textProperty().addListener((o, ov, nv) -> clearMsg());
+        loginPass.textProperty().addListener((o, ov, nv) -> clearMsg());
     }
 
+    @FXML
     public void handleLogin() {
-        String userInput = parent.safeGet(loginUser);
-        String passInput = parent.safeGet(loginPass);
+        String user = trim(loginUser);
+        String pass = trim(loginPass);
 
-        if (parent.isEmpty(userInput, passInput)) {
-            parent.showMessage(loginMsg, "Username and password are required!", false);
+        if (user.isEmpty() || pass.isEmpty()) {
+            showError("Please fill in all fields.");
+            AnimationUtil.shake(loginPass.getText().isEmpty() ? loginPass : loginUser);
             return;
         }
 
-        User currentUser = authService.authenticate(userInput, passInput);
+        // Disable button + loading state
+        loginBtn.setText("Signing in...");
+        loginBtn.setDisable(true);
+
+        // Simulate async (short delay)
+        PauseTransition delay = new PauseTransition(Duration.millis(400));
+        delay.setOnFinished(e -> doLogin(user, pass));
+        delay.play();
+    }
+
+    private void doLogin(String user, String pass) {
+        User currentUser = authService.authenticate(user, pass);
+        loginBtn.setText("Sign In");
+        loginBtn.setDisable(false);
+
         if (currentUser == null) {
-            parent.showMessage(loginMsg, "Invalid username or password!", false);
+            showError("Invalid username or password.");
+            AnimationUtil.shake(loginPass);
             return;
         }
         if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
-            parent.showMessage(loginMsg, "Your account is blocked. Contact admin.", false);
+            showError("Your account has been suspended. Contact support.");
             return;
         }
-        parent.showMessage(loginMsg, "Login successful! Redirecting...", true);
 
+        showSuccess("Login successful! Redirecting...");
+        SessionManager.get().login(currentUser);
+        AnimationUtil.pulse(loginBtn);
 
-        String fxmlPath;
-        if (currentUser.isAdmin()) {
-            fxmlPath = "/com/auction/client/adminHome.fxml";
-        } else {
-            fxmlPath = "/com/auction/client/userHome.fxml";
-        }
+        PauseTransition nav = new PauseTransition(Duration.millis(600));
+        nav.setOnFinished(ev ->
+                SceneManager.get().navigate(SceneManager.Screen.MAIN,
+                        (MainController ctrl) -> ctrl.initForUser(currentUser))
+        );
+        nav.play();
+    }
 
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
+    @FXML
+    public void handleForgotPassword() {
+        // Sẽ mở dialog hoặc navigate tới forgot screen
+        showInfo("Password reset link sent to your registered email.");
+    }
 
-            Object controller = loader.getController();
-            if (controller instanceof UserHomeController) {
-                ((UserHomeController) controller).setUser(currentUser);
-            } else if (controller instanceof AdminHomeController) {
-                ((AdminHomeController) controller).setUser(currentUser);
-            }
+    @FXML
+    public void goToRegister() {
+        SceneManager.get().navigate(SceneManager.Screen.REGISTER);
+    }
 
-            Scene scene = loginUser.getScene();
-            scene.setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-            parent.showMessage(loginMsg, "Cannot load home page!", false);
-        }
+    // ── Helpers ───────────────────────────────────────────
+    private void showError(String msg) {
+        loginMsg.setText("✕  " + msg);
+        loginMsg.setTextFill(Color.web("#dc2626"));
+    }
+    private void showSuccess(String msg) {
+        loginMsg.setText("✓  " + msg);
+        loginMsg.setTextFill(Color.web("#16a34a"));
+    }
+    private void showInfo(String msg) {
+        loginMsg.setText("ℹ  " + msg);
+        loginMsg.setTextFill(Color.web("#2563eb"));
+    }
+    private void clearMsg() { loginMsg.setText(""); }
+
+    private String trim(TextInputControl f) {
+        return f.getText() == null ? "" : f.getText().trim();
     }
 }

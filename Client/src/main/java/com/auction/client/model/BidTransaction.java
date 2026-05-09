@@ -1,6 +1,7 @@
 package com.auction.client.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class BidTransaction {
     private User bidder;
@@ -37,5 +38,10 @@ public class BidTransaction {
                 ", time=" + bidTime +
                 ", autoBid=" + autoBid +
                 '}';
+    }
+    public String getFormattedTime() {
+        // Định dạng theo kiểu Giờ:Phút:Giây (Ví dụ: 21:45:10)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        return bidTime.format(formatter);
     }
 }

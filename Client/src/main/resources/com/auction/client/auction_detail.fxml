@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  auction_detail.fxml — Chi tiết 1 phiên đấu giá.
+  Hiển thị: ảnh sản phẩm, giá hiện tại, đồng hồ đếm ngược,
+            lịch sử bid, form đặt bid.
+-->
+<ScrollPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controller.AuctionDetailController"
+            fitToWidth="true" styleClass="scroll-pane">
+
+    <VBox spacing="20" styleClass="content-area">
+
+        <!-- ── Back button ────────────────────────────────── -->
+        <HBox>
+            <Button text="← Back to Auctions" styleClass="btn-secondary"
+                    onAction="#goBack"/>
+        </HBox>
+
+        <HBox spacing="20" alignment="TOP_LEFT">
+
+            <!-- ── Left: Image + Info ────────────────────── -->
+            <VBox spacing="16" HBox.hgrow="ALWAYS">
+
+                <!-- Product Image Card -->
+                <VBox styleClass="section-card" alignment="CENTER" spacing="10">
+                    <Label fx:id="detailImageIcon"
+                           style="-fx-font-size:100px; -fx-padding:20;"/>
+                    <HBox alignment="CENTER" spacing="8">
+                        <Label fx:id="detailCatBadge"
+                               styleClass="badge badge-blue" text="Category"/>
+                        <Label fx:id="detailCondBadge"
+                               styleClass="badge badge-green" text="Condition"/>
+                        <Label fx:id="detailStatusPill" text="Live"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Title + Description -->
+                <VBox styleClass="section-card" spacing="12">
+                    <Label fx:id="detailTitle" styleClass="section-title"
+                           style="-fx-font-size:20px;" wrapText="true"/>
+                    <Label fx:id="detailSeller"
+                           style="-fx-font-size:12px; -fx-text-fill:#718096;"/>
+                    <Separator/>
+                    <Label text="DESCRIPTION" styleClass="stat-label"/>
+                    <Label fx:id="detailDesc"
+                           style="-fx-font-size:13px; -fx-text-fill:#374151; -fx-wrap-text:true;"
+                           wrapText="true"/>
+                </VBox>
+
+            </VBox>
+
+            <!-- ── Right: Bid panel ───────────────────────── -->
+            <VBox spacing="14" minWidth="310" maxWidth="340">
+
+                <!-- Current Bid + Timer -->
+                <VBox styleClass="section-card" spacing="14">
+                    <Label text="CURRENT BID" styleClass="detail-label"/>
+                    <Label fx:id="detailCurrentPrice" styleClass="detail-price-big"
+                           text="0"/>
+
+                    <!-- Countdown timer -->
+                    <VBox styleClass="detail-timer-box" alignment="CENTER" spacing="4">
+                        <Label text="TIME REMAINING" styleClass="detail-timer-label"/>
+                        <Label fx:id="detailTimer" styleClass="detail-timer-value"
+                               text="00:00:00"/>
+                    </VBox>
+
+                    <!-- Quick stats row -->
+                    <HBox spacing="0">
+                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="2">
+                            <Label fx:id="detailBidCount" styleClass="stat-value"
+                                   style="-fx-font-size:18px;" text="0"/>
+                            <Label text="Bids" styleClass="stat-label"/>
+                        </VBox>
+                        <Separator orientation="VERTICAL"/>
+                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="2">
+                            <Label fx:id="detailStartPrice"
+                                   styleClass="stat-value"
+                                   style="-fx-font-size:18px; -fx-text-fill:#718096;"
+                                   text="0"/>
+                            <Label text="Start Price" styleClass="stat-label"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Place Bid form -->
+                <VBox styleClass="section-card" spacing="12">
+                    <Label text="PLACE YOUR BID" styleClass="section-title"/>
+                    <Label fx:id="minBidHint"
+                           style="-fx-font-size:12px; -fx-text-fill:#718096;"
+                           text="Minimum bid: $0"/>
+
+                    <TextField fx:id="bidAmountField" styleClass="form-input"
+                               promptText="Enter bid amount ($)"
+                               style="-fx-font-size:16px; -fx-pref-height:50px;"/>
+
+                    <HBox spacing="8">
+                        <Button fx:id="quickBid1" text="+$10"
+                                styleClass="btn-secondary"
+                                style="-fx-font-size:11px;" HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity" onAction="#quickBid1"/>
+                        <Button fx:id="quickBid2" text="+$50"
+                                styleClass="btn-secondary"
+                                style="-fx-font-size:11px;" HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity" onAction="#quickBid2"/>
+                        <Button fx:id="quickBid3" text="+$100"
+                                styleClass="btn-secondary"
+                                style="-fx-font-size:11px;" HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity" onAction="#quickBid3"/>
+                    </HBox>
+
+                    <Label fx:id="bidMsg" styleClass="form-error" wrapText="true"/>
+
+                    <Button fx:id="placeBidBtn" text="🔨 Place Bid"
+                            styleClass="btn-primary" maxWidth="Infinity"
+                            style="-fx-pref-height:48px; -fx-font-size:14px;"
+                            onAction="#handlePlaceBid"/>
+                </VBox>
+
+                <!-- Seller info -->
+                <VBox styleClass="section-card" spacing="8">
+                    <Label text="SELLER" styleClass="stat-label"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="sellerAvatar"
+                               style="-fx-background-color:#eff6ff; -fx-text-fill:#2563eb;
+                                      -fx-font-weight:bold; -fx-font-size:13px;
+                                      -fx-alignment:CENTER; -fx-background-radius:50;
+                                      -fx-min-width:38px; -fx-max-width:38px;
+                                      -fx-min-height:38px; -fx-max-height:38px;"
+                               text="AU"/>
+                        <VBox spacing="2">
+                            <Label fx:id="sellerName"
+                                   style="-fx-font-weight:bold; -fx-text-fill:#1a202c; -fx-font-size:13px;"/>
+                            <Label fx:id="sellerSince"
+                                   style="-fx-font-size:11px; -fx-text-fill:#a0aec0;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </HBox>
+
+        <!-- ── Bid History ────────────────────────────────── -->
+        <VBox styleClass="section-card" spacing="14">
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Bid History" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <Label fx:id="bidHistoryCount" styleClass="section-subtitle" text="0 bids"/>
+            </HBox>
+            <VBox fx:id="bidHistoryList" spacing="0"/>
+        </VBox>
+
+        <Region minHeight="16"/>
+    </VBox>
+</ScrollPane>

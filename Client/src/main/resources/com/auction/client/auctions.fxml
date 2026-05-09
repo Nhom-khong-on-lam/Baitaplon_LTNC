@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  auctions.fxml — Danh sách đấu giá live.
+  Có search bar, filter, sort, và card list.
+-->
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.controller.AuctionsController"
+      spacing="0" styleClass="content-area">
+
+    <!-- ── Toolbar: Search + Filter + Sort ──────────────────── -->
+    <HBox spacing="12" alignment="CENTER_LEFT"
+          style="-fx-padding:0 0 18 0;">
+
+        <!-- Search -->
+        <HBox styleClass="section-card" spacing="0" alignment="CENTER_LEFT"
+              style="-fx-padding:8 14; -fx-background-radius:10;" HBox.hgrow="ALWAYS">
+            <Label text="🔍" style="-fx-font-size:14px; -fx-text-fill:#a0aec0;"/>
+            <TextField fx:id="searchField" promptText="Search auctions..."
+                       style="-fx-background-color:transparent; -fx-border-width:0;" HBox.hgrow="ALWAYS"
+                       onAction="#handleSearch"/>
+        </HBox>
+
+        <!-- Category filter -->
+        <ComboBox fx:id="categoryFilter" promptText="All Categories"
+                  styleClass="combo-box-base" prefWidth="160"
+                  onAction="#handleFilter"/>
+
+        <!-- Sort -->
+        <ComboBox fx:id="sortBox" promptText="Sort By"
+                  styleClass="combo-box-base" prefWidth="140"
+                  onAction="#handleSort"/>
+
+        <!-- Clear -->
+        <Button text="Clear" styleClass="btn-secondary" onAction="#clearFilters"/>
+    </HBox>
+
+    <!-- ── Results count ─────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" style="-fx-padding:0 0 12 0;">
+        <Label fx:id="resultCount" styleClass="section-subtitle"
+               text="Showing 0 auctions"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <!-- View toggle -->
+        <Button fx:id="gridViewBtn" text="⊞" styleClass="btn-secondary"
+                onAction="#switchToGrid" style="-fx-padding:6 10;"/>
+        <Button fx:id="listViewBtn" text="☰" styleClass="btn-primary"
+                onAction="#switchToList" style="-fx-padding:6 10; -fx-margin:0 0 0 6;"/>
+    </HBox>
+
+    <!-- ── Auction Cards List (scroll) ──────────────────────── -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane">
+        <VBox fx:id="auctionListContainer" spacing="12"
+              style="-fx-padding:0 0 24 0;"/>
+    </ScrollPane>
+
+</VBox>

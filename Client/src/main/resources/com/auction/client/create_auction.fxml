@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  create_auction.fxml — Form tạo hoặc chỉnh sửa phiên đấu giá.
+-->
+<ScrollPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controller.CreateAuctionController"
+            fitToWidth="true" styleClass="scroll-pane">
+
+    <VBox spacing="20" styleClass="content-area">
+
+        <!-- ── Header ─────────────────────────────────────── -->
+        <HBox alignment="CENTER_LEFT">
+            <VBox HBox.hgrow="ALWAYS" spacing="3">
+                <Label fx:id="pageTitle" text="Create Auction"
+                       styleClass="section-title" style="-fx-font-size:18px;"/>
+                <Label text="Fill in the details below to list your item for auction."
+                       styleClass="section-subtitle"/>
+            </VBox>
+            <Button text="← Back" styleClass="btn-secondary" onAction="#goBack"/>
+        </HBox>
+
+        <HBox spacing="20" alignment="TOP_LEFT">
+
+            <!-- ── Left Column: Main Form ─────────────────── -->
+            <VBox styleClass="section-card" spacing="18" HBox.hgrow="ALWAYS">
+                <Label text="Auction Details" styleClass="section-title"/>
+
+                <!-- Title -->
+                <VBox spacing="6">
+                    <Label text="AUCTION TITLE *" styleClass="form-label"/>
+                    <TextField fx:id="fieldTitle" styleClass="form-input"
+                               promptText="e.g., Apple iPhone 15 Pro Max 256GB"/>
+                    <Label fx:id="msgTitle" styleClass="form-error"/>
+                </VBox>
+
+                <!-- Description -->
+                <VBox spacing="6">
+                    <Label text="DESCRIPTION *" styleClass="form-label"/>
+                    <TextArea fx:id="fieldDesc" styleClass="form-input"
+                              promptText="Describe the item condition, features, and any important details..."
+                              prefRowCount="4" wrapText="true"/>
+                    <Label fx:id="msgDesc" styleClass="form-error"/>
+                </VBox>
+
+                <!-- Category + Condition -->
+                <HBox spacing="14">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="CATEGORY *" styleClass="form-label"/>
+                        <ComboBox fx:id="fieldCategory" styleClass="combo-box-base"
+                                  maxWidth="Infinity" promptText="Select category"/>
+                        <Label fx:id="msgCategory" styleClass="form-error"/>
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="CONDITION *" styleClass="form-label"/>
+                        <ComboBox fx:id="fieldCondition" styleClass="combo-box-base"
+                                  maxWidth="Infinity" promptText="Select condition"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Start Price + Reserve Price -->
+                <HBox spacing="14">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="START PRICE ($) *" styleClass="form-label"/>
+                        <TextField fx:id="fieldStartPrice" styleClass="form-input"
+                                   promptText="0.00"/>
+                        <Label fx:id="msgPrice" styleClass="form-error"/>
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="RESERVE PRICE ($)" styleClass="form-label"/>
+                        <TextField fx:id="fieldReservePrice" styleClass="form-input"
+                                   promptText="Optional minimum price"/>
+                        <Label styleClass="form-hint"
+                               text="Leave blank for no reserve"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Bid Increment -->
+                <VBox spacing="6">
+                    <Label text="MINIMUM BID INCREMENT ($)" styleClass="form-label"/>
+                    <TextField fx:id="fieldBidIncrement" styleClass="form-input"
+                               promptText="e.g., 10" text="10"/>
+                    <Label styleClass="form-hint"
+                           text="Minimum amount each new bid must exceed the current by"/>
+                </VBox>
+            </VBox>
+
+            <!-- ── Right Column: Image + Schedule ─────────── -->
+            <VBox spacing="16" minWidth="300" maxWidth="320">
+
+                <!-- Image Upload -->
+                <VBox styleClass="section-card" spacing="14">
+                    <Label text="Product Image" styleClass="section-title"/>
+                    <!-- Preview area -->
+                    <VBox fx:id="imagePreviewBox" alignment="CENTER" spacing="8"
+                          style="-fx-background-color:#f8fafc; -fx-background-radius:10;
+                                 -fx-border-color:#e2e8f0; -fx-border-width:1.5;
+                                 -fx-border-radius:10; -fx-border-style:dashed;
+                                 -fx-pref-height:180; -fx-cursor:hand;"
+                          onMouseClicked="#handleImageUpload">
+                        <Label fx:id="imageIcon" text="📸"
+                               style="-fx-font-size:36px; -fx-text-fill:#a0aec0;"/>
+                        <Label fx:id="imageHint"
+                               text="Click to upload image"
+                               style="-fx-font-size:12px; -fx-text-fill:#a0aec0;"/>
+                        <Label text="PNG, JPG up to 5MB"
+                               style="-fx-font-size:10px; -fx-text-fill:#c4cdd8;"/>
+                    </VBox>
+                    <Button text="Upload Image" styleClass="btn-secondary"
+                            maxWidth="Infinity" onAction="#handleImageUpload"/>
+                    <Label fx:id="msgImage" styleClass="form-error"/>
+                </VBox>
+
+                <!-- Schedule -->
+                <VBox styleClass="section-card" spacing="14">
+                    <Label text="Schedule" styleClass="section-title"/>
+
+                    <VBox spacing="6">
+                        <Label text="START DATE &amp; TIME *" styleClass="form-label"/>
+                        <TextField fx:id="fieldStartTime" styleClass="form-input"
+                                   promptText="YYYY-MM-DD HH:mm"/>
+                        <Label styleClass="form-hint" text="Format: 2025-12-31 14:00"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="END DATE &amp; TIME *" styleClass="form-label"/>
+                        <TextField fx:id="fieldEndTime" styleClass="form-input"
+                                   promptText="YYYY-MM-DD HH:mm"/>
+                        <Label fx:id="msgTime" styleClass="form-error"/>
+                    </VBox>
+
+                    <!-- Duration shortcut buttons -->
+                    <Label text="QUICK DURATION" styleClass="form-label"/>
+                    <HBox spacing="8">
+                        <Button text="1 Day"  styleClass="btn-secondary"
+                                style="-fx-font-size:11px; -fx-padding:5 10;"
+                                onAction="#set1Day"/>
+                        <Button text="3 Days" styleClass="btn-secondary"
+                                style="-fx-font-size:11px; -fx-padding:5 10;"
+                                onAction="#set3Days"/>
+                        <Button text="7 Days" styleClass="btn-secondary"
+                                style="-fx-font-size:11px; -fx-padding:5 10;"
+                                onAction="#set7Days"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </HBox>
+
+        <!-- ── Submit bar ────────────────────────────────── -->
+        <HBox styleClass="section-card" alignment="CENTER_LEFT" spacing="14">
+            <Label fx:id="formMsg" styleClass="form-error" HBox.hgrow="ALWAYS"/>
+            <Button text="Save as Draft" styleClass="btn-secondary" onAction="#saveDraft"/>
+            <Button fx:id="submitBtn" text="Publish Auction →"
+                    styleClass="btn-primary" onAction="#handleSubmit"/>
+        </HBox>
+
+        <Region minHeight="16"/>
+    </VBox>
+</ScrollPane>

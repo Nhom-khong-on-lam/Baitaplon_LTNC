@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  my_bids.fxml — Danh sách các lượt bid của người dùng.
+  Chia tab: All / Winning / Outbid / Ended.
+-->
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.controller.MyBidsController"
+      spacing="16" styleClass="content-area">
+
+    <!-- ── Page header ─────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <VBox HBox.hgrow="ALWAYS" spacing="3">
+            <Label text="My Bids" styleClass="section-title"
+                   style="-fx-font-size:18px;"/>
+            <Label text="Track all your bidding activity in one place."
+                   styleClass="section-subtitle"/>
+        </VBox>
+    </HBox>
+
+    <!-- ── Tab filter ─────────────────────────────────────── -->
+    <HBox fx:id="tabBar" spacing="8" alignment="CENTER_LEFT">
+        <Button fx:id="tabAll"     text="All Bids"   styleClass="btn-primary"
+                onAction="#showAll"/>
+        <Button fx:id="tabWinning" text="🏆 Winning" styleClass="btn-secondary"
+                onAction="#showWinning"/>
+        <Button fx:id="tabOutbid"  text="⚠ Outbid"  styleClass="btn-secondary"
+                onAction="#showOutbid"/>
+        <Button fx:id="tabEnded"   text="✅ Ended"   styleClass="btn-secondary"
+                onAction="#showEnded"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="bidCount" styleClass="section-subtitle" text="0 bids total"/>
+    </HBox>
+
+    <!-- ── Bid list ────────────────────────────────────────── -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane">
+        <VBox fx:id="bidListContainer" spacing="10"
+              style="-fx-padding:0 0 24 0;"/>
+    </ScrollPane>
+
+</VBox>

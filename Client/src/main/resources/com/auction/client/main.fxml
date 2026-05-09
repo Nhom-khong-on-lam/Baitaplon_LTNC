@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  main.fxml — App shell.
+  Sidebar cố định bên trái, StackPane fx:id="contentPane" bên phải
+  chứa nội dung được load động từ MainController.
+-->
+<HBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.controller.MainController"
+      fx:id="mainRoot"
+      styleClass="main-root"
+      prefWidth="1100" prefHeight="700">
+
+    <!-- ══ SIDEBAR ════════════════════════════════════════ -->
+    <VBox fx:id="sidebar" styleClass="sidebar">
+
+        <!-- Logo -->
+        <VBox styleClass="sidebar-logo-area" spacing="2">
+            <HBox spacing="0" alignment="CENTER_LEFT">
+                <Label text="AURUM" styleClass="sidebar-logo"/>
+                <Label text="." styleClass="sidebar-logo-dot"/>
+            </HBox>
+            <Label text="AUCTION PLATFORM" styleClass="sidebar-tagline"/>
+        </VBox>
+
+        <!-- Main nav -->
+        <Label text="MAIN" styleClass="sidebar-section"/>
+
+        <Button fx:id="navDashboard"  text="⬛  Dashboard"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navDashboard"/>
+        <Button fx:id="navAuctions"   text="🔨  Live Auctions"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navAuctions"/>
+        <Button fx:id="navMyBids"     text="💰  My Bids"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navMyBids"/>
+        <Button fx:id="navMyProducts" text="📦  My Products"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navMyProducts"/>
+        <Button fx:id="navCreate"     text="➕  Create Auction"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navCreate"/>
+
+        <!-- Admin only (visibility controlled in MainController) -->
+        <Label fx:id="adminSection" text="ADMIN" styleClass="sidebar-section"
+               visible="false" managed="false"/>
+        <Button fx:id="navAdmin" text="⚙  Admin Panel"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navAdmin"
+                visible="false" managed="false"/>
+
+        <Label text="ACCOUNT" styleClass="sidebar-section"/>
+        <Button fx:id="navProfile" text="👤  Profile"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navProfile"/>
+
+        <!-- Spacer -->
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <!-- Logout -->
+        <Button text="🚪  Sign Out"
+                style="-fx-background-color:transparent; -fx-text-fill:#4a3030; -fx-font-size:12px; -fx-font-weight:bold; -fx-alignment:CENTER_LEFT; -fx-padding:10 20; -fx-cursor:hand; -fx-max-width:Infinity;"
+                onAction="#handleLogout"/>
+
+        <!-- User area -->
+        <HBox styleClass="sidebar-user-area" spacing="10" alignment="CENTER_LEFT">
+            <Label fx:id="sidebarAvatar" styleClass="sidebar-avatar" text="AU"/>
+            <VBox spacing="1">
+                <Label fx:id="sidebarUserName" styleClass="sidebar-user-name" text="Username"/>
+                <Label fx:id="sidebarUserRole" styleClass="sidebar-user-role" text="User"/>
+            </VBox>
+        </HBox>
+
+    </VBox>
+
+    <!-- ══ RIGHT SIDE — Topbar + Content ══════════════════ -->
+    <VBox HBox.hgrow="ALWAYS">
+
+        <!-- Topbar -->
+        <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="12">
+            <VBox spacing="1" HBox.hgrow="ALWAYS">
+                <Label fx:id="topbarTitle" styleClass="topbar-page-title" text="Dashboard"/>
+                <Label fx:id="topbarBread" styleClass="topbar-breadcrumb" text="Home / Dashboard"/>
+            </VBox>
+            <TextField fx:id="topbarSearch" styleClass="topbar-search"
+                       promptText="Search auctions..."
+                       onAction="#handleSearch"/>
+            <Button text="🔔" styleClass="topbar-icon-btn" onAction="#handleNotifications"/>
+            <Label fx:id="topbarAvatar" styleClass="topbar-avatar-btn"
+                   text="AU" onMouseClicked="#handleAvatarClick"/>
+        </HBox>
+
+        <!-- Dynamic content -->
+        <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS"
+                   styleClass="content-area"/>
+
+    </VBox>
+</HBox>

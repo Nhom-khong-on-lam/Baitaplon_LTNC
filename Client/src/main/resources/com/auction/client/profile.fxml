@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  profile.fxml — Trang hồ sơ cá nhân.
+  Gồm: avatar, thông tin, form chỉnh sửa, lịch sử thắng.
+-->
+<ScrollPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controller.ProfileController"
+            fitToWidth="true" styleClass="scroll-pane">
+
+    <VBox spacing="20" styleClass="content-area">
+
+        <!-- ── Profile Header Card ───────────────────────── -->
+        <HBox styleClass="section-card" spacing="24" alignment="CENTER_LEFT">
+            <!-- Avatar -->
+            <StackPane>
+                <Label fx:id="profileAvatar" styleClass="profile-avatar-large" text="AU"/>
+            </StackPane>
+
+            <!-- Info -->
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label fx:id="profileName" styleClass="profile-name" text="Username"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label fx:id="profileRoleBadge" styleClass="profile-role-badge" text="Member"/>
+                    <Label fx:id="profileJoined"
+                           style="-fx-font-size:12px; -fx-text-fill:#718096;"
+                           text="Joined January 2024"/>
+                </HBox>
+                <HBox spacing="20" style="-fx-padding:8 0 0 0;">
+                    <VBox alignment="CENTER" spacing="2">
+                        <Label fx:id="statBidsTotal" styleClass="stat-value"
+                               style="-fx-font-size:20px;" text="0"/>
+                        <Label text="Total Bids" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="2">
+                        <Label fx:id="statWon" styleClass="stat-value"
+                               style="-fx-font-size:20px; -fx-text-fill:#16a34a;" text="0"/>
+                        <Label text="Won" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="2">
+                        <Label fx:id="statListed" styleClass="stat-value"
+                               style="-fx-font-size:20px; -fx-text-fill:#7c3aed;" text="0"/>
+                        <Label text="Listed" styleClass="stat-label"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Edit button -->
+            <Button fx:id="editToggleBtn" text="✏ Edit Profile"
+                    styleClass="btn-secondary" onAction="#toggleEditMode"/>
+        </HBox>
+
+        <HBox spacing="20" alignment="TOP_LEFT">
+
+            <!-- ── Left: Info / Edit Form ────────────────── -->
+            <VBox styleClass="section-card" spacing="16" HBox.hgrow="ALWAYS">
+
+                <!-- View mode -->
+                <VBox fx:id="viewMode" spacing="14">
+                    <Label text="Account Information" styleClass="section-title"/>
+
+                    <HBox spacing="0">
+                        <Label text="Username"  styleClass="profile-info-key"/>
+                        <Label fx:id="infoUsername" styleClass="profile-info-val"/>
+                    </HBox>
+                    <HBox spacing="0">
+                        <Label text="Email"     styleClass="profile-info-key"/>
+                        <Label fx:id="infoEmail" styleClass="profile-info-val"/>
+                    </HBox>
+                    <HBox spacing="0">
+                        <Label text="Phone"     styleClass="profile-info-key"/>
+                        <Label fx:id="infoPhone" styleClass="profile-info-val" text="—"/>
+                    </HBox>
+                    <HBox spacing="0">
+                        <Label text="Account Status" styleClass="profile-info-key"/>
+                        <Label fx:id="infoStatus" styleClass="pill-running" text="Active"/>
+                    </HBox>
+                    <HBox spacing="0">
+                        <Label text="Role"      styleClass="profile-info-key"/>
+                        <Label fx:id="infoRole"  styleClass="profile-info-val"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Edit mode (hidden by default) -->
+                <VBox fx:id="editMode" spacing="14" visible="false" managed="false">
+                    <Label text="Edit Profile" styleClass="section-title"/>
+
+                    <VBox spacing="6">
+                        <Label text="USERNAME" styleClass="form-label"/>
+                        <TextField fx:id="editUsername" styleClass="form-input"/>
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label text="EMAIL" styleClass="form-label"/>
+                        <TextField fx:id="editEmail" styleClass="form-input"/>
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label text="PHONE" styleClass="form-label"/>
+                        <TextField fx:id="editPhone" styleClass="form-input"
+                                   promptText="Optional"/>
+                    </VBox>
+
+                    <Separator/>
+                    <Label text="Change Password" styleClass="section-title"
+                           style="-fx-font-size:13px;"/>
+                    <VBox spacing="6">
+                        <Label text="CURRENT PASSWORD" styleClass="form-label"/>
+                        <PasswordField fx:id="editOldPass" styleClass="form-input"/>
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label text="NEW PASSWORD" styleClass="form-label"/>
+                        <PasswordField fx:id="editNewPass" styleClass="form-input"/>
+                    </VBox>
+
+                    <Label fx:id="editMsg" styleClass="form-error"/>
+
+                    <HBox spacing="10">
+                        <Button text="Cancel"       styleClass="btn-secondary" onAction="#cancelEdit"/>
+                        <Button text="Save Changes" styleClass="btn-primary"   onAction="#handleSave"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- ── Right: Won Auctions ────────────────────── -->
+            <VBox styleClass="section-card" spacing="14" minWidth="280" maxWidth="310">
+                <Label text="🏆 Won Auctions" styleClass="section-title"/>
+                <VBox fx:id="wonList" spacing="10">
+                    <Label text="No won auctions yet."
+                           style="-fx-text-fill:#a0aec0; -fx-font-size:12px;"/>
+                </VBox>
+            </VBox>
+
+        </HBox>
+
+        <Region minHeight="16"/>
+    </VBox>
+</ScrollPane>

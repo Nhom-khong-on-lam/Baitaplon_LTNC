@@ -1,0 +1,236 @@
+package com.auction.client.controller;
+
+import com.auction.client.model.Auction;
+import com.auction.client.model.Item;
+import com.auction.client.model.User;
+import com.auction.client.service.AuctionService;
+import com.auction.client.controller.AnimationUtil;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
+/**
+ * CreateAuctionController — Form tạo và chỉnh sửa phiên đấu giá.
+ * Hỗ trợ 2 chế độ: Create mới hoặc Edit auction có sẵn.
+ */
+public class CreateAuctionController {
+
+    @FXML private Label    pageTitle;
+    @FXML private TextField fieldTitle, fieldStartPrice, fieldReservePrice,
+            fieldBidIncrement, fieldStartTime, fieldEndTime;
+    @FXML private TextArea  fieldDesc;
+    @FXML private ComboBox<String> fieldCategory, fieldCondition;
+    @FXML private Label    msgTitle, msgDesc, msgCategory, msgPrice,
+            msgTime, msgImage, formMsg;
+    @FXML private Button   submitBtn;
+    @FXML private VBox     imagePreviewBox;
+    @FXML private Label    imageIcon, imageHint;
+
+    private final AuctionService auctionService = new AuctionService();
+    private static final DateTimeFormatter FMT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    private User    currentUser;
+    private Auction editingAuction; // null = create mode
+    private String  selectedImagePath;
+
+    @FXML
+    public void initialize() {
+        fieldCategory.setItems(FXCollections.observableArrayList(
+                "Electronics", "Art", "Jewelry", "Vehicles",
+                "Real Estate", "Fashion", "Collectibles", "Other"));
+
+        fieldCondition.setItems(FXCollections.observableArrayList(
+                "New", "Like New", "Excellent", "Good", "Fair", "For Parts"));
+
+        // Default start time = now + 5 min
+        fieldStartTime.setText(LocalDateTime.now().plusMinutes(5)
+                .format(FMT));
+        // Default end = now + 3 days
+        fieldEndTime.setText(LocalDateTime.now().plusDays(3)
+                .format(FMT));
+
+        // Real-time clear errors
+        fieldTitle.textProperty().addListener((o, v, n) -> msgTitle.setText(""));
+        fieldStartPrice.textProperty().addListener((o, v, n) -> msgPrice.setText(""));
+        fieldEndTime.textProperty().addListener((o, v, n) -> msgTime.setText(""));
+    }
+
+    /** Create mode */
+    public void initData(User user) {
+        this.currentUser = user;
+        this.editingAuction = null;
+        pageTitle.setText("Create Auction");
+        submitBtn.setText("Publish Auction →");
+    }
+
+    /** Edit mode — điền sẵn dữ liệu */
+    public void initEdit(User user, Auction auction) {
+        this.currentUser    = user;
+        this.editingAuction = auction;
+        pageTitle.setText("Edit Auction");
+        submitBtn.setText("Save Changes →");
+
+        fieldTitle.setText(auction.getTitle());
+        fieldDesc.setText(auction.getDescription());
+        fieldCategory.setValue(auction.getCategory());
+        fieldStartPrice.setText(String.valueOf((int) auction.getItem().getStartingPrice()));
+        fieldEndTime.setText(auction.getEndTimeFormatted());
+        imageHint.setText("Image uploaded ✓");
+        imageIcon.setText("🖼");
+    }
+
+    // ── Quick duration buttons ────────────────────────────────
+    @FXML public void set1Day()  { setEndFromNow(1); }
+    @FXML public void set3Days() { setEndFromNow(3); }
+    @FXML public void set7Days() { setEndFromNow(7); }
+
+    private void setEndFromNow(int days) {
+        fieldEndTime.setText(LocalDateTime.now().plusDays(days).format(FMT));
+    }
+
+    // ── Image upload ─────────────────────────────────────────
+    @FXML public void handleImageUpload() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Select Product Image");
+        fc.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
+        File file = fc.showOpenDialog(imagePreviewBox.getScene().getWindow());
+        if (file != null) {
+            selectedImagePath = file.getAbsolutePath();
+            imageIcon.setText("🖼");
+            imageHint.setText(file.getName());
+            imagePreviewBox.setStyle(imagePreviewBox.getStyle()
+                    .replace("border-style:dashed", "border-style:solid")
+                    + " -fx-border-color:#2563eb;");
+            msgImage.setText("");
+        }
+    }
+
+    // ── Save draft ───────────────────────────────────────────
+    @FXML public void saveDraft() {
+        if (!validateBasic()) return;
+        formMsg.setText("✓ Draft saved successfully.");
+        formMsg.setStyle("-fx-text-fill:#16a34a; -fx-font-weight:bold;");
+        AnimationUtil.pulse(submitBtn);
+    }
+
+    // ── Submit ────────────────────────────────────────────────
+    @FXML public void handleSubmit() {
+        if (!validateAll()) return;
+
+        String title       = fieldTitle.getText().trim();
+        String desc        = fieldDesc.getText().trim();
+        String category    = fieldCategory.getValue();
+        String condition   = fieldCondition.getValue() == null ? "Good" : fieldCondition.getValue();
+        double startPrice  = Double.parseDouble(fieldStartPrice.getText().trim());
+        double reserve     = parseOptionalDouble(fieldReservePrice.getText());
+        double increment   = parseOptionalDouble(fieldBidIncrement.getText());
+        LocalDateTime start= parseDateTime(fieldStartTime.getText());
+        LocalDateTime end  = parseDateTime(fieldEndTime.getText());
+
+        if (editingAuction == null) {
+            // Create new
+            auctionService.createAuction(currentUser, title, desc,
+                    category, condition, startPrice, reserve, increment,
+                    start, end, selectedImagePath);
+            showSuccess("Auction published successfully!");
+        } else {
+            // Edit existing
+            auctionService.updateAuction(editingAuction.getId(), title, desc,
+                    category, startPrice, end);
+            showSuccess("Auction updated successfully! ✓");
+        }
+
+        AnimationUtil.pulse(submitBtn);
+
+        // Navigate to my products after short delay
+        javafx.animation.PauseTransition p =
+                new javafx.animation.PauseTransition(javafx.util.Duration.millis(1200));
+        p.setOnFinished(e -> {
+            MainController main = (MainController) submitBtn
+                    .getScene().lookup("#mainRoot").getUserData();
+            main.navMyProducts();
+        });
+        p.play();
+    }
+
+    @FXML public void goBack() {
+        MainController main = (MainController) submitBtn
+                .getScene().lookup("#mainRoot").getUserData();
+        main.navMyProducts();
+    }
+
+    // ── Validation ────────────────────────────────────────────
+    private boolean validateBasic() {
+        boolean ok = true;
+        if (fieldTitle.getText().trim().isEmpty()) {
+            msgTitle.setText("Title is required.");
+            AnimationUtil.shake(fieldTitle); ok = false;
+        }
+        if (fieldStartPrice.getText().trim().isEmpty()) {
+            msgPrice.setText("Start price is required.");
+            AnimationUtil.shake(fieldStartPrice); ok = false;
+        } else {
+            try { Double.parseDouble(fieldStartPrice.getText().trim()); }
+            catch (NumberFormatException e) {
+                msgPrice.setText("Enter a valid number.");
+                AnimationUtil.shake(fieldStartPrice); ok = false;
+            }
+        }
+        return ok;
+    }
+
+    private boolean validateAll() {
+        if (!validateBasic()) return false;
+        boolean ok = true;
+
+        if (fieldDesc.getText().trim().isEmpty()) {
+            msgDesc.setText("Description is required.");
+            ok = false;
+        }
+        if (fieldCategory.getValue() == null) {
+            msgCategory.setText("Select a category.");
+            ok = false;
+        }
+        LocalDateTime end = parseDateTime(fieldEndTime.getText());
+        if (end == null) {
+            msgTime.setText("End time format: YYYY-MM-DD HH:mm");
+            AnimationUtil.shake(fieldEndTime); ok = false;
+        } else if (end.isBefore(LocalDateTime.now().plusMinutes(30))) {
+            msgTime.setText("End time must be at least 30 min from now.");
+            ok = false;
+        }
+        if (!ok) {
+            formMsg.setText("Please fix the errors above.");
+            formMsg.setStyle("-fx-text-fill:#dc2626;");
+            AnimationUtil.shake(submitBtn);
+        }
+        return ok;
+    }
+
+    // ── Helpers ───────────────────────────────────────────────
+    private void showSuccess(String msg) {
+        formMsg.setText(msg);
+        formMsg.setStyle("-fx-text-fill:#16a34a; -fx-font-weight:bold;");
+    }
+
+    private LocalDateTime parseDateTime(String text) {
+        if (text == null || text.isBlank()) return null;
+        try { return LocalDateTime.parse(text.trim(), FMT); }
+        catch (DateTimeParseException e) { return null; }
+    }
+
+    private double parseOptionalDouble(String text) {
+        if (text == null || text.isBlank()) return 0;
+        try { return Double.parseDouble(text.trim()); }
+        catch (NumberFormatException e) { return 0; }
+    }
+}

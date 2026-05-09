@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  dashboard.fxml — Màn hình tổng quan chính.
+  Load động vào contentPane của MainController.
+-->
+<ScrollPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controller.DashboardController"
+            fitToWidth="true" fitToHeight="false"
+            styleClass="scroll-pane">
+
+    <VBox spacing="20" styleClass="content-area">
+
+        <!-- ── Welcome Card ─────────────────────────────────── -->
+        <HBox styleClass="welcome-card" alignment="CENTER_LEFT" spacing="0">
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label fx:id="welcomeGreeting" styleClass="welcome-greeting"
+                       text="Good morning, User 👋"/>
+                <Label fx:id="welcomeSub" styleClass="welcome-sub"
+                       text="Here's what's happening in the auction world today."/>
+                <HBox spacing="10" style="-fx-padding:12 0 0 0;">
+                    <Button text="Browse Auctions" styleClass="welcome-quick-btn"
+                            onAction="#goToAuctions"/>
+                    <Button text="+ Create Auction" styleClass="welcome-quick-btn-ghost"
+                            onAction="#goToCreate"/>
+                </HBox>
+            </VBox>
+            <VBox alignment="CENTER_RIGHT" spacing="6">
+                <Label fx:id="welcomeBadge" styleClass="welcome-badge" text="🟢  LIVE NOW — 12 Auctions"/>
+                <Label fx:id="welcomeDate"  style="-fx-text-fill:#2a4060; -fx-font-size:11px;"
+                       text="Saturday, May 09"/>
+            </VBox>
+        </HBox>
+
+        <!-- ── Stat Cards ────────────────────────────────────── -->
+        <HBox spacing="16">
+            <!-- Active Auctions -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox styleClass="stat-icon-box, stat-icon-blue" alignment="CENTER">
+                        <Label text="🔨" styleClass="stat-icon"/>
+                    </VBox>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label styleClass="stat-label" text="ACTIVE AUCTIONS"/>
+                        <Label fx:id="statActiveAuctions" styleClass="stat-value" text="0"/>
+                    </VBox>
+                    <Label fx:id="statAuctionDelta" styleClass="stat-delta-up" text="↑ 3"/>
+                </HBox>
+            </VBox>
+            <!-- My Bids -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox styleClass="stat-icon-box, stat-icon-green" alignment="CENTER">
+                        <Label text="💰" styleClass="stat-icon"/>
+                    </VBox>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label styleClass="stat-label" text="MY BIDS"/>
+                        <Label fx:id="statMyBids" styleClass="stat-value" text="0"/>
+                    </VBox>
+                    <Label fx:id="statBidDelta" styleClass="stat-delta-up" text="↑ 1"/>
+                </HBox>
+            </VBox>
+            <!-- Winning -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox styleClass="stat-icon-box, stat-icon-amber" alignment="CENTER">
+                        <Label text="🏆" styleClass="stat-icon"/>
+                    </VBox>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label styleClass="stat-label" text="WINNING"/>
+                        <Label fx:id="statWinning" styleClass="stat-value" text="0"/>
+                    </VBox>
+                    <Label styleClass="stat-delta-up" text="↑ 2"/>
+                </HBox>
+            </VBox>
+            <!-- My Products -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox styleClass="stat-icon-box, stat-icon-purple" alignment="CENTER">
+                        <Label text="📦" styleClass="stat-icon"/>
+                    </VBox>
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label styleClass="stat-label" text="MY PRODUCTS"/>
+                        <Label fx:id="statMyProducts" styleClass="stat-value" text="0"/>
+                    </VBox>
+                    <Label styleClass="stat-delta-up" text="↑ 5"/>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- ── Bottom: Live Auctions + Activity ─────────────── -->
+        <HBox spacing="16">
+
+            <!-- Live Auctions Section -->
+            <VBox styleClass="section-card" HBox.hgrow="ALWAYS" spacing="14">
+                <HBox alignment="CENTER_LEFT">
+                    <VBox HBox.hgrow="ALWAYS" spacing="2">
+                        <Label styleClass="section-title" text="Live Auctions"/>
+                        <Label styleClass="section-subtitle" text="Ending soon — don't miss out"/>
+                    </VBox>
+                    <Button text="View All →" styleClass="section-link-btn"
+                            onAction="#goToAuctions"/>
+                </HBox>
+
+                <!-- Auction rows injected by controller -->
+                <VBox fx:id="liveAuctionList" spacing="10"/>
+            </VBox>
+
+            <!-- Recent Activity -->
+            <VBox styleClass="section-card" spacing="14"
+                  minWidth="280" maxWidth="300">
+                <HBox alignment="CENTER_LEFT">
+                    <Label styleClass="section-title" text="Recent Activity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <VBox fx:id="activityList" spacing="12"/>
+            </VBox>
+
+        </HBox>
+
+        <!-- Bottom padding -->
+        <Region minHeight="16"/>
+    </VBox>
+</ScrollPane>
