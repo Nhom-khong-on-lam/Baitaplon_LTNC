@@ -88,7 +88,7 @@ public class MyProductsController {
         });
 
         // Category
-        colCategory.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatusLabel()));
+        colCategory.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCategory()));
         colCategory.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String cat, boolean empty) {
                 super.updateItem(cat, empty);
@@ -171,9 +171,11 @@ public class MyProductsController {
             public void updateItem(String o, boolean empty) { // Đổi Auction thành String
                 super.updateItem(o, empty); // Bây giờ super sẽ hết đỏ vì String khớp với String
 
-                if (empty || o == null) {
+                if (empty) {
                     setGraphic(null);
+                    setText(null);
                 } else {
+                    setAlignment(Pos.CENTER);
                     setGraphic(box);
                 }
             }

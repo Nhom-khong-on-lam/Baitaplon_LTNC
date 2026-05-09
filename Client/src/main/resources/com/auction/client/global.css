@@ -442,6 +442,9 @@
     -fx-text-fill: #16a34a;
     -fx-font-weight: bold;
 }
+.stat-revenue {
+    -fx-text-fill: #2563eb;
+}
 .stat-delta-down {
     -fx-font-size: 11px;
     -fx-text-fill: #dc2626;

@@ -1,34 +1,21 @@
 package com.auction.client;
 
+import com.auction.client.controller.SceneManager;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
     @Override
-    public void start(Stage stage) throws Exception {
-        // 1. Kiểm tra URL xem file có tồn tại không
-        var resource = MainApp.class.getResource("/com/auction/client/auth.fxml");
-        if (resource == null) {
-            System.err.println("LỖI: Không tìm thấy file auth.fxml tại đường dẫn đã cho!");
-            return;
-        }
+    public void start(Stage stage) {
+        // Khởi tạo SceneManager với stage và kích thước mặc định
+        SceneManager.get().init(stage, 1100, 700);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(resource);
+        // Hiện stage trước khi navigate
+        stage.show();
 
-        try {
-            // 2. Load giao diện
-            Scene scene = new Scene(fxmlLoader.load(), 900, 650);
-
-            stage.setTitle("Auction System");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            // In ra chi tiết lỗi bên trong file FXML
-            e.printStackTrace();
-        }
+        // Bắt đầu từ Splash Screen
+        SceneManager.get().navigate(SceneManager.Screen.SPLASH);
     }
 
     public static void main(String[] args) {

@@ -3,12 +3,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
+<?import java.lang.String?>
+<?import java.net.URL?>
 <StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.auction.client.controller.SplashController"
            fx:id="splashRoot"
            styleClass="splash-root"
            prefWidth="1100" prefHeight="700">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
 
     <VBox alignment="CENTER" spacing="20">
 
@@ -19,8 +24,8 @@
         </VBox>
 
         <!-- Progress bar -->
-        <VBox fx:id="progressBox" alignment="CENTER" spacing="10"
-              opacity="0" maxWidth="280">
+        <VBox fx:id="progressBox" alignment="CENTER" spacing="10" opacity="0" maxWidth="280">
+
             <ProgressBar fx:id="progressBar" styleClass="progress-bar"
                          prefWidth="280" progress="0"/>
             <Label fx:id="statusLabel" text="Initializing..."

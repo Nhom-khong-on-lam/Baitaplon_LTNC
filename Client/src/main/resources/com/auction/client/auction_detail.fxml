@@ -8,10 +8,15 @@
   Hiển thị: ảnh sản phẩm, giá hiện tại, đồng hồ đếm ngược,
             lịch sử bid, form đặt bid.
 -->
+<?import java.lang.String?>
+<?import java.net.URL?>
 <ScrollPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.auction.client.controller.AuctionDetailController"
             fitToWidth="true" styleClass="scroll-pane">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
 
     <VBox spacing="20" styleClass="content-area">
 

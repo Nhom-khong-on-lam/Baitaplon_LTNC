@@ -3,11 +3,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
+<?import java.lang.String?>
+<?import java.net.URL?>
 <HBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.auction.client.controller.RegisterController"
       styleClass="auth-root"
       prefWidth="1100" prefHeight="700">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
 
     <!-- ══ LEFT PANEL ════════════════════════════════════ -->
     <VBox styleClass="auth-left" alignment="CENTER" spacing="0">

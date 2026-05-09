@@ -67,7 +67,7 @@ public class UserDAO {
                 if (rs.next()) return mapRow(rs);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi truy vấn field " + fieldname + " với giá trị " + value, e);
+            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi truy vấn field " + fieldName + " với giá trị " + value, e);
         }
         return null;
     }

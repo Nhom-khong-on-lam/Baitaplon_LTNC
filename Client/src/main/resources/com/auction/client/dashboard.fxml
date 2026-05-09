@@ -7,11 +7,16 @@
   dashboard.fxml — Màn hình tổng quan chính.
   Load động vào contentPane của MainController.
 -->
+<?import java.lang.String?>
+<?import java.net.URL?>
 <ScrollPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.auction.client.controller.DashboardController"
             fitToWidth="true" fitToHeight="false"
             styleClass="scroll-pane">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
 
     <VBox spacing="20" styleClass="content-area">
 

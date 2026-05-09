@@ -26,6 +26,8 @@ public class AdminController {
     // ── Stats ─────────────────────────────────────────────────
     @FXML private Label adminStatUsers, adminStatAuctions,
             adminStatActive, adminStatRevenue;
+    @FXML private Label adminBadge;
+    @FXML private Label adminStatUsersDelta;
 
     // ── Tabs ──────────────────────────────────────────────────
     @FXML private Button tabUsers, tabAuctions;
@@ -72,7 +74,8 @@ public class AdminController {
         AnimationUtil.countUp(adminStatAuctions, 0, allAuctions.size(), 800, "", "");
         AnimationUtil.countUp(adminStatActive,   0, live.size(),        800, "", "");
         AnimationUtil.countUp(adminStatRevenue,  0, revenue,            800, "", "");
-
+        adminBadge.setText("⚙  " + admin.getUsername());          // hiện tên admin
+        adminStatUsersDelta.setText("↑ " + allUsers.size() + " total"); // hoặc tính số mới
         // Load default tab
         setActiveTab(tabUsers);
         usersTable.setItems(FXCollections.observableArrayList(allUsers));
@@ -80,7 +83,7 @@ public class AdminController {
     }
 
     // ── Tab switching ─────────────────────────────────────────
-    @FXML public void showUsers() {
+    @FXML public void showUsers(javafx.event.ActionEvent event) {
         setActiveTab(tabUsers);
         usersPanel.setVisible(true);   usersPanel.setManaged(true);
         auctionsPanel.setVisible(false); auctionsPanel.setManaged(false);
@@ -89,7 +92,7 @@ public class AdminController {
         AnimationUtil.fadeIn(usersPanel, 250);
     }
 
-    @FXML public void showAuctions() {
+    @FXML public void showAuctions(javafx.event.ActionEvent event) {
         setActiveTab(tabAuctions);
         auctionsPanel.setVisible(true);  auctionsPanel.setManaged(true);
         usersPanel.setVisible(false);    usersPanel.setManaged(false);
@@ -98,7 +101,7 @@ public class AdminController {
         AnimationUtil.fadeIn(auctionsPanel, 250);
     }
 
-    @FXML public void handleAdminSearch() {
+    @FXML public void handleAdminSearch(javafx.event.ActionEvent event) {
         String kw = adminSearch.getText().trim().toLowerCase();
         if (usersPanel.isVisible()) {
             List<User> filtered = allUsers.stream()

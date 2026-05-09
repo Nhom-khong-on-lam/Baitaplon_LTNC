@@ -27,7 +27,6 @@ public class DashboardController {
     @FXML private Label welcomeSub;
     @FXML private Label welcomeBadge;
     @FXML private Label welcomeDate;
-
     @FXML private Label statActiveAuctions;
     @FXML private Label statMyBids;
     @FXML private Label statWinning;
@@ -65,8 +64,14 @@ public class DashboardController {
         AnimationUtil.countUp(statWinning,        0, myWinning.size(),    800, "", "");
         AnimationUtil.countUp(statMyProducts,     0, myProducts.size(),   800, "", "");
 
-        welcomeBadge.setText("🟢  LIVE NOW — " + live.size() + " Auctions");
+        long previousCount = allAuctions.stream()
+                .filter(a -> a.getEndTime().getMonthValue() == LocalDateTime.now().minusMonths(1).getMonthValue())
+                .count();
 
+        welcomeBadge.setText("🟢  LIVE NOW — " + live.size() + " Auctions");
+        statAuctionDelta.setText("↑ " + (allAuctions.size() - previousCount)); // hoặc giá trị cố định
+        statBidDelta.setText("↑ 1");
+        welcomeSub.setText("There are " + live.size() + " live auctions right now. Good luck!");
         // Build live auction rows
         liveAuctionList.getChildren().clear();
         List<Auction> preview = live.subList(0, Math.min(live.size(), 5));

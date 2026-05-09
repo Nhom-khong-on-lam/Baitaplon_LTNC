@@ -12,8 +12,8 @@ public class Auction_watchDTO implements Serializable {
     private LocalDateTime createdAt;
 
     // Các trường bổ sung để hiển thị lên giao diện mà không cần query nhiều lần
-    private String auctionTitle // Tên phiên đấu giá
-    private String status // Trạng thái phiên hiện tại
+    private String auctionTitle; // Tên phiên đấu giá
+    private String status; // Trạng thái phiên hiện tại
 
     public Auction_watchDTO() {}
 

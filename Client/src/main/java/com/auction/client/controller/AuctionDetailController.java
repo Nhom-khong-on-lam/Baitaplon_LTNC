@@ -42,11 +42,12 @@ public class AuctionDetailController {
     private Auction auction;
     private Timeline countdownTimeline;
     private double minBid;
-    private String SellerName = auction.getSeller().getUsername();
+    private String SellerName;
 
     public void initData(User user, Auction auction) {
         this.currentUser = user;
         this.auction     = auction;
+        this.SellerName  = auction.getSeller().getUsername();
 
         // Basic info
         detailImageIcon.setText(auction.getCategoryIcon());

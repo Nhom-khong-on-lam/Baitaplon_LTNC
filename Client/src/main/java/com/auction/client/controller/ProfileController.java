@@ -57,6 +57,7 @@ public class ProfileController {
         infoUsername.setText(user.getUsername());
         infoEmail.setText(user.getEmail());
         infoRole.setText(user.isAdmin() ? "Administrator" : "Member");
+        infoStatus.setText(user.getAccountStatus().toString());
 
         // Stats
         List<Auction> myBids     = auctionService.getMyBids(user.getId());

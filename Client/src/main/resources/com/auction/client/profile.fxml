@@ -7,11 +7,15 @@
   profile.fxml — Trang hồ sơ cá nhân.
   Gồm: avatar, thông tin, form chỉnh sửa, lịch sử thắng.
 -->
+<?import java.lang.String?>
+<?import java.net.URL?>
 <ScrollPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.auction.client.controller.ProfileController"
             fitToWidth="true" styleClass="scroll-pane">
-
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
     <VBox spacing="20" styleClass="content-area">
 
         <!-- ── Profile Header Card ───────────────────────── -->
@@ -71,10 +75,7 @@
                         <Label text="Email"     styleClass="profile-info-key"/>
                         <Label fx:id="infoEmail" styleClass="profile-info-val"/>
                     </HBox>
-                    <HBox spacing="0">
-                        <Label text="Phone"     styleClass="profile-info-key"/>
-                        <Label fx:id="infoPhone" styleClass="profile-info-val" text="—"/>
-                    </HBox>
+
                     <HBox spacing="0">
                         <Label text="Account Status" styleClass="profile-info-key"/>
                         <Label fx:id="infoStatus" styleClass="pill-running" text="Active"/>
@@ -96,11 +97,6 @@
                     <VBox spacing="6">
                         <Label text="EMAIL" styleClass="form-label"/>
                         <TextField fx:id="editEmail" styleClass="form-input"/>
-                    </VBox>
-                    <VBox spacing="6">
-                        <Label text="PHONE" styleClass="form-label"/>
-                        <TextField fx:id="editPhone" styleClass="form-input"
-                                   promptText="Optional"/>
                     </VBox>
 
                     <Separator/>

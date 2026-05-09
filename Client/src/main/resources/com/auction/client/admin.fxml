@@ -7,11 +7,15 @@
   admin.fxml — Admin Panel.
   Stat overview + tabs: Manage Users / Manage Auctions.
 -->
+<?import java.lang.String?>
+<?import java.net.URL?>
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.auction.client.controller.AdminController"
       spacing="16" styleClass="content-area">
-
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
     <!-- ── Header ─────────────────────────────────────────── -->
     <HBox alignment="CENTER_LEFT">
         <Label text="Admin Panel" styleClass="section-title"
@@ -28,7 +32,7 @@
         <VBox styleClass="admin-stat-card" HBox.hgrow="ALWAYS" spacing="8">
             <Label text="TOTAL USERS"    styleClass="stat-label"/>
             <Label fx:id="adminStatUsers"    styleClass="stat-value" text="0"/>
-            <Label fx:id="adminStatUsersDelta" styleClass="stat-delta-up" text="↑ 12 this month"/>
+            <Label styleClass="stat-delta-up" text="↑ 12 this month"/>
         </VBox>
         <VBox styleClass="admin-stat-card" HBox.hgrow="ALWAYS" spacing="8">
             <Label text="TOTAL AUCTIONS" styleClass="stat-label"/>
@@ -43,8 +47,7 @@
         </VBox>
         <VBox styleClass="admin-stat-card" HBox.hgrow="ALWAYS" spacing="8">
             <Label text="TOTAL REVENUE"  styleClass="stat-label"/>
-            <Label fx:id="adminStatRevenue"  styleClass="stat-value"
-                   style="-fx-text-fill:#2563eb;" text="$0"/>
+            <Label fx:id="adminStatRevenue" text="0" styleClass="stat-value" style="-fx-text-fill:#2563eb;"/>
             <Label styleClass="stat-delta-up" text="↑ 15% vs last month"/>
         </VBox>
     </HBox>

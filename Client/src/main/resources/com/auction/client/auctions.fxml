@@ -7,10 +7,15 @@
   auctions.fxml — Danh sách đấu giá live.
   Có search bar, filter, sort, và card list.
 -->
+<?import java.lang.String?>
+<?import java.net.URL?>
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.auction.client.controller.AuctionsController"
       spacing="0" styleClass="content-area">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
 
     <!-- ── Toolbar: Search + Filter + Sort ──────────────────── -->
     <HBox spacing="12" alignment="CENTER_LEFT"

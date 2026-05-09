@@ -1,6 +1,7 @@
 package server.common.model;
 
 import java.io.Serializable;
+import java.security.Timestamp;
 import java.time.LocalDateTime;
 /**
  * UserDTO nằm trong thư mục server/common/model.

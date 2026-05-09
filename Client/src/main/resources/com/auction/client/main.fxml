@@ -8,12 +8,17 @@
   Sidebar cố định bên trái, StackPane fx:id="contentPane" bên phải
   chứa nội dung được load động từ MainController.
 -->
+<?import java.lang.String?>
+<?import java.net.URL?>
 <HBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.auction.client.controller.MainController"
       fx:id="mainRoot"
       styleClass="main-root"
       prefWidth="1100" prefHeight="700">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
 
     <!-- ══ SIDEBAR ════════════════════════════════════════ -->
     <VBox fx:id="sidebar" styleClass="sidebar">

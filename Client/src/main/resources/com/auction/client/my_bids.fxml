@@ -7,10 +7,15 @@
   my_bids.fxml — Danh sách các lượt bid của người dùng.
   Chia tab: All / Winning / Outbid / Ended.
 -->
+<?import java.lang.String?>
+<?import java.net.URL?>
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.auction.client.controller.MyBidsController"
       spacing="16" styleClass="content-area">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
 
     <!-- ── Page header ─────────────────────────────────────── -->
     <HBox alignment="CENTER_LEFT" spacing="12">
