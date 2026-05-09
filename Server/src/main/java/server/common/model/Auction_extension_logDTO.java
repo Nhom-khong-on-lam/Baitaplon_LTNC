@@ -8,25 +8,22 @@ public class Auction_extension_logDTO implements Serializable {
 
     private long id;
     private long auctionId;
-    private int extendedMinutes; //Số phút được cộng thêm
-    private String reason; //Lý do (ví dụ: "Last minute bid")
-    private LocalDateTime createdAt;
+    private LocalDateTime originalEndTime; // Khớp với ERD: original_end_time
+    private LocalDateTime newEndTime; // Khớp với ERD: new_end_time
 
     public Auction_extension_logDTO() {}
     // Constructor dùng khi thực hiện gia hạn
-    public Auction_extension_logDTO(long auctionId, int extendedMinutes, String reason) {
+    public Auction_extension_logDTO(long auctionId, LocalDateTime originalEndTime, LocalDateTime newEndTime) {
         this.auctionId = auctionId;
-        this.extendedMinutes = extendedMinutes;
-        this.reason = reason;
-        this.createdAt = LocalDateTime.now();
+        this.originalEndTime = originalEndTime;
+        this.newEndTime = newEndTime;
     }
     //Constructor đầy đủ cho DAO
-    public Auction_extension_logDTO(long id, long auctionId, int extendedMinutes, String reason, LocalDateTime createdAt) {
+    public Auction_extension_logDTO(long id, long auctionId, LocalDateTime originalEndTime, LocalDateTime newEndTime) {
         this.id= id;
         this.auctionId = auctionId;
-        this.extendedMinutes = extendedMinutes;
-        this.reason = reason;
-        this.createdAt = createdAt;
+        this.originalEndTime = originalEndTime;
+        this.newEndTime = newEndTime;
     }
     // --- Getters and Setters
     public long getId() {return id;}
@@ -35,17 +32,17 @@ public class Auction_extension_logDTO implements Serializable {
     public long getAuctionId() { return auctionId; }
     public void setAuctionId(long auctionId) { this.auctionId = auctionId; }
 
-    public int getExtendedMinutes() { return extendedMinutes; }
-    public void setExtendedMinutes(int extendedMinutes) { this.extendedMinutes = extendedMinutes; }
+    public LocalDateTime getOriginalEndTime() { return originalEndTime; }
+    public void setOriginalEndTime(LocalDateTime originalEndTime) { this.originalEndTime = originalEndTime; }
 
-    public String getReason() { return reason; }
-    public void setReason(String reason) { this.reason = reason; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getNewEndTime() { return newEndTime; }
+    public void setNewEndTime(LocalDateTime newEndTime) { this.newEndTime = newEndTime; }
 
     @Override
     public String toString() {
-        return "AuctionExtensionLogDTO{" + "auctionId=" + auctionId + ", added=" + extendedMinutes + "m}";
+        return "AuctionExtensionLogDTO{" +
+                "auctionId=" + auctionId +
+                ", originalEndTime=" + originalEndTime +
+                ", newEndTime=" + newEndTime + '}';
     }
 }

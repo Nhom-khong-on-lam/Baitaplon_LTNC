@@ -14,22 +14,21 @@ public class AuctionExtensionLogDAO {
 
     // Ghi lại một lần gia hạn đấu giá
     public boolean insertLog(Auction_extension_logDTO log) {
-        String sql = "INSERT INTO auction_extension_log (auction_id, extended_minutes, reason, created_at) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO auction_extension_log (auction_id, original_end_time, new_end_time) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.preparedStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, log.getAuctionId());
-            ps.setInt(2, log.getExtendedMinutes());
-            ps.setString(3, log.getReason());
-            ps.setTimestamp(4, Timestamp.valueOf(log.getCreatedAt() != null ? log.getCreatedAt() : java.time.LocalDateTime.now()));
+            ps.setTimestamp(2, Timestamp.valueOf(log.getOriginalEndTime()));
+            ps.setTimestamp(3, Timestamp.valueOf(log.getNewEndTime()));
 
             boolean success = ps.executeUpdate() >0;
             if(success) {
-                LOGGER.info("EXTENSION_LOG: Phiên đấu giá ID " + log.getAuctionId() + " được gia hạn thêm " + log.getExtendedMinutes() + " phút.");
+                LOGGER.info("EXTENSION_LOG: Phiên đấu giá ID " + log.getAuctionId() + " được gia hạn từ " + log.getOriginalEndTime() + " đến " + log.getNewEndTime());
             }
             return success;
-        } catch (SQLexception e ) {
+        } catch (SQLException e ) {
             LOGGER.log(Level.SEVERE, "EXTENSION_ERROR: Lỗi khi ghi log gia hạn cho Auction ID " + log.getAuctionId(), e);
         }
         return false;
@@ -49,12 +48,12 @@ public class AuctionExtensionLogDAO {
                             rs.getLong("auction_id"),
                             rs.getInt("extended_minutes"),
                             rs.getString("reason"),
-                            re.getTimestamp("created_at").toLocalDateTime()
+                            rs.getTimestamp("created_at").toLocalDateTime()
                     ));
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "EXTENSION_READ_ERROR: Lỗi truy vấn lịch sử gia hạn cho ID " + auctionid, e);
+            LOGGER.log(Level.SEVERE, "EXTENSION_READ_ERROR: Lỗi truy vấn lịch sử gia hạn cho ID " + auctionId, e);
         }
         return logs;
     }
