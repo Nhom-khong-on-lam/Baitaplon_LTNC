@@ -13,14 +13,14 @@ import java.util.logging.Logger;
 public class AutoBidDAO {
     private static final Logger LOGGER = Logger.getLogger(AutoBidDAO.class.getName());
     
-    public long insert(AutoBidConfig config) {
+    public long insert(AutoBidDTO config) {
         String sql = "INSERT INTO auto_bid (auction_id, bidder_id, max_amount, increment, active, registered_at) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setLong(1, config.getAuctionId);
-            ps.setLong(2, config.getBidder());
+            ps.setLong(1, config.getAuctionId());
+            ps.setLong(2, config.getBidderId());
             
             ps.setDouble(3, config.getMaxPrice());        
             ps.setDouble(4, config.getStepIncrement());  
@@ -64,8 +64,8 @@ public class AutoBidDAO {
         return false;
     }
     
-    public List<AutoBidConfig> getActiveConfigsForAuction(Long auctionId) {
-        List<AutoBidConfig> configs = new ArrayList<>();
+    public List<AutoBidDTO> getActiveConfigsForAuction(Long auctionId) {
+        List<AutoBidDTO> configs = new ArrayList<>();
         String sql = "SELECT * FROM auto_bid WHERE auction_id = ? AND active = 1 ORDER BY registered_at ASC";
 
         try (Connection conn = DBConnection.getConnection();
@@ -96,9 +96,3 @@ public class AutoBidDAO {
         return configs;
     }
 }
-        } catch (SQLException e) {
-            System.err.println("Lỗi lấy danh sách AutoBid: " + e.getMessage());
-        }
-        return configs;
-    }
-} 
