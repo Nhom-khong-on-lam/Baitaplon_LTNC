@@ -155,7 +155,7 @@
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Current>1</Current>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-05-10.06:16:33</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2026-05-10.07:02:23</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_unicode_ci</CollationName>
     </schema>
     <schema id="18" parent="1" name="mysql">
@@ -273,16 +273,19 @@
     </column>
     <foreign-key id="45" parent="26" name="fk_1">
       <ColNames>item_id</ColNames>
+      <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>item</RefTableName>
     </foreign-key>
     <foreign-key id="46" parent="26" name="fk_2">
       <ColNames>seller_id</ColNames>
+      <OnDelete>set-null</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
     <foreign-key id="47" parent="26" name="fk_3">
       <ColNames>highest_bidder_id</ColNames>
+      <OnDelete>set-null</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
@@ -418,11 +421,11 @@ auction_id</ColNames>
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="75" parent="29" name="max_amount">
+    <column id="75" parent="29" name="maxPrice">
       <Position>4</Position>
       <StoredType>double|0s</StoredType>
     </column>
-    <column id="76" parent="29" name="increment">
+    <column id="76" parent="29" name="stepIncrement">
       <Position>5</Position>
       <StoredType>double|0s</StoredType>
     </column>
@@ -438,11 +441,13 @@ auction_id</ColNames>
     </column>
     <foreign-key id="79" parent="29" name="fk_1">
       <ColNames>auction_id</ColNames>
+      <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>auction</RefTableName>
     </foreign-key>
     <foreign-key id="80" parent="29" name="fk_2">
       <ColNames>bidder_id</ColNames>
+      <OnDelete>set-null</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
