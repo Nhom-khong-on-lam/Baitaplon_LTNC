@@ -5,30 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminAuctionsController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminDashboardController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminMainController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminUsersController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_auctions.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_dashboard.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_main.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_users.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Server/src/main/java/module-info.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/47706e5f-bbff-4ef5-80bc-0738429b09f7.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/47706e5f-bbff-4ef5-80bc-0738429b09f7.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/LoginController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/SceneManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/SceneManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/module-info.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin.fxml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image1.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image2.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image3.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image5.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image6.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/main.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -209,7 +188,7 @@
       <workItem from="1778320573550" duration="12882000" />
       <workItem from="1778336567795" duration="17385000" />
       <workItem from="1778355726217" duration="578000" />
-      <workItem from="1778383972170" duration="6188000" />
+      <workItem from="1778383972170" duration="8965000" />
     </task>
     <servers />
   </component>
