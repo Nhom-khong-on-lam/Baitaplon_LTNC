@@ -108,3 +108,49 @@ CREATE TABLE auction_extension_log (
     new_end_time DATETIME NOT NULL,
     FOREIGN KEY (auction_id) REFERENCES auction(id)
 );
+CREATE TABLE notification (
+                              id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                              user_id BIGINT NOT NULL,
+                              title VARCHAR(255) NOT NULL,
+                              message TEXT NOT NULL,
+                              type ENUM(
+                                  'BID_PLACED',
+                                  'OUTBID',
+                                  'AUCTION_WON',
+                                  'AUCTION_LOST',
+                                  'AUCTION_ENDED',
+                                  'AUCTION_STARTING',
+                                  'PAYMENT_DUE',
+                                  'PAYMENT_RECEIVED',
+                                  'AUCTION_CANCELED',
+                                  'SYSTEM'
+                                  ) NOT NULL,
+                              is_read BOOLEAN DEFAULT FALSE,
+                              related_auction_id BIGINT DEFAULT NULL,
+                              related_bid_id BIGINT DEFAULT NULL,
+                              expires_at DATETIME DEFAULT NULL,
+                              created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                              FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE,
+                              FOREIGN KEY (related_auction_id) REFERENCES auction(id) ON DELETE SET NULL,
+                              FOREIGN KEY (related_bid_id) REFERENCES bid(id) ON DELETE SET NULL,
+                              INDEX idx_user_read (user_id, is_read),
+                              INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE auto_bid
+    RENAME COLUMN max_amount TO max_price;
+
+ALTER TABLE auto_bid
+    RENAME COLUMN increment TO step_increment;
+
+ALTER TABLE auto_bid
+    RENAME COLUMN max_price TO maxPrice
+
+ALTER TABLE auto_bid
+    RENAME COLUMN step_increment TO stepIncrement;
+
+ALTER TABLE auto_bid
+    CHANGE max_price maxPrice DOUBLE;
+
+ALTER TABLE auto_bid
+    CHANGE step_increment stepIncrement DOUBLE;
