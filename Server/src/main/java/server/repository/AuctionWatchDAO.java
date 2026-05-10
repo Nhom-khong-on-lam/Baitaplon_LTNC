@@ -14,7 +14,7 @@ public class AuctionWatchDAO {
     private static final Logger LOGGER = Logger.getLogger(AuctionWatchDAO.class.getName());
 
     // Thêm một phiên đấu giá vào danh sách theo dõi
-    public boolean addWatch(AuctionWatchDAO watch) {
+    public boolean addWatch(Auction_watchDTO watch) {
         String sql = "INSERT INTO auction_watch (user_id, auction_id, created_at) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
@@ -55,8 +55,8 @@ public class AuctionWatchDAO {
         return false;
     }
     // Lấy danh sách tất cả các phiên đấu giá mà một User đang theo dõi
-    public List<AuctionWatchDTO> findByUserId(long userId) {
-        List<AuctionWatchDTO> list = new ArrayList<>();
+    public List<Auction_watchDTO> findByUserId(long userId) {
+        List<Auction_watchDTO> list = new ArrayList<>();
         // Query có Join với bảng auction để lấy thêm tiêu đề hiển thị
         String sql = "SELECT aw.*, a.title FROM auction_watch aw " +
                 "JOIN auction a ON aw.auction_id = a.id " +
@@ -68,7 +68,7 @@ public class AuctionWatchDAO {
             ps.setLong(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    AuctionWatchDTO dto = new AuctionWatchDTO(
+                    Auction_watchDTO dto = new Auction_watchDTO(
                             rs.getLong("id"),
                             rs.getLong("user_id"),
                             rs.getLong("auction_id"),
