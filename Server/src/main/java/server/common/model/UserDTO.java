@@ -1,7 +1,6 @@
 package server.common.model;
 
 import java.io.Serializable;
-import java.security.Timestamp;
 import java.time.LocalDateTime;
 /**
  * UserDTO nằm trong thư mục server/common/model.
@@ -32,7 +31,7 @@ public class UserDTO implements Serializable {
 
     // 3. Constructor đầy đủ cho DAO
     public UserDTO(long id, String username, String password, String email,
-                   String systemRole, String accountStatus, Timestamp createdAt) {
+                   String systemRole, String accountStatus, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
         this.password = password;
