@@ -1,5 +1,6 @@
 package com.auction.client.controller;
 
+import com.auction.client.Enum.SystemRole;
 import com.auction.client.model.User;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
@@ -15,18 +16,18 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
- * MainController — Shell controller dành cho USER.
- * Admin có shell riêng: AdminMainController.
- *
- * Quản lý sidebar navigation và load content pane động.
+ * AdminMainController — Shell riêng cho Admin.
+ * Giống MainController nhưng chỉ có menu admin:
+ *   Dashboard → AdminDashboardController
+ *   Users     → AdminUsersController
+ *   Auctions  → AdminAuctionsController
  */
-public class MainController {
+public class AdminMainController {
 
     // ── Sidebar ───────────────────────────────────────────
     @FXML private VBox   sidebar;
-    @FXML private Button navDashboard, navAuctions, navMyBids,
-            navMyProducts, navCreate, navProfile;
-    @FXML private Label  sidebarAvatar, sidebarUserName, sidebarUserRole;
+    @FXML private Button navDashboard, navUsers, navAuctions;
+    @FXML private Label  sidebarAvatar, sidebarUserName;
 
     // ── Topbar ────────────────────────────────────────────
     @FXML private Label     topbarTitle, topbarBread, topbarAvatar;
@@ -36,8 +37,8 @@ public class MainController {
     @FXML private StackPane contentPane;
 
     // ── State ─────────────────────────────────────────────
-    private Button activeNavBtn;
-    private User   currentUser;
+    private Button activeBtn;
+    private User   currentAdmin;
 
     private static final String BASE = "/com/auction/client/fxml/";
 
@@ -48,71 +49,49 @@ public class MainController {
     }
 
     /**
-     * Gọi từ LoginController sau khi xác nhận role = USER.
+     * Gọi từ LoginController sau khi xác nhận role = ADMIN.
      */
-    public void initForUser(User user) {
-        this.currentUser = user;
+    public void initForUser(User admin) {
+        this.currentAdmin = admin;
 
-        // Gán userData để các child controller tìm được shell này
+        // Gán userData cho root node để các child controller tìm được shell
         sidebar.getScene().getRoot().setUserData(this);
 
         // Avatar initials
-        String name = user.getUsername();
+        String name = admin.getUsername();
         String initials = name.length() >= 2
                 ? name.substring(0, 2).toUpperCase()
                 : name.toUpperCase();
         sidebarAvatar.setText(initials);
         sidebarUserName.setText(name);
-        sidebarUserRole.setText("Member");
         topbarAvatar.setText(initials);
 
-        // Load dashboard mặc định
+        // Load trang mặc định = Dashboard
         setActive(navDashboard);
-        loadContent(BASE + "dashboard.fxml",
-                (DashboardController ctrl) -> ctrl.initData(user));
+        loadContent(BASE + "admin_dashboard.fxml",
+                (AdminDashboardController ctrl) -> ctrl.initData(admin));
     }
 
     // ── Navigation handlers ───────────────────────────────
     @FXML public void navDashboard() {
         setActive(navDashboard);
-        setTopbar("Dashboard", "Home / Dashboard");
-        loadContent(BASE + "dashboard.fxml",
-                (DashboardController ctrl) -> ctrl.initData(currentUser));
+        setTopbar("Admin Dashboard", "Admin / Dashboard");
+        loadContent(BASE + "admin_dashboard.fxml",
+                (AdminDashboardController ctrl) -> ctrl.initData(currentAdmin));
+    }
+
+    @FXML public void navUsers() {
+        setActive(navUsers);
+        setTopbar("Manage Users", "Admin / Users");
+        loadContent(BASE + "admin_users.fxml",
+                (AdminUsersController ctrl) -> ctrl.initData(currentAdmin));
     }
 
     @FXML public void navAuctions() {
         setActive(navAuctions);
-        setTopbar("Live Auctions", "Home / Auctions");
-        loadContent(BASE + "auctions.fxml",
-                (AuctionsController ctrl) -> ctrl.initData(currentUser));
-    }
-
-    @FXML public void navMyBids() {
-        setActive(navMyBids);
-        setTopbar("My Bids", "Home / My Bids");
-        loadContent(BASE + "my_bids.fxml",
-                (MyBidsController ctrl) -> ctrl.initData(currentUser));
-    }
-
-    @FXML public void navMyProducts() {
-        setActive(navMyProducts);
-        setTopbar("My Products", "Home / My Products");
-        loadContent(BASE + "my_products.fxml",
-                (MyProductsController ctrl) -> ctrl.initData(currentUser));
-    }
-
-    @FXML public void navCreate() {
-        setActive(navCreate);
-        setTopbar("Create Auction", "Home / Create Auction");
-        loadContent(BASE + "create_auction.fxml",
-                (CreateAuctionController ctrl) -> ctrl.initData(currentUser));
-    }
-
-    @FXML public void navProfile() {
-        setActive(navProfile);
-        setTopbar("Profile", "Home / Profile");
-        loadContent(BASE + "profile.fxml",
-                (ProfileController ctrl) -> ctrl.initData(currentUser));
+        setTopbar("Manage Auctions", "Admin / Auctions");
+        loadContent(BASE + "admin_auctions.fxml",
+                (AdminAuctionsController ctrl) -> ctrl.initData(currentAdmin));
     }
 
     @FXML public void handleLogout() {
@@ -123,34 +102,25 @@ public class MainController {
     @FXML public void handleSearch() {
         String kw = topbarSearch.getText().trim();
         if (!kw.isEmpty()) {
-            setActive(navAuctions);
-            setTopbar("Search: " + kw, "Home / Search");
-            loadContent(BASE + "auctions.fxml",
-                    (AuctionsController ctrl) -> {
-                        ctrl.initData(currentUser);
+            // Default: search trong Users
+            setActive(navUsers);
+            setTopbar("Search: " + kw, "Admin / Search");
+            loadContent(BASE + "admin_users.fxml",
+                    (AdminUsersController ctrl) -> {
+                        ctrl.initData(currentAdmin);
                         ctrl.applySearch(kw);
                     });
         }
-    }
-
-    @FXML public void handleNotifications() {
-        // TODO: hiện notification panel
     }
 
     @FXML public void handleAvatarClick(MouseEvent e) {
         ContextMenu menu = new ContextMenu();
         menu.getStyleClass().add("context-menu");
 
-        MenuItem profile  = new MenuItem("👤  My Profile");
-        MenuItem settings = new MenuItem("⚙  Settings");
-        MenuItem logout   = new MenuItem("🚪  Sign Out");
+        MenuItem logout = new MenuItem("🚪  Sign Out");
+        logout.setOnAction(ev -> handleLogout());
 
-        profile.setOnAction(ev  -> navProfile());
-        settings.setOnAction(ev -> navProfile());
-        logout.setOnAction(ev   -> handleLogout());
-
-        menu.getItems().addAll(profile, settings,
-                new SeparatorMenuItem(), logout);
+        menu.getItems().add(logout);
         menu.show(topbarAvatar,
                 topbarAvatar.localToScreen(0, topbarAvatar.getHeight() + 6).getX(),
                 topbarAvatar.localToScreen(0, topbarAvatar.getHeight() + 6).getY());
@@ -176,7 +146,7 @@ public class MainController {
 
         } catch (IOException ex) {
             ex.printStackTrace();
-            Label err = new Label("Failed to load panel: " + fxmlPath);
+            Label err = new Label("Failed to load: " + fxmlPath);
             err.setStyle("-fx-text-fill:#dc2626; -fx-font-size:13px;");
             contentPane.getChildren().setAll(err);
         }
@@ -190,15 +160,15 @@ public class MainController {
 
     // ── Sidebar active state ───────────────────────────────
     private void setActive(Button btn) {
-        if (activeNavBtn != null) {
-            activeNavBtn.getStyleClass().remove("nav-btn-active");
-            if (!activeNavBtn.getStyleClass().contains("nav-btn"))
-                activeNavBtn.getStyleClass().add("nav-btn");
+        if (activeBtn != null) {
+            activeBtn.getStyleClass().remove("nav-btn-active");
+            if (!activeBtn.getStyleClass().contains("nav-btn"))
+                activeBtn.getStyleClass().add("nav-btn");
         }
         btn.getStyleClass().remove("nav-btn");
         if (!btn.getStyleClass().contains("nav-btn-active"))
             btn.getStyleClass().add("nav-btn-active");
-        activeNavBtn = btn;
+        activeBtn = btn;
     }
 
     private void setTopbar(String title, String breadcrumb) {
@@ -206,5 +176,5 @@ public class MainController {
         topbarBread.setText(breadcrumb);
     }
 
-    public User getCurrentUser() { return currentUser; }
+    public User getCurrentAdmin() { return currentAdmin; }
 }

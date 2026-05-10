@@ -8,7 +8,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Client" />
         <module name="Server" />
-        <module name="auction-system" />
       </profile>
     </annotationProcessing>
   </component>

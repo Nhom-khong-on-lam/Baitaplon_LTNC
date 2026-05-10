@@ -24,7 +24,8 @@ public class SceneManager {
         SPLASH   ("/com/auction/client/fxml/splash.fxml"),
         LOGIN    ("/com/auction/client/fxml/login.fxml"),
         REGISTER ("/com/auction/client/fxml/register.fxml"),
-        MAIN     ("/com/auction/client/fxml/main.fxml");   // Shell chứa sidebar + content
+        MAIN     ("/com/auction/client/fxml/main.fxml"),   // Shell chứa sidebar + content
+        ADMIN_MAIN ("/com/auction/client/fxml/admin_main.fxml");
 
         public final String path;
         Screen(String p) { this.path = p; }

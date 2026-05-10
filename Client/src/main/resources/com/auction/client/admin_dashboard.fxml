@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  admin_dashboard.fxml — Tổng quan thống kê hệ thống cho Admin.
+-->
+<?import java.net.URL?>
+<ScrollPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controller.AdminDashboardController"
+            fitToWidth="true" styleClass="scroll-pane">
+            <stylesheets>
+                <URL value="@global.css"/>
+            </stylesheets>
+
+    <VBox spacing="20" styleClass="content-area">
+
+        <!-- ── Header ────────────────────────────────────── -->
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <VBox HBox.hgrow="ALWAYS" spacing="3">
+                <Label fx:id="welcomeLabel"
+                       text="Welcome back, Admin 👋"
+                       styleClass="section-title"
+                       style="-fx-font-size:20px;"/>
+                <Label fx:id="dateLabel"
+                       styleClass="section-subtitle"
+                       text="Here's your system overview for today."/>
+            </VBox>
+            <Label fx:id="systemStatusBadge"
+                   style="-fx-background-color:#dcfce7; -fx-text-fill:#15803d;
+                          -fx-background-radius:20; -fx-font-size:11px;
+                          -fx-font-weight:bold; -fx-padding:4 14;"
+                   text="🟢  System Online"/>
+        </HBox>
+
+        <!-- ── Stat Cards Row ─────────────────────────────── -->
+        <HBox spacing="14">
+
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="10">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox styleClass="stat-icon-box, stat-icon-blue" alignment="CENTER">
+                        <Label text="👥" styleClass="stat-icon"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="2">
+                        <Label text="TOTAL USERS" styleClass="stat-label"/>
+                        <Label fx:id="statTotalUsers" styleClass="stat-value" text="0"/>
+                    </VBox>
+                </HBox>
+                <Label fx:id="statUserDelta" styleClass="stat-delta-up"
+                       text="↑ 0 this month"/>
+            </VBox>
+
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="10">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox styleClass="stat-icon-box, stat-icon-green" alignment="CENTER">
+                        <Label text="🔨" styleClass="stat-icon"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="2">
+                        <Label text="TOTAL AUCTIONS" styleClass="stat-label"/>
+                        <Label fx:id="statTotalAuctions" styleClass="stat-value" text="0"/>
+                    </VBox>
+                </HBox>
+                <Label styleClass="stat-delta-up" text="↑ All time"/>
+            </VBox>
+
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="10">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox styleClass="stat-icon-box, stat-icon-amber" alignment="CENTER">
+                        <Label text="🟢" styleClass="stat-icon"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="2">
+                        <Label text="LIVE NOW" styleClass="stat-label"/>
+                        <Label fx:id="statLiveAuctions"
+                               styleClass="stat-value"
+                               style="-fx-text-fill:#16a34a;" text="0"/>
+                    </VBox>
+                </HBox>
+                <Label styleClass="stat-delta-up" text="Active right now"/>
+            </VBox>
+
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="10">
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox styleClass="stat-icon-box, stat-icon-purple" alignment="CENTER">
+                        <Label text="🚫" styleClass="stat-icon"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="2">
+                        <Label text="BANNED USERS" styleClass="stat-label"/>
+                        <Label fx:id="statBanned"
+                               styleClass="stat-value"
+                               style="-fx-text-fill:#dc2626;" text="0"/>
+                    </VBox>
+                </HBox>
+                <Label styleClass="stat-delta-up" text="Suspended accounts"/>
+            </VBox>
+
+        </HBox>
+
+        <!-- ── Bottom: Recent Users + Recent Auctions ─────── -->
+        <HBox spacing="16">
+
+            <!-- Recent Users -->
+            <VBox styleClass="section-card" HBox.hgrow="ALWAYS" spacing="14">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Recent Users" styleClass="section-title"
+                           HBox.hgrow="ALWAYS"/>
+                    <Button text="View All →" styleClass="section-link-btn"
+                            onAction="#goToUsers"/>
+                </HBox>
+                <VBox fx:id="recentUsersList" spacing="10"/>
+            </VBox>
+
+            <!-- Recent Auctions -->
+            <VBox styleClass="section-card" HBox.hgrow="ALWAYS" spacing="14">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Recent Auctions" styleClass="section-title"
+                           HBox.hgrow="ALWAYS"/>
+                    <Button text="View All →" styleClass="section-link-btn"
+                            onAction="#goToAuctions"/>
+                </HBox>
+                <VBox fx:id="recentAuctionsList" spacing="10"/>
+            </VBox>
+
+        </HBox>
+
+        <Region minHeight="16"/>
+    </VBox>
+</ScrollPane>

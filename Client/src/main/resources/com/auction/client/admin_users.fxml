@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  admin_users.fxml — Quản lý toàn bộ users.
+  Có search, filter theo status, TableView với action buttons.
+-->
+<?import java.net.URL?>
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.controller.AdminUsersController"
+      spacing="16" styleClass="content-area">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
+
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <VBox HBox.hgrow="ALWAYS" spacing="3">
+            <Label text="Manage Users" styleClass="section-title"
+                   style="-fx-font-size:18px;"/>
+            <Label text="View, ban, or remove user accounts from the system."
+                   styleClass="section-subtitle"/>
+        </VBox>
+        <Label fx:id="totalLabel" styleClass="section-subtitle" text="0 users total"/>
+    </HBox>
+
+    <!-- ── Filter + Search bar ────────────────────────────── -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+
+        <!-- Status filter tabs -->
+        <Button fx:id="tabAll"    text="All"          styleClass="btn-primary"
+                onAction="#showAll"/>
+        <Button fx:id="tabActive" text="✅ Active"    styleClass="btn-secondary"
+                onAction="#showActive"/>
+        <Button fx:id="tabBanned" text="🚫 Banned"   styleClass="btn-secondary"
+                onAction="#showBanned"/>
+        <Button fx:id="tabAdmin"  text="⚙ Admins"   styleClass="btn-secondary"
+                onAction="#showAdmins"/>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <!-- Search -->
+        <HBox styleClass="section-card" spacing="0" alignment="CENTER_LEFT"
+              style="-fx-padding:6 12; -fx-background-radius:8;">
+            <Label text="🔍" style="-fx-font-size:13px; -fx-text-fill:#a0aec0;"/>
+            <TextField fx:id="searchField" promptText="Search by username or email..."
+                       style="-fx-background-color:transparent; -fx-border-width:0;"
+                       prefWidth="220" onAction="#handleSearch"/>
+        </HBox>
+        <Button text="Search" styleClass="btn-primary" onAction="#handleSearch"/>
+    </HBox>
+
+    <!-- ── Users Table ────────────────────────────────────── -->
+    <VBox styleClass="section-card" VBox.vgrow="ALWAYS" spacing="0">
+        <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" styleClass="table-view">
+            <columns>
+                <TableColumn fx:id="colId"      text="ID"
+                             prefWidth="55" style="-fx-alignment:CENTER;"/>
+                <TableColumn fx:id="colAvatar"  text=""
+                             prefWidth="52" style="-fx-alignment:CENTER;"/>
+                <TableColumn fx:id="colUsername" text="USERNAME"
+                             prefWidth="150"/>
+                <TableColumn fx:id="colEmail"   text="EMAIL"
+                             prefWidth="210"/>
+                <TableColumn fx:id="colRole"    text="ROLE"
+                             prefWidth="100" style="-fx-alignment:CENTER;"/>
+                <TableColumn fx:id="colStatus"  text="STATUS"
+                             prefWidth="100" style="-fx-alignment:CENTER;"/>
+                <TableColumn fx:id="colBids"    text="BIDS"
+                             prefWidth="65"  style="-fx-alignment:CENTER;"/>
+                <TableColumn fx:id="colActions" text="ACTIONS"
+                             prefWidth="180" style="-fx-alignment:CENTER;"/>
+            </columns>
+            <placeholder>
+                <Label text="No users found."
+                       style="-fx-text-fill:#a0aec0; -fx-font-size:13px;"/>
+            </placeholder>
+        </TableView>
+    </VBox>
+
+</VBox>

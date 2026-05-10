@@ -1,6 +1,7 @@
 package com.auction.client.controller;
 
 import com.auction.client.Enum.AccountStatus;
+import com.auction.client.Enum.SystemRole;
 import com.auction.client.model.User;
 import com.auction.client.service.AuthService;
 import com.auction.client.controller.AnimationUtil;
@@ -79,10 +80,15 @@ public class LoginController {
         AnimationUtil.pulse(loginBtn);
 
         PauseTransition nav = new PauseTransition(Duration.millis(600));
-        nav.setOnFinished(ev ->
+        nav.setOnFinished(ev -> {
+            if (currentUser.getSystemRole() == SystemRole.ADMIN) {
+                SceneManager.get().navigate(SceneManager.Screen.ADMIN_MAIN,
+                        (AdminMainController ctrl) -> ctrl.initForUser(currentUser));
+            } else {
                 SceneManager.get().navigate(SceneManager.Screen.MAIN,
-                        (MainController ctrl) -> ctrl.initForUser(currentUser))
-        );
+                        (MainController ctrl) -> ctrl.initForUser(currentUser));
+            }
+        });
         nav.play();
     }
 

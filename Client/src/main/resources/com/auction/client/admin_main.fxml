@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  admin_main.fxml — App shell dành riêng cho Admin.
+  Sidebar tối màu + content pane bên phải.
+  Load động bởi AdminMainController.
+-->
+<?import java.net.URL?>
+<HBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.controller.AdminMainController"
+      fx:id="adminRoot"
+      styleClass="main-root"
+      prefWidth="1200" prefHeight="720">
+        <stylesheets>
+            <URL value="@global.css"/>
+        </stylesheets>
+
+    <!-- ══ SIDEBAR ADMIN ══════════════════════════════════ -->
+    <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="230">
+
+        <!-- Logo + Admin badge -->
+        <VBox styleClass="sidebar-logo-area" spacing="4">
+            <HBox spacing="0" alignment="CENTER_LEFT">
+                <Label text="AURUM" styleClass="sidebar-logo"/>
+                <Label text="." styleClass="sidebar-logo-dot"/>
+            </HBox>
+            <Label text="ADMIN PANEL" styleClass="sidebar-tagline"/>
+            <!-- Admin badge -->
+            <Label text="⚙  Administrator"
+                   style="-fx-background-color:#1e3a5f; -fx-text-fill:#60a5fa;
+                          -fx-background-radius:20; -fx-font-size:10px;
+                          -fx-font-weight:bold; -fx-padding:3 10;
+                          -fx-max-width:120;"/>
+        </VBox>
+
+        <!-- OVERVIEW section -->
+        <Label text="OVERVIEW" styleClass="sidebar-section"/>
+
+        <Button fx:id="navDashboard"
+                text="📊  Dashboard"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navDashboard"/>
+
+        <!-- MANAGEMENT section -->
+        <Label text="MANAGEMENT" styleClass="sidebar-section"/>
+
+        <Button fx:id="navUsers"
+                text="👥  Manage Users"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navUsers"/>
+
+        <Button fx:id="navAuctions"
+                text="🔨  Manage Auctions"
+                styleClass="nav-btn" maxWidth="Infinity"
+                onAction="#navAuctions"/>
+
+        <!-- Spacer -->
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <!-- Logout -->
+        <Button text="🚪  Sign Out"
+                style="-fx-background-color:transparent; -fx-text-fill:#4a3030;
+                       -fx-font-size:12px; -fx-font-weight:bold;
+                       -fx-alignment:CENTER_LEFT; -fx-padding:10 20;
+                       -fx-cursor:hand; -fx-max-width:Infinity;"
+                onAction="#handleLogout"/>
+
+        <!-- Admin user area -->
+        <HBox styleClass="sidebar-user-area" spacing="10" alignment="CENTER_LEFT">
+            <Label fx:id="sidebarAvatar" styleClass="sidebar-avatar" text="AD"/>
+            <VBox spacing="1">
+                <Label fx:id="sidebarUserName"
+                       styleClass="sidebar-user-name" text="Admin"/>
+                <Label styleClass="sidebar-user-role"
+                       style="-fx-text-fill:#60a5fa;"
+                       text="Administrator"/>
+            </VBox>
+        </HBox>
+
+    </VBox>
+
+    <!-- ══ RIGHT SIDE — Topbar + Content ══════════════════ -->
+    <VBox HBox.hgrow="ALWAYS">
+
+        <!-- Topbar -->
+        <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="12">
+            <VBox spacing="1" HBox.hgrow="ALWAYS">
+                <Label fx:id="topbarTitle"
+                       styleClass="topbar-page-title" text="Admin Dashboard"/>
+                <Label fx:id="topbarBread"
+                       styleClass="topbar-breadcrumb" text="Admin / Dashboard"/>
+            </VBox>
+            <!-- Search -->
+            <TextField fx:id="topbarSearch" styleClass="topbar-search"
+                       promptText="Search users, auctions..."
+                       onAction="#handleSearch"/>
+            <!-- Admin badge topbar -->
+            <Label text="⚙ ADMIN"
+                   style="-fx-background-color:#dbeafe; -fx-text-fill:#1d4ed8;
+                          -fx-background-radius:20; -fx-font-size:10px;
+                          -fx-font-weight:bold; -fx-padding:4 12;"/>
+            <Label fx:id="topbarAvatar"
+                   styleClass="topbar-avatar-btn" text="AD"
+                   onMouseClicked="#handleAvatarClick"/>
+        </HBox>
+
+        <!-- Dynamic content -->
+        <StackPane fx:id="contentPane"
+                   VBox.vgrow="ALWAYS"
+                   styleClass="content-area"/>
+    </VBox>
+
+</HBox>

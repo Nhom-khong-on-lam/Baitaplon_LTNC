@@ -4,21 +4,15 @@
 <?import javafx.geometry.Insets?>
 
 <!--
-  main.fxml — App shell.
-  Sidebar cố định bên trái, StackPane fx:id="contentPane" bên phải
-  chứa nội dung được load động từ MainController.
+  main.fxml — App shell dành cho USER.
+  Không có admin menu — admin có shell riêng (admin_main.fxml).
 -->
-<?import java.lang.String?>
-<?import java.net.URL?>
 <HBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.auction.client.controller.MainController"
       fx:id="mainRoot"
       styleClass="main-root"
       prefWidth="1100" prefHeight="700">
-    <stylesheets>
-        <URL value="@global.css"/>
-    </stylesheets>
 
     <!-- ══ SIDEBAR ════════════════════════════════════════ -->
     <VBox fx:id="sidebar" styleClass="sidebar">
@@ -32,7 +26,7 @@
             <Label text="AUCTION PLATFORM" styleClass="sidebar-tagline"/>
         </VBox>
 
-        <!-- Main nav -->
+        <!-- MAIN nav -->
         <Label text="MAIN" styleClass="sidebar-section"/>
 
         <Button fx:id="navDashboard"  text="⬛  Dashboard"
@@ -51,14 +45,7 @@
                 styleClass="nav-btn" maxWidth="Infinity"
                 onAction="#navCreate"/>
 
-        <!-- Admin only (visibility controlled in MainController) -->
-        <Label fx:id="adminSection" text="ADMIN" styleClass="sidebar-section"
-               visible="false" managed="false"/>
-        <Button fx:id="navAdmin" text="⚙  Admin Panel"
-                styleClass="nav-btn" maxWidth="Infinity"
-                onAction="#navAdmin"
-                visible="false" managed="false"/>
-
+        <!-- ACCOUNT -->
         <Label text="ACCOUNT" styleClass="sidebar-section"/>
         <Button fx:id="navProfile" text="👤  Profile"
                 styleClass="nav-btn" maxWidth="Infinity"
@@ -69,7 +56,10 @@
 
         <!-- Logout -->
         <Button text="🚪  Sign Out"
-                style="-fx-background-color:transparent; -fx-text-fill:#4a3030; -fx-font-size:12px; -fx-font-weight:bold; -fx-alignment:CENTER_LEFT; -fx-padding:10 20; -fx-cursor:hand; -fx-max-width:Infinity;"
+                style="-fx-background-color:transparent; -fx-text-fill:#4a3030;
+                       -fx-font-size:12px; -fx-font-weight:bold;
+                       -fx-alignment:CENTER_LEFT; -fx-padding:10 20;
+                       -fx-cursor:hand; -fx-max-width:Infinity;"
                 onAction="#handleLogout"/>
 
         <!-- User area -->
@@ -77,7 +67,7 @@
             <Label fx:id="sidebarAvatar" styleClass="sidebar-avatar" text="AU"/>
             <VBox spacing="1">
                 <Label fx:id="sidebarUserName" styleClass="sidebar-user-name" text="Username"/>
-                <Label fx:id="sidebarUserRole" styleClass="sidebar-user-role" text="User"/>
+                <Label fx:id="sidebarUserRole" styleClass="sidebar-user-role" text="Member"/>
             </VBox>
         </HBox>
 
@@ -103,6 +93,6 @@
         <!-- Dynamic content -->
         <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS"
                    styleClass="content-area"/>
-
     </VBox>
+
 </HBox>

@@ -5,8 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminAuctionsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminDashboardController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminMainController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminUsersController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_auctions.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_dashboard.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_main.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_users.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/SceneManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/SceneManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/image/image6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/main.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,6 +42,7 @@
         <option value="CSS File" />
         <option value="FxmlFile" />
         <option value="Class" />
+        <option value="module-info" />
       </list>
     </option>
   </component>
@@ -45,49 +68,49 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.DBConnection.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
-    &quot;Application.TestInsert.executor&quot;: &quot;Run&quot;,
-    &quot;Database Script.DATABASE.sql.executor&quot;: &quot;Run&quot;,
-    &quot;Database Script.database.sql.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/ADMIN/Baitaplon_LTNC/Server/src/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.build&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.DBConnection.executor": "Run",
+    "Application.MainApp.executor": "Run",
+    "Application.TestInsert.executor": "Run",
+    "Database Script.DATABASE.sql.executor": "Run",
+    "Database Script.database.sql.executor": "Run",
+    "Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "develop",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/ADMIN/Baitaplon_LTNC/Server/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.customizations",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ],
-    &quot;RunConfigurationTargetLRU&quot;: [
-      &quot;1c51dd04-cdc9-4594-b9f0-bc35004fb068&quot;,
-      &quot;f89b9c79-0571-4441-9faa-1348da6f5751&quot;
+    "RunConfigurationTargetLRU": [
+      "1c51dd04-cdc9-4594-b9f0-bc35004fb068",
+      "f89b9c79-0571-4441-9faa-1348da6f5751"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\resources\com\auction\client" />
@@ -95,7 +118,7 @@
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\DAO" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.DBConnection">
+  <component name="RunManager">
     <configuration name="DBConnection" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="server.database.DBConnection" />
       <module name="Server" />
@@ -186,7 +209,7 @@
       <workItem from="1778320573550" duration="12882000" />
       <workItem from="1778336567795" duration="17385000" />
       <workItem from="1778355726217" duration="578000" />
-      <workItem from="1778383972170" duration="1083000" />
+      <workItem from="1778383972170" duration="6188000" />
     </task>
     <servers />
   </component>

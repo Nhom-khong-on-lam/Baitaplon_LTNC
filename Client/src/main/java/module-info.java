@@ -4,7 +4,7 @@ module com.auction.client {
     requires jakarta.mail;
     requires java.sql;
     requires jbcrypt;
-
+    requires server;
     opens com.auction.client.controller to javafx.fxml;
     exports com.auction.client.controller;
     exports com.auction.client;
