@@ -1,19 +1,19 @@
 package com.auction.client.service;
 
-import com.auction.client.model.User;
+import server.common.model.UserDTO;
 import server.repository.UserDAO;
 import org.mindrot.jbcrypt.BCrypt;
+import java.util.logging.Logger;
 
 public class UserService {
     private final UserDAO userDAO = new UserDAO();
-
+    private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
     /**
      * Đăng ký người dùng mới với mật khẩu được mã hóa
      */
     public boolean register(String username, String password, String email) {
         // 1. Kiểm tra username đã tồn tại chưa
         if (userDAO.isExisted("username", username)) {
-            System.out.println("LỖI: Username đã tồn tại!");
             return false;
         }
 
@@ -21,8 +21,9 @@ public class UserService {
         // gensalt() tạo ra một chuỗi ngẫu nhiên để trộn vào mật khẩu
         String hashedParams = BCrypt.hashpw(password, BCrypt.gensalt());
 
-        // 3. Tạo đối tượng User và lưu vào DB
-        User newUser = new User(username, hashedParams, email);
+        // 3. Sử dụng UserDTO (Sửa lỗi Expected 5 arguments but found 3)
+        // Lưu ý: Dùng constructor mặc định rồi set hoặc constructor 3 tham số đã tạo trong UserDTO
+        UserDTO newUser = new UserDTO(username, hashedParams, email);
         newUser.setSystemRole("USER");
         newUser.setAccountStatus("ACTIVE");
 
@@ -32,9 +33,9 @@ public class UserService {
     /**
      * Xác thực người dùng khi đăng nhập
      */
-    public User login(String username, String password) {
+    public UserDTO login(String username, String password) {
         // 1. Tìm user theo username
-        User user = userDAO.findByUsername(username);
+        UserDTO user = userDAO.findByUsername(username);
 
         // 2. Kiểm tra nếu user tồn tại và mật khẩu khớp
         if (user != null) {
