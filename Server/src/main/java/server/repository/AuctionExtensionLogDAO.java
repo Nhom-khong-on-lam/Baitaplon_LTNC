@@ -36,7 +36,7 @@ public class AuctionExtensionLogDAO {
     // Lấy lịch sử gia hạn của một phiên đấu giá cụ thể
     public List<Auction_extension_logDTO> findByAuctionId(long auctionId) {
         List<Auction_extension_logDTO> logs = new ArrayList<>();
-        String sql = "SELECT * FROM auction_extension_log WHERE auction_id =? ORDER BY created_at DESC";
+        String sql = "SELECT * FROM auction_extension_log WHERE auction_id =? ORDER BY id DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -46,9 +46,8 @@ public class AuctionExtensionLogDAO {
                     logs.add(new Auction_extension_logDTO(
                             rs.getLong("id"),
                             rs.getLong("auction_id"),
-                            rs.getInt("extended_minutes"),
-                            rs.getString("reason"),
-                            rs.getTimestamp("created_at").toLocalDateTime()
+                            rs.getTimestamp("original_end_time").toLocalDateTime(),
+                            rs.getTimestamp("new_end_time").toLocalDateTime()
                     ));
                 }
             }
@@ -58,8 +57,8 @@ public class AuctionExtensionLogDAO {
         return logs;
     }
     // Tính tổng thời gian đã bị gia hạn của một phiên(Hữu ích để phân tích)
-    public int getTotalExtendedMinutes(long auctionId) {
-        String sql = "SELECT SUM(extended_minutes) FROM auction_extension_log WHERE auction_id = ?";
+    public long getTotalExtendedMinutes(long auctionId) {
+        String sql = "SELECT SUM(TIMESTAMPDIFF(MINUTE, original_end_time, new_end_time)) FROM auction_extension_log WHERE auction_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, auctionId);
