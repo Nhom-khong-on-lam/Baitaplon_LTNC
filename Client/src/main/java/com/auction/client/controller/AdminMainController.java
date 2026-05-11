@@ -40,7 +40,7 @@ public class AdminMainController {
     private Button activeBtn;
     private User   currentAdmin;
 
-    private static final String BASE = "/com/auction/client/fxml/";
+    private static final String BASE = "/com/auction/client/";
 
     // ── Init ──────────────────────────────────────────────
     @FXML
@@ -54,10 +54,9 @@ public class AdminMainController {
     public void initForUser(User admin) {
         this.currentAdmin = admin;
 
-        // Gán userData cho root node để các child controller tìm được shell
+        // Giữ nguyên dòng gốc — giờ scene đã sẵn sàng rồi
         sidebar.getScene().getRoot().setUserData(this);
 
-        // Avatar initials
         String name = admin.getUsername();
         String initials = name.length() >= 2
                 ? name.substring(0, 2).toUpperCase()
@@ -65,13 +64,10 @@ public class AdminMainController {
         sidebarAvatar.setText(initials);
         sidebarUserName.setText(name);
         topbarAvatar.setText(initials);
-
-        // Load trang mặc định = Dashboard
         setActive(navDashboard);
         loadContent(BASE + "admin_dashboard.fxml",
                 (AdminDashboardController ctrl) -> ctrl.initData(admin));
     }
-
     // ── Navigation handlers ───────────────────────────────
     @FXML public void navDashboard() {
         setActive(navDashboard);

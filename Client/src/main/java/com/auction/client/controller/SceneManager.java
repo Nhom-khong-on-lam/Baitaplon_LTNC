@@ -21,11 +21,11 @@ public class SceneManager {
 
     // ── Enum tất cả màn hình ───────────────────────────────
     public enum Screen {
-        SPLASH   ("/com/auction/client/fxml/splash.fxml"),
-        LOGIN    ("/com/auction/client/fxml/login.fxml"),
-        REGISTER ("/com/auction/client/fxml/register.fxml"),
-        MAIN     ("/com/auction/client/fxml/main.fxml"),   // Shell chứa sidebar + content
-        ADMIN_MAIN ("/com/auction/client/fxml/admin_main.fxml");
+        SPLASH   ("/com/auction/client/splash.fxml"),
+        LOGIN    ("/com/auction/client/login.fxml"),
+        REGISTER ("/com/auction/client/register.fxml"),
+        MAIN     ("/com/auction/client/main.fxml"),   // Shell chứa sidebar + content
+        ADMIN_MAIN ("/com/auction/client/admin_main.fxml");
 
         public final String path;
         Screen(String p) { this.path = p; }
@@ -61,23 +61,25 @@ public class SceneManager {
                     getClass().getResource(screen.path));
             Parent next = loader.load();
 
-            // Inject CSS
             String css = getClass()
-                    .getResource("/com/auction/client/css/global.css")
+                    .getResource("/com/auction/client/global.css")
                     .toExternalForm();
             if (!next.getStylesheets().contains(css))
                 next.getStylesheets().add(css);
 
-            // Callback cho controller
-            if (setup != null) setup.accept(loader.getController());
+            // ❌ Xóa dòng này — callback không còn ở đây nữa
+            // if (setup != null) setup.accept(loader.getController());
 
-            // Fade out → swap → fade in
             Parent prev = scene.getRoot();
             FadeTransition out = new FadeTransition(Duration.millis(160), prev);
             out.setToValue(0);
             out.setOnFinished(e -> {
                 next.setOpacity(0);
-                scene.setRoot(next);
+                scene.setRoot(next);          // scene có root rồi
+
+                if (setup != null)            // ✅ callback chạy sau
+                    setup.accept(loader.getController());
+
                 FadeTransition in = new FadeTransition(Duration.millis(240), next);
                 in.setToValue(1);
                 in.play();

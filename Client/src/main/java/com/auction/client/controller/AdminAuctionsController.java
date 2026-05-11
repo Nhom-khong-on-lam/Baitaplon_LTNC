@@ -15,11 +15,12 @@ import javafx.scene.layout.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * AdminAuctionsController — Quản lý toàn bộ phiên đấu giá.
- * Chức năng: xem, filter, search, kết thúc sớm, xóa.
+ * Chức năng: xem, filter, search, kết thúc sớm, gia hạn, xóa.
  */
 public class AdminAuctionsController {
 
@@ -33,10 +34,11 @@ public class AdminAuctionsController {
             colBids, colStatus, colEnds,
             colActions;
 
-    private final AuctionService auctionService = new AuctionService();
+    private AuctionService auctionService;
 
     private User           currentAdmin;
     private List<Auction>  allAuctions;
+    private String currentTab = "ALL";
 
     @FXML
     public void initialize() {
@@ -45,21 +47,24 @@ public class AdminAuctionsController {
 
     public void initData(User admin) {
         this.currentAdmin = admin;
-        this.allAuctions  = new java.util.ArrayList<>(auctionService.getAllAuctions());
-        totalLabel.setText(allAuctions.size() + " auctions");
-        setActiveTab(tabAll);
-        loadTable(allAuctions);
+        if (auctionService == null) auctionService = new AuctionService();
+        this.allAuctions = new java.util.ArrayList<>(auctionService.getAllAuctions());
+        javafx.application.Platform.runLater(() -> {
+            totalLabel.setText(allAuctions.size() + " auctions");
+            setActiveTab(tabAll);
+            loadTable(allAuctions);
+        });
     }
 
     // ── Tab filters ───────────────────────────────────────────
-    @FXML
-    public void showAll() {
+    @FXML public void showAll() {
+        currentTab ="ALL";
         setActiveTab(tabAll);
         loadTable(allAuctions);
     }
 
-    @FXML
-    public void showLive() {
+    @FXML public void showLive() {
+        currentTab = "LIVE";
         setActiveTab(tabLive);
         loadTable(allAuctions.stream()
                 .filter(a -> a.getStatus() == AuctionStatus.RUNNING
@@ -67,10 +72,9 @@ public class AdminAuctionsController {
                 .collect(Collectors.toList()));
     }
 
-    @FXML
-    public void showEnding() {
+    @FXML public void showEnding() {
+        currentTab ="ENDING";
         setActiveTab(tabEnding);
-        // Ending = còn dưới 1 giờ
         loadTable(allAuctions.stream()
                 .filter(a -> a.getStatus() == AuctionStatus.RUNNING
                         && a.getEndTime().isAfter(LocalDateTime.now())
@@ -78,8 +82,8 @@ public class AdminAuctionsController {
                 .collect(Collectors.toList()));
     }
 
-    @FXML
-    public void showFinished() {
+    @FXML public void showFinished() {
+        currentTab ="FINISHED";
         setActiveTab(tabFinished);
         loadTable(allAuctions.stream()
                 .filter(a -> a.getStatus() == AuctionStatus.FINISHED
@@ -88,8 +92,16 @@ public class AdminAuctionsController {
                 .collect(Collectors.toList()));
     }
 
-    @FXML
-    public void handleSearch() {
+    private void refreshCurrentTab() {
+        switch (currentTab) {
+            case "LIVE"     -> showLive();
+            case "ENDING"   -> showEnding();
+            case "FINISHED" -> showFinished();
+            default         -> showAll();
+        }
+    }
+
+    @FXML public void handleSearch() {
         String kw = searchField.getText() == null ? ""
                 : searchField.getText().trim().toLowerCase();
         if (kw.isEmpty()) {
@@ -108,7 +120,6 @@ public class AdminAuctionsController {
         colId.setCellValueFactory(c ->
                 new SimpleStringProperty(String.valueOf(c.getValue().getId())));
 
-        // Category icon
         colIcon.setCellValueFactory(c ->
                 new SimpleStringProperty(c.getValue().getItem().getCategory()));
         colIcon.setCellFactory(col -> new TableCell<>() {
@@ -149,7 +160,7 @@ public class AdminAuctionsController {
 
         colPrice.setCellValueFactory(c ->
                 new SimpleStringProperty(
-                        "$" + String.format("%,.0f", c.getValue().getCurrentPrice())));
+                        String.format("%,.0f", c.getValue().getCurrentPrice())));
         colPrice.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String p, boolean empty) {
                 super.updateItem(p, empty);
@@ -163,7 +174,6 @@ public class AdminAuctionsController {
                 new SimpleStringProperty(
                         String.valueOf(c.getValue().getBidHistory().size())));
 
-        // Status pill
         colStatus.setCellValueFactory(c -> {
             Auction a = c.getValue();
             boolean live = a.getStatus() == AuctionStatus.RUNNING
@@ -179,9 +189,9 @@ public class AdminAuctionsController {
                 if (empty || status == null) { setGraphic(null); return; }
                 Label pill = new Label(status);
                 String sc = switch (status) {
-                    case "Live"     -> "pill-running";
-                    case "Ending"   -> "pill-ending";
-                    default         -> "pill-finished";
+                    case "Live"   -> "pill-running";
+                    case "Ending" -> "pill-ending";
+                    default       -> "pill-finished";
                 };
                 pill.getStyleClass().add(sc);
                 setGraphic(pill); setAlignment(Pos.CENTER);
@@ -195,22 +205,32 @@ public class AdminAuctionsController {
                             .ofPattern("MMM dd, HH:mm")) : "—");
         });
 
-        // Actions: End Early + Delete
-        colActions.setCellFactory(col -> new TableCell<Auction,String>() {
-            private final Button endBtn = new Button("End Early");
-            private final Button delBtn = new Button("Delete");
-            private final HBox   box    = new HBox(8, endBtn, delBtn);
+        // ── Actions: End Early + Extend + Delete ──────────────
+        colActions.setCellFactory(col -> new TableCell<Auction, String>() {
+            private final Button endBtn    = new Button("End Early");
+            private final Button extendBtn = new Button("⏱ Extend");
+            private final Button delBtn    = new Button("Delete");
+            private final HBox   box       = new HBox(6, endBtn, extendBtn, delBtn);
 
             {
-                endBtn.setStyle("-fx-padding:4 10; -fx-font-size:11px;");
+                endBtn.setStyle("-fx-padding:4 8; -fx-font-size:11px;");
                 endBtn.getStyleClass().add("btn-secondary");
-                delBtn.setStyle("-fx-padding:4 10; -fx-font-size:11px;");
+
+                extendBtn.setStyle("-fx-padding:4 8; -fx-font-size:11px;");
+                extendBtn.getStyleClass().add("btn-primary");
+
+                delBtn.setStyle("-fx-padding:4 8; -fx-font-size:11px;");
                 delBtn.getStyleClass().add("btn-danger");
+
                 box.setAlignment(Pos.CENTER);
 
                 endBtn.setOnAction(e -> {
                     Auction a = getTableView().getItems().get(getIndex());
                     handleEndEarly(a);
+                });
+                extendBtn.setOnAction(e -> {
+                    Auction a = getTableView().getItems().get(getIndex());
+                    handleExtend(a);
                 });
                 delBtn.setOnAction(e -> {
                     Auction a = getTableView().getItems().get(getIndex());
@@ -222,10 +242,15 @@ public class AdminAuctionsController {
             protected void updateItem(String o, boolean empty) {
                 super.updateItem(o, empty);
                 if (empty) { setGraphic(null); return; }
+
                 Auction a = getTableView().getItems().get(getIndex());
                 boolean live = a.getStatus() == AuctionStatus.RUNNING
                         && a.getEndTime().isAfter(LocalDateTime.now());
+
+                // Chỉ enable End Early và Extend khi phiên đang live
                 endBtn.setDisable(!live);
+                extendBtn.setDisable(!live);
+
                 setGraphic(box);
             }
         });
@@ -233,9 +258,15 @@ public class AdminAuctionsController {
 
     private void loadTable(List<Auction> list) {
         ObservableList<Auction> obs = FXCollections.observableArrayList(list);
-        auctionsTable.setItems(obs);
-        AnimationUtil.fadeIn(auctionsTable, 250);
-        totalLabel.setText(list.size() + " auctions");
+        javafx.application.Platform.runLater(() -> {
+            if (auctionsTable != null) {
+                auctionsTable.setItems(obs);
+                if (auctionsTable.getScene() != null)
+                    AnimationUtil.fadeIn(auctionsTable, 250);
+            }
+            if (totalLabel != null)
+                totalLabel.setText(list.size() + " auctions");
+        });
     }
 
     private void setActiveTab(Button tab) {
@@ -245,35 +276,79 @@ public class AdminAuctionsController {
     }
 
     // ── Actions ───────────────────────────────────────────────
+
+    private void handleExtend(Auction auction) {
+        // Kiểm tra an toàn trước khi hiện Dialog
+        boolean isLive = auction.getStatus() == AuctionStatus.RUNNING
+                && auction.getEndTime().isAfter(LocalDateTime.now());
+        if (!isLive) {
+            showError("This auction is not active and cannot be extended.");
+            return;
+        }
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("1 hour", "1 hour", "3 hours", "6 hours", "12 hours", "24 hours");
+        dialog.setTitle("Extend Auction");
+        dialog.setHeaderText("Extend \"" + auction.getItem().getName() + "\"");
+        dialog.setContentText("Current end time: " + auction.getEndTime().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm")));
+
+        dialog.showAndWait().ifPresent(choice -> {
+            int hours = switch (choice) {
+                case "3 hours" -> 3;
+                case "6 hours" -> 6;
+                case "12 hours" -> 12;
+                case "24 hours" -> 24;
+                default -> 1;
+            };
+
+            if (auctionService.extendAuction(auction.getId(), hours)) {
+                // THAY THẾ: Refresh lại tab thay vì chỉ refresh bảng
+                refreshCurrentTab();
+                showInfo("✓ Auction extended successfully.");
+            } else {
+                showError("Failed to extend auction.");
+            }
+        });
+    }
+
     private void handleEndEarly(Auction auction) {
         Alert confirm = new Alert(AlertType.CONFIRMATION);
         confirm.setTitle("End Auction Early");
         confirm.setHeaderText("End \"" + auction.getItem().getName() + "\" now?");
         confirm.setContentText("The current highest bidder will win this auction.");
+
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
+                // Gọi hàm bình thường (dù nó là void)
                 auctionService.endAuctionEarly(auction.getId());
-                auctionsTable.refresh();
+
+                // Sau đó gọi refresh tab luôn
+                refreshCurrentTab();
                 showInfo("Auction ended successfully.");
             }
         });
     }
-
     private void handleDelete(Auction auction) {
         Alert confirm = new Alert(AlertType.CONFIRMATION);
         confirm.setTitle("Delete Auction");
         confirm.setHeaderText("Delete \"" + auction.getItem().getName() + "\"?");
         confirm.setContentText("⚠️ This will permanently remove the auction and all bids.");
+
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
+                // Gọi service xóa
                 auctionService.deleteAuction(auction.getId());
+
+                // Xóa khỏi danh sách dữ liệu gốc để không hiện lại khi chuyển tab
                 allAuctions.removeIf(a -> a.getId().equals(auction.getId()));
-                loadTable(allAuctions);
+
+                // Cập nhật lại giao diện
+                refreshCurrentTab();
                 showInfo("Auction deleted.");
             }
         });
     }
 
+    // ── Helpers ───────────────────────────────────────────────
     private void showInfo(String msg) {
         Alert info = new Alert(AlertType.INFORMATION);
         info.setTitle("Admin Action");
@@ -282,7 +357,14 @@ public class AdminAuctionsController {
         info.show();
     }
 
-    /** Map category name → emoji icon */
+    private void showError(String msg) {
+        Alert error = new Alert(AlertType.ERROR);
+        error.setTitle("Error");
+        error.setHeaderText(null);
+        error.setContentText(msg);
+        error.show();
+    }
+
     private String categoryIcon(String cat) {
         if (cat == null) return "📦";
         return switch (cat) {
@@ -294,5 +376,39 @@ public class AdminAuctionsController {
             case "Real Estate" -> "🏠";
             default            -> "📦";
         };
+    }
+
+    public void setAuctionService(AuctionService auctionService) {
+        this.auctionService = auctionService;
+    }
+
+    public TableView<Auction> getAuctionsTable() { return auctionsTable; }
+    public TextField getSearchField()            { return searchField; }
+    public void setAuctionsTable(TableView<Auction> auctionsTable) {
+        this.auctionsTable = auctionsTable;
+    }
+
+    public void setSearchField(TextField searchField) {
+        this.searchField = searchField;
+    }
+
+    public void setTotalLabel(Label label) {
+        this.totalLabel = label;
+    }
+
+    public void setTabAll(Button button) {
+        this.tabAll = button;
+    }
+
+    public void setTabLive(Button button) {
+        this.tabLive = button;
+    }
+
+    public void setTabEnding(Button button) {
+        this.tabEnding = button;
+    }
+
+    public void setTabFinished(Button button) {
+        this.tabFinished = button;
     }
 }

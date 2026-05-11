@@ -217,6 +217,11 @@
     -fx-text-fill: #243650;
     -fx-letter-spacing: 2px;
 }
+.sidebar-avatar {
+    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-content-display: center;
+}
 .sidebar-section {
     -fx-font-size: 9px;
     -fx-text-fill: #243650;

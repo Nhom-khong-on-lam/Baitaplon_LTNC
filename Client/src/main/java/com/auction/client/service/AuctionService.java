@@ -90,6 +90,14 @@ public class AuctionService {
             return false;
         }
     }
+    //Gia hạn phiên đấu giá
+    public boolean extendAuction(Long auctionId, int extraHours) {
+        Auction auction = auctions.get(auctionId);
+        if (auction == null || auction.getStatus() != AuctionStatus.RUNNING)
+            return false;
+        auction.setEndTime(auction.getEndTime().plusHours(extraHours));
+        return true;
+    }
 
     public List<Auction> getMyBids(Long userId) {
         if (userId == null) return Collections.emptyList();

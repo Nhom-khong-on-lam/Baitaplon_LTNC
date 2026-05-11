@@ -108,6 +108,25 @@ public class Auction extends BaseEntity {
     public String getTitle(){return item.getName();}
     public String getDescription(){return item.getDescription();}
     public String getCategory(){return item.getCategory();}
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public void setCurrentPrice(double price) {
+        this.currentPrice =price;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public void setSeller(User seller) {
+        this.seller = seller;
+    }
+
+
+    public void setBidHistory(List<BidTransaction> bidHistory) {
+        this.bidHistory = bidHistory;
+    }
     public String getCategoryIcon() {
         String category = item.getCategory();
         switch (category.toLowerCase()) {
@@ -236,4 +255,5 @@ public class Auction extends BaseEntity {
         for (Observer o : observers) o.update(this);
     }
 
-}
+
+    }

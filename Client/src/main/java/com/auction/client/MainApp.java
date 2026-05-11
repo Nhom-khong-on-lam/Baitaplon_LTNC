@@ -8,17 +8,18 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Khởi tạo SceneManager với stage và kích thước mặc định
-        SceneManager.get().init(stage, 1100, 700);
+        // 1. Khởi tạo SceneManager (Singleton của bạn)
+        // Truyền Stage vào để SceneManager quản lý việc chuyển màn hình
+        SceneManager.get().init(stage, 1000, 600);
 
-        // Hiện stage trước khi navigate
+        // 2. Hiện cửa sổ lên (Vẫn sẽ hiện hình con Duke mặc định)
         stage.show();
 
-        // Bắt đầu từ Splash Screen
-        SceneManager.get().navigate(SceneManager.Screen.SPLASH);
+        SceneManager.get().navigate(SceneManager.Screen.REGISTER);
     }
 
     public static void main(String[] args) {
-        launch();
+        // Gọi hàm launch để bắt đầu vòng đời JavaFX
+        launch(args);
     }
 }
