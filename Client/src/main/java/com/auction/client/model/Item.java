@@ -2,8 +2,7 @@ package com.auction.client.model;
 
 import java.time.LocalDateTime;
 
-public abstract class Item {
-    private Long id;
+public abstract class Item extends BaseEntity {
     private String name;
     private String description;
     private double startingPrice;
@@ -17,6 +16,7 @@ public abstract class Item {
     public Item(){}
     public Item(Long id, String name, String description, double startingPrice,
                 Long sellerId, String sellerName, LocalDateTime endTime) {
+        super(id);
         this.id = id;
         this.name = name;
         this.description = description;

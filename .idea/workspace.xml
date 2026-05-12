@@ -5,17 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ArtFactoryTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ArtTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionObserverTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ElectronicsFactoryTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ElectronicsTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ItemTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/VehicleFactoryTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/VehicleTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/DBConnectionTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/AuctionExtensionLogDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/MainApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/MainApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/model/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/model/Item.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/global.css" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/global.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/main.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +57,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.DBConnection.executor": "Run",
+    "Application.DBConnectionTest.executor": "Run",
     "Application.Launcher.executor": "Run",
     "Application.MainApp.executor": "Run",
     "Application.TestConnection.executor": "Run",
@@ -88,6 +84,7 @@
     "JUnit.ItemTest.executor": "Run",
     "JUnit.LoginControllerTest.executor": "Run",
     "JUnit.MainControllerTest.executor": "Run",
+    "JUnit.MainTest.executor": "Run",
     "JUnit.MyBidsControllerTest.executor": "Run",
     "JUnit.MyProductsControllerTest.executor": "Run",
     "JUnit.ProfileControllerTest.executor": "Run",
@@ -243,7 +240,9 @@
       <workItem from="1778401340363" duration="1045000" />
       <workItem from="1778421310775" duration="690000" />
       <workItem from="1778422026827" duration="13142000" />
-      <workItem from="1778473583183" duration="37332000" />
+      <workItem from="1778473583183" duration="37540000" />
+      <workItem from="1778547767122" duration="1203000" />
+      <workItem from="1778584620246" duration="7943000" />
     </task>
     <servers />
   </component>

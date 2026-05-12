@@ -15,7 +15,7 @@ public class MainApp extends Application {
         // 2. Hiện cửa sổ lên (Vẫn sẽ hiện hình con Duke mặc định)
         stage.show();
 
-        SceneManager.get().navigate(SceneManager.Screen.REGISTER);
+        SceneManager.get().navigate(SceneManager.Screen.ADMIN_MAIN);
     }
 
     public static void main(String[] args) {

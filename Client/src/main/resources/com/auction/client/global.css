@@ -192,7 +192,7 @@
 
 /* ── Sidebar ─────────────────────────────────────────────── */
 .sidebar {
-    -fx-background-color: #0f1923;
+    -fx-background-color: #0f172a;
     -fx-pref-width: 230px;
     -fx-min-width: 230px;
     -fx-max-width: 230px;
@@ -241,16 +241,17 @@
     -fx-graphic-text-gap: 10;
 }
 .nav-btn:hover {
-    -fx-background-color: #162030;
+    -fx-background-color: rgba(255, 255, 255, 0.1);
     -fx-text-fill: #a0c0e0;
 }
 .nav-btn-active {
-    -fx-background-color: #162030;
-    -fx-text-fill: #60a5fa;
-    -fx-border-color: #2563eb;
-    -fx-border-width: 0 0 0 3;
-    -fx-padding: 10 20 10 17;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: #ffffff;
+    /* Có thể thêm một đường viền trái để tạo điểm nhấn */
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 0 0 0 4; /* Chỉ hiện viền bên trái dày 4px */
 }
+
 .sidebar-user-area {
     -fx-background-color: #0a1218;
     -fx-padding: 14 20 14 20;

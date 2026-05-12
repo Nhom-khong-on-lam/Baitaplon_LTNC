@@ -19,29 +19,31 @@ import java.util.function.Consumer;
  * Admin có shell riêng: AdminMainController.
  *
  * Quản lý sidebar navigation và load content pane động.
+ * Giao diện mới (main.fxml v2) — logic giữ nguyên hoàn toàn.
  */
 public class MainController {
 
-    // ── Sidebar ───────────────────────────────────────────
+    // ── Sidebar ───────────────────────────────────────────────
     @FXML private VBox   sidebar;
     @FXML private Button navDashboard, navAuctions, navMyBids,
             navMyProducts, navCreate, navProfile;
     @FXML private Label  sidebarAvatar, sidebarUserName, sidebarUserRole;
 
-    // ── Topbar ────────────────────────────────────────────
+    // ── Topbar ────────────────────────────────────────────────
     @FXML private Label     topbarTitle, topbarBread, topbarAvatar;
     @FXML private TextField topbarSearch;
 
-    // ── Content ───────────────────────────────────────────
+    // ── Content ───────────────────────────────────────────────
     @FXML private StackPane contentPane;
 
-    // ── State ─────────────────────────────────────────────
+    // ── State ─────────────────────────────────────────────────
     private Button activeNavBtn;
     private User   currentUser;
 
-    private static final String BASE = "/com/auction/client/fxml/";
+    private static final String BASE = "/com/auction/client/";
 
-    // ── Init ──────────────────────────────────────────────
+    // ── Init ──────────────────────────────────────────────────
+
     @FXML
     public void initialize() {
         AnimationUtil.slideInLeft(sidebar, 30, 450);
@@ -49,6 +51,8 @@ public class MainController {
 
     /**
      * Gọi từ LoginController sau khi xác nhận role = USER.
+     * Thiết lập thông tin user lên sidebar / topbar,
+     * sau đó load dashboard mặc định.
      */
     public void initForUser(User user) {
         this.currentUser = user;
@@ -56,11 +60,12 @@ public class MainController {
         // Gán userData để các child controller tìm được shell này
         sidebar.getScene().getRoot().setUserData(this);
 
-        // Avatar initials
-        String name = user.getUsername();
+        // Tính initials cho avatar (tối đa 2 ký tự đầu)
+        String name     = user.getUsername();
         String initials = name.length() >= 2
                 ? name.substring(0, 2).toUpperCase()
                 : name.toUpperCase();
+
         sidebarAvatar.setText(initials);
         sidebarUserName.setText(name);
         sidebarUserRole.setText("Member");
@@ -72,55 +77,64 @@ public class MainController {
                 (DashboardController ctrl) -> ctrl.initData(user));
     }
 
-    // ── Navigation handlers ───────────────────────────────
-    @FXML public void navDashboard() {
+    // ── Navigation handlers ───────────────────────────────────
+
+    @FXML
+    public void navDashboard() {
         setActive(navDashboard);
         setTopbar("Dashboard", "Home / Dashboard");
         loadContent(BASE + "dashboard.fxml",
                 (DashboardController ctrl) -> ctrl.initData(currentUser));
     }
 
-    @FXML public void navAuctions() {
+    @FXML
+    public void navAuctions() {
         setActive(navAuctions);
         setTopbar("Live Auctions", "Home / Auctions");
         loadContent(BASE + "auctions.fxml",
                 (AuctionsController ctrl) -> ctrl.initData(currentUser));
     }
 
-    @FXML public void navMyBids() {
+    @FXML
+    public void navMyBids() {
         setActive(navMyBids);
         setTopbar("My Bids", "Home / My Bids");
         loadContent(BASE + "my_bids.fxml",
                 (MyBidsController ctrl) -> ctrl.initData(currentUser));
     }
 
-    @FXML public void navMyProducts() {
+    @FXML
+    public void navMyProducts() {
         setActive(navMyProducts);
         setTopbar("My Products", "Home / My Products");
         loadContent(BASE + "my_products.fxml",
                 (MyProductsController ctrl) -> ctrl.initData(currentUser));
     }
 
-    @FXML public void navCreate() {
+    @FXML
+    public void navCreate() {
         setActive(navCreate);
         setTopbar("Create Auction", "Home / Create Auction");
         loadContent(BASE + "create_auction.fxml",
                 (CreateAuctionController ctrl) -> ctrl.initData(currentUser));
     }
 
-    @FXML public void navProfile() {
+    @FXML
+    public void navProfile() {
         setActive(navProfile);
         setTopbar("Profile", "Home / Profile");
         loadContent(BASE + "profile.fxml",
                 (ProfileController ctrl) -> ctrl.initData(currentUser));
     }
 
-    @FXML public void handleLogout() {
+    @FXML
+    public void handleLogout() {
         SessionManager.get().logout();
         SceneManager.get().navigate(SceneManager.Screen.LOGIN);
     }
 
-    @FXML public void handleSearch() {
+    @FXML
+    public void handleSearch() {
         String kw = topbarSearch.getText().trim();
         if (!kw.isEmpty()) {
             setActive(navAuctions);
@@ -133,11 +147,13 @@ public class MainController {
         }
     }
 
-    @FXML public void handleNotifications() {
+    @FXML
+    public void handleNotifications() {
         // TODO: hiện notification panel
     }
 
-    @FXML public void handleAvatarClick(MouseEvent e) {
+    @FXML
+    public void handleAvatarClick(MouseEvent e) {
         ContextMenu menu = new ContextMenu();
         menu.getStyleClass().add("context-menu");
 
@@ -151,12 +167,22 @@ public class MainController {
 
         menu.getItems().addAll(profile, settings,
                 new SeparatorMenuItem(), logout);
-        menu.show(topbarAvatar,
-                topbarAvatar.localToScreen(0, topbarAvatar.getHeight() + 6).getX(),
-                topbarAvatar.localToScreen(0, topbarAvatar.getHeight() + 6).getY());
+
+        double x = topbarAvatar.localToScreen(0, topbarAvatar.getHeight() + 6).getX();
+        double y = topbarAvatar.localToScreen(0, topbarAvatar.getHeight() + 6).getY();
+        menu.show(topbarAvatar, x, y);
     }
 
-    // ── Core: load content với animation ──────────────────
+    // ── Core: load content với fade + slide animation ─────────
+
+    /**
+     * Load một FXML vào contentPane với animation.
+     * Nếu pane đang có nội dung, fade out trước rồi swap.
+     *
+     * @param fxmlPath đường dẫn resource tới file FXML
+     * @param setup    Consumer nhận controller của panel vừa load (có thể null)
+     * @param <T>      kiểu controller
+     */
     public <T> void loadContent(String fxmlPath, Consumer<T> setup) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -188,7 +214,8 @@ public class MainController {
         AnimationUtil.slideUp(panel, 16, 280);
     }
 
-    // ── Sidebar active state ───────────────────────────────
+    // ── Sidebar active state ──────────────────────────────────
+
     private void setActive(Button btn) {
         if (activeNavBtn != null) {
             activeNavBtn.getStyleClass().remove("nav-btn-active");
@@ -205,6 +232,8 @@ public class MainController {
         topbarTitle.setText(title);
         topbarBread.setText(breadcrumb);
     }
+
+    // ── Getter ────────────────────────────────────────────────
 
     public User getCurrentUser() { return currentUser; }
 }
