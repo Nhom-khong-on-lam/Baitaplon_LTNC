@@ -7,18 +7,16 @@ public class ItemDTO {
     private String name;
     private String description;
     private double startingPrice;
-    private String category;    // Theo ERD: ELECTRONICS, ART, VEHICLE...
-    private String brandMake;   // Thương hiệu (brand_make)
+    private String category;
+    private String brandMake;
     private String model;
-    private String artist;      // Dùng cho category ART
+    private String artist;
     private Integer productionYear;
     private LocalDateTime createdAt;
 
-    // Constructor mặc định cho DAO
     public ItemDTO() {
     }
 
-    // Getter và Setter
     public Long getId() {
         return id;
     }
