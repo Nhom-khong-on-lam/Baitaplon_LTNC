@@ -23,6 +23,9 @@ public class User extends BaseEntity {
         this.accountStatus = AccountStatus.ACTIVE;
     }
 
+    public User(String testUser) {
+    }
+
     public String getUsername() {
         return this.username;
     }
