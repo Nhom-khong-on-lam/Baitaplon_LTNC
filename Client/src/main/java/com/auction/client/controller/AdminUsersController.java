@@ -196,7 +196,8 @@ public class AdminUsersController {
                 super.updateItem(o, empty);
                 if (empty) { setGraphic(null); return; }
                 User u = getTableView().getItems().get(getIndex());
-                boolean isSelf = u.getId().equals(currentAdmin.getId());
+                // Sửa dòng 199 thành:
+                boolean isSelf = java.util.Objects.equals(u.getId(), currentAdmin.getId());
                 boolean banned = u.getAccountStatus() == AccountStatus.BANNED;
 
                 // Điều chỉnh label và style nút Ban/Unban

@@ -1,83 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
 <!--
   admin_main.fxml — App shell dành riêng cho Admin.
   Sidebar tối màu + content pane bên phải.
   Load động bởi AdminMainController.
 -->
-<?import java.net.URL?>
-<HBox xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.auction.client.controller.AdminMainController"
-      fx:id="adminRoot"
-      styleClass="main-root"
-      prefWidth="1200" prefHeight="720">
+
+<HBox fx:id="adminRoot" prefHeight="720" prefWidth="1200" styleClass="main-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.AdminMainController">
         <stylesheets>
-            <URL value="@global.css"/>
+            <URL value="@global.css" />
         </stylesheets>
 
     <!-- ══ SIDEBAR ADMIN ══════════════════════════════════ -->
-    <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="230">
+    <VBox fx:id="sidebar" prefWidth="230" styleClass="sidebar">
 
         <!-- Logo + Admin badge -->
-        <VBox styleClass="sidebar-logo-area" spacing="4">
-            <HBox spacing="0" alignment="CENTER_LEFT">
-                <Label text="AURUM" styleClass="sidebar-logo"/>
-                <Label text="." styleClass="sidebar-logo-dot"/>
+        <VBox spacing="4" styleClass="sidebar-logo-area">
+            <HBox alignment="CENTER_LEFT" spacing="0">
+                <Label styleClass="sidebar-logo" text="AURUM" />
+                <Label styleClass="sidebar-logo-dot" text="." />
             </HBox>
-            <Label text="ADMIN PANEL" styleClass="sidebar-tagline"/>
+            <Label styleClass="sidebar-tagline" text="ADMIN PANEL" />
             <!-- Admin badge -->
-            <Label text="⚙  Administrator"
-                   style="-fx-background-color:#1e3a5f; -fx-text-fill:#60a5fa;
-                          -fx-background-radius:20; -fx-font-size:10px;
-                          -fx-font-weight:bold; -fx-padding:3 10;
-                          -fx-max-width:120;"/>
+            <Label style="-fx-background-color:#1e3a5f; -fx-text-fill:#60a5fa;                           -fx-background-radius:20; -fx-font-size:10px;                           -fx-font-weight:bold; -fx-padding:3 10;                           -fx-max-width:120;" text="⚙  Administrator" />
         </VBox>
 
         <!-- OVERVIEW section -->
-        <Label text="OVERVIEW" styleClass="sidebar-section"/>
+        <Label styleClass="sidebar-section" text="OVERVIEW" />
 
-        <Button fx:id="navDashboard"
-                text="📊  Dashboard"
-                styleClass="nav-btn" maxWidth="Infinity"
-                onAction="#navDashboard"/>
+        <Button fx:id="navDashboard" maxWidth="Infinity" onAction="#navDashboard" styleClass="nav-btn" text="📊  Dashboard" />
 
         <!-- MANAGEMENT section -->
-        <Label text="MANAGEMENT" styleClass="sidebar-section"/>
+        <Label styleClass="sidebar-section" text="MANAGEMENT" />
 
-        <Button fx:id="navUsers"
-                text="👥  Manage Users"
-                styleClass="nav-btn" maxWidth="Infinity"
-                onAction="#navUsers"/>
+        <Button fx:id="navUsers" maxWidth="Infinity" onAction="#navUsers" styleClass="nav-btn" text="👥  Manage Users" />
 
-        <Button fx:id="navAuctions"
-                text="🔨  Manage Auctions"
-                styleClass="nav-btn" maxWidth="Infinity"
-                onAction="#navAuctions"/>
+        <Button fx:id="navAuctions" maxWidth="Infinity" onAction="#navAuctions" styleClass="nav-btn" text="🔨  Manage Auctions" textAlignment="CENTER" />
 
         <!-- Spacer -->
-        <Region VBox.vgrow="ALWAYS"/>
+        <Region VBox.vgrow="ALWAYS" />
 
         <!-- Logout -->
-        <Button text="🚪  Sign Out"
-                style="-fx-background-color:transparent; -fx-text-fill:#4a3030;
-                       -fx-font-size:12px; -fx-font-weight:bold;
-                       -fx-alignment:CENTER_LEFT; -fx-padding:10 20;
-                       -fx-cursor:hand; -fx-max-width:Infinity;"
-                onAction="#handleLogout"/>
+        <Button onAction="#handleLogout" style="-fx-background-color:transparent; -fx-text-fill:#4a3030;                        -fx-font-size:12px; -fx-font-weight:bold;                        -fx-alignment:CENTER_LEFT; -fx-padding:10 20;                        -fx-cursor:hand; -fx-max-width:Infinity;" text="🚪  Sign Out" />
 
         <!-- Admin user area -->
-        <HBox styleClass="sidebar-user-area" spacing="10" alignment="CENTER_LEFT">
-            <Label fx:id="sidebarAvatar" styleClass="sidebar-avatar" text="AD"/>
+        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="sidebar-user-area">
+            <Label fx:id="sidebarAvatar" styleClass="sidebar-avatar" text="AD" />
             <VBox spacing="1">
-                <Label fx:id="sidebarUserName"
-                       styleClass="sidebar-user-name" text="Admin"/>
-                <Label styleClass="sidebar-user-role"
-                       style="-fx-text-fill:#60a5fa;"
-                       text="Administrator"/>
+                <Label fx:id="sidebarUserName" styleClass="sidebar-user-name" text="Admin" />
+                <Label style="-fx-text-fill:#60a5fa;" styleClass="sidebar-user-role" text="Administrator" />
             </VBox>
         </HBox>
 
@@ -87,31 +67,20 @@
     <VBox HBox.hgrow="ALWAYS">
 
         <!-- Topbar -->
-        <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="12">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="topbar">
             <VBox spacing="1" HBox.hgrow="ALWAYS">
-                <Label fx:id="topbarTitle"
-                       styleClass="topbar-page-title" text="Admin Dashboard"/>
-                <Label fx:id="topbarBread"
-                       styleClass="topbar-breadcrumb" text="Admin / Dashboard"/>
+                <Label fx:id="topbarTitle" styleClass="topbar-page-title" text="Admin Dashboard" />
+                <Label fx:id="topbarBread" styleClass="topbar-breadcrumb" text="Admin / Dashboard" />
             </VBox>
             <!-- Search -->
-            <TextField fx:id="topbarSearch" styleClass="topbar-search"
-                       promptText="Search users, auctions..."
-                       onAction="#handleSearch"/>
+            <TextField fx:id="topbarSearch" onAction="#handleSearch" promptText="Search users, auctions..." styleClass="topbar-search" />
             <!-- Admin badge topbar -->
-            <Label text="⚙ ADMIN"
-                   style="-fx-background-color:#dbeafe; -fx-text-fill:#1d4ed8;
-                          -fx-background-radius:20; -fx-font-size:10px;
-                          -fx-font-weight:bold; -fx-padding:4 12;"/>
-            <Label fx:id="topbarAvatar"
-                   styleClass="topbar-avatar-btn" text="AD"
-                   onMouseClicked="#handleAvatarClick"/>
+            <Label style="-fx-background-color:#dbeafe; -fx-text-fill:#1d4ed8;                           -fx-background-radius:20; -fx-font-size:10px;                           -fx-font-weight:bold; -fx-padding:4 12;" text="⚙ ADMIN" />
+            <Label fx:id="topbarAvatar" onMouseClicked="#handleAvatarClick" styleClass="topbar-avatar-btn" text="  AD" />
         </HBox>
 
         <!-- Dynamic content -->
-        <StackPane fx:id="contentPane"
-                   VBox.vgrow="ALWAYS"
-                   styleClass="content-area"/>
+        <StackPane fx:id="contentPane" styleClass="content-area" VBox.vgrow="ALWAYS" />
     </VBox>
 
 </HBox>

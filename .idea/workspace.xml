@@ -5,9 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Client/src/test/java/AdminAuctionsControllerTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ArtFactoryTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ArtTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionObserverTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ElectronicsFactoryTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ElectronicsTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ItemTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/VehicleFactoryTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/VehicleTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/DBConnectionTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/AuctionExtensionLogDAOTest.class" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +48,9 @@
     <commands />
     <urls />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 2
@@ -51,12 +62,41 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.DBConnection.executor": "Run",
+    "Application.Launcher.executor": "Run",
     "Application.MainApp.executor": "Run",
     "Application.TestConnection.executor": "Run",
     "Application.TestInsert.executor": "Run",
     "Database Script.DATABASE.sql.executor": "Run",
     "Database Script.database.sql.executor": "Run",
+    "JUnit.AdminAuctionControllertest.executor": "Run",
+    "JUnit.AdminAuctionsControllerTest.executor": "Run",
+    "JUnit.AdminDashboardControllerTest.executor": "Run",
+    "JUnit.AdminMainControllerTest.executor": "Run",
+    "JUnit.AdminUsersControllerTest.executor": "Run",
+    "JUnit.AnimationUtilTest.executor": "Run",
+    "JUnit.ArtFactoryTest.executor": "Run",
+    "JUnit.ArtTest.executor": "Run",
+    "JUnit.AuctionDetailControllerTest.executor": "Run",
     "JUnit.AuctionExtensionLogDAOTest.executor": "Run",
+    "JUnit.AuctionObserverTest.executor": "Run",
+    "JUnit.AuctionsControllerTest.executor": "Run",
+    "JUnit.CreateAuctionControllerTest.executor": "Run",
+    "JUnit.DBConnectionTest.executor": "Run",
+    "JUnit.DashboardControllerTest.executor": "Run",
+    "JUnit.ElectronicsFactoryTest.executor": "Run",
+    "JUnit.ElectronicsTest.executor": "Run",
+    "JUnit.ItemTest.executor": "Run",
+    "JUnit.LoginControllerTest.executor": "Run",
+    "JUnit.MainControllerTest.executor": "Run",
+    "JUnit.MyBidsControllerTest.executor": "Run",
+    "JUnit.MyProductsControllerTest.executor": "Run",
+    "JUnit.ProfileControllerTest.executor": "Run",
+    "JUnit.RegisterControllerTest.executor": "Run",
+    "JUnit.SceneManagerTest.executor": "Run",
+    "JUnit.SessionManagerTest.executor": "Run",
+    "JUnit.SplashControllerTest.executor": "Run",
+    "JUnit.VehicleFactoryTest.executor": "Run",
+    "JUnit.VehicleTest.executor": "Run",
     "Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -75,7 +115,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "onboarding.tips.debug.path": "C:/Users/ADMIN/Baitaplon_LTNC/Server/src/Main.java",
-    "project.structure.last.edited": "Modules",
+    "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "run.code.analysis.last.selected.profile": "pProject Default",
@@ -117,6 +157,7 @@
     <configuration name="MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.auction.client.MainApp" />
       <module name="Client" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\javafx-sdk-21.0.11\lib&quot; --add-modules javafx.controls,javafx.fxml" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.auction.client.*" />
@@ -144,10 +185,15 @@
       <option name="filePath" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Application.DBConnection" />
+      <item itemvalue="Application.MainApp" />
+      <item itemvalue="Database Script.database.sql" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.DBConnection" />
         <item itemvalue="Application.MainApp" />
+        <item itemvalue="Application.DBConnection" />
       </list>
     </recent_temporary>
   </component>
@@ -196,7 +242,8 @@
       <workItem from="1778399688076" duration="1626000" />
       <workItem from="1778401340363" duration="1045000" />
       <workItem from="1778421310775" duration="690000" />
-      <workItem from="1778422026827" duration="3266000" />
+      <workItem from="1778422026827" duration="13142000" />
+      <workItem from="1778473583183" duration="37332000" />
     </task>
     <servers />
   </component>

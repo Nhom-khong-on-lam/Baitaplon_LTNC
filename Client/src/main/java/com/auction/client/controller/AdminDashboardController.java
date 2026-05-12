@@ -26,12 +26,12 @@ public class AdminDashboardController {
     @FXML private Label statUserDelta;
     @FXML private VBox  recentUsersList, recentAuctionsList;
 
-    private final AuthService    authService    = new AuthService();
-    private final AuctionService auctionService = new AuctionService();
+    private AuthService    authService    = new AuthService();
+    private AuctionService auctionService = new AuctionService();
 
     public void initData(User admin) {
         // Header
-        welcomeLabel.setText("Welcome back, " + admin.getUsername() + " 👋");
+        welcomeLabel.setText("Welcome back, " + admin.getUsername() );
         dateLabel.setText(LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy")));
 
@@ -127,7 +127,7 @@ public class AdminDashboardController {
         info.getChildren().addAll(title, seller);
 
         // Price
-        Label price = new Label("$" + String.format("%,.0f", auction.getCurrentPrice()));
+        Label price = new Label( String.format("%,.0f", auction.getCurrentPrice()));
         price.setStyle("-fx-font-weight:bold; -fx-text-fill:#2563eb; -fx-font-size:13px;");
 
         row.getChildren().addAll(icon, info, price);
@@ -145,5 +145,30 @@ public class AdminDashboardController {
     private AdminMainController getShell() {
         return (AdminMainController) recentUsersList
                 .getScene().getRoot().getUserData();
+    }
+    public void setAuthService(AuthService authService) {
+        this.authService = authService;
+    }
+
+    public void setAuctionService(AuctionService auctionService) {
+        this.auctionService = auctionService;
+    }
+    public void setWelcomeLabel(Label welcomeLabel) { this.welcomeLabel = welcomeLabel; }
+    public void setDateLabel(Label dateLabel) { this.dateLabel = dateLabel; }
+    public void setStatTotalUsers(Label statTotalUsers) { this.statTotalUsers = statTotalUsers; }
+    public void setStatTotalAuctions(Label statTotalAuctions) { this.statTotalAuctions = statTotalAuctions; }
+    public void setStatLiveAuctions(Label statLiveAuctions) { this.statLiveAuctions = statLiveAuctions; }
+    public void setStatBanned(Label statBanned) { this.statBanned = statBanned; }
+    public void setStatUserDelta(Label statUserDelta) { this.statUserDelta = statUserDelta; }
+    public void setRecentUsersList(VBox recentUsersList) { this.recentUsersList = recentUsersList; }
+    public void setRecentAuctionsList(VBox recentAuctionsList) { this.recentAuctionsList = recentAuctionsList; }
+
+
+    public VBox getRecentUsersList() {
+        return recentUsersList;
+    }
+
+    public VBox getRecentAuctionsList() {
+        return recentAuctionsList;
     }
 }
