@@ -54,82 +54,82 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.DBConnection.executor": "Run",
-    "Application.DBConnectionTest.executor": "Run",
-    "Application.Launcher.executor": "Run",
-    "Application.MainApp.executor": "Run",
-    "Application.TestConnection.executor": "Run",
-    "Application.TestInsert.executor": "Run",
-    "Database Script.DATABASE.sql.executor": "Run",
-    "Database Script.database.sql.executor": "Run",
-    "JUnit.AdminAuctionControllertest.executor": "Run",
-    "JUnit.AdminAuctionsControllerTest.executor": "Run",
-    "JUnit.AdminDashboardControllerTest.executor": "Run",
-    "JUnit.AdminMainControllerTest.executor": "Run",
-    "JUnit.AdminUsersControllerTest.executor": "Run",
-    "JUnit.AnimationUtilTest.executor": "Run",
-    "JUnit.ArtFactoryTest.executor": "Run",
-    "JUnit.ArtTest.executor": "Run",
-    "JUnit.AuctionDetailControllerTest.executor": "Run",
-    "JUnit.AuctionExtensionLogDAOTest.executor": "Run",
-    "JUnit.AuctionObserverTest.executor": "Run",
-    "JUnit.AuctionsControllerTest.executor": "Run",
-    "JUnit.CreateAuctionControllerTest.executor": "Run",
-    "JUnit.DBConnectionTest.executor": "Run",
-    "JUnit.DashboardControllerTest.executor": "Run",
-    "JUnit.ElectronicsFactoryTest.executor": "Run",
-    "JUnit.ElectronicsTest.executor": "Run",
-    "JUnit.ItemTest.executor": "Run",
-    "JUnit.LoginControllerTest.executor": "Run",
-    "JUnit.MainControllerTest.executor": "Run",
-    "JUnit.MainTest.executor": "Run",
-    "JUnit.MyBidsControllerTest.executor": "Run",
-    "JUnit.MyProductsControllerTest.executor": "Run",
-    "JUnit.ProfileControllerTest.executor": "Run",
-    "JUnit.RegisterControllerTest.executor": "Run",
-    "JUnit.SceneManagerTest.executor": "Run",
-    "JUnit.SessionManagerTest.executor": "Run",
-    "JUnit.SplashControllerTest.executor": "Run",
-    "JUnit.VehicleFactoryTest.executor": "Run",
-    "JUnit.VehicleTest.executor": "Run",
-    "Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "develop",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "onboarding.tips.debug.path": "C:/Users/ADMIN/Baitaplon_LTNC/Server/src/Main.java",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.customizations",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.DBConnection.executor&quot;: &quot;Run&quot;,
+    &quot;Application.DBConnectionTest.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Launcher.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
+    &quot;Application.TestConnection.executor&quot;: &quot;Run&quot;,
+    &quot;Application.TestInsert.executor&quot;: &quot;Run&quot;,
+    &quot;Database Script.DATABASE.sql.executor&quot;: &quot;Run&quot;,
+    &quot;Database Script.database.sql.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdminAuctionControllertest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdminAuctionsControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdminDashboardControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdminMainControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdminUsersControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AnimationUtilTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArtFactoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArtTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionDetailControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionExtensionLogDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionObserverTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionsControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CreateAuctionControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.DBConnectionTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.DashboardControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ElectronicsFactoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ElectronicsTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ItemTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LoginControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MainControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MainTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MyBidsControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MyProductsControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProfileControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.RegisterControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.SceneManagerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.SessionManagerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.SplashControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.VehicleFactoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.VehicleTest.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/ADMIN/Baitaplon_LTNC/Server/src/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.customizations&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ],
-    "RunConfigurationTargetLRU": [
-      "1c51dd04-cdc9-4594-b9f0-bc35004fb068",
-      "f89b9c79-0571-4441-9faa-1348da6f5751"
+    &quot;RunConfigurationTargetLRU&quot;: [
+      &quot;1c51dd04-cdc9-4594-b9f0-bc35004fb068&quot;,
+      &quot;f89b9c79-0571-4441-9faa-1348da6f5751&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\resources\com\auction\client" />
@@ -137,7 +137,7 @@
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\DAO" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.DBConnection">
     <configuration name="DBConnection" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="server.database.DBConnection" />
       <module name="Server" />
