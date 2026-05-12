@@ -9,13 +9,15 @@ public class ItemImageDTO {
     public ItemImageDTO() {
     }
 
-    // Constructor đầy đủ tham số (tiện cho việc khởi tạo nhanh)
+    // Constructor đầy đủ tham số (Có kiểm tra null an toàn)
     public ItemImageDTO(Long itemId, String imageUrl) {
+        if (itemId == null) {
+            throw new IllegalArgumentException("itemId không được để trống!");
+        }
         this.itemId = itemId;
         this.imageUrl = imageUrl;
     }
 
-    // Getter và Setter
     public Long getId() {
         return id;
     }
@@ -23,6 +25,7 @@ public class ItemImageDTO {
     public void setId(Long id) {
         this.id = id;
     }
+
     public Long getItemId() {
         return itemId;
     }
@@ -30,6 +33,7 @@ public class ItemImageDTO {
     public void setItemId(Long itemId) {
         this.itemId = itemId;
     }
+
     public String getImageUrl() {
         return imageUrl;
     }

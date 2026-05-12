@@ -5,7 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionDAOTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionDTOTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDAOTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDTOTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemImageDAOTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemImageDTOTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDAOTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/1c51dd04-cdc9-4594-b9f0-bc35004fb068.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/1c51dd04-cdc9-4594-b9f0-bc35004fb068.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/47706e5f-bbff-4ef5-80bc-0738429b09f7.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/47706e5f-bbff-4ef5-80bc-0738429b09f7.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/model/AutoBidConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/model/AutoBidConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/common/model/AuctionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/common/model/AuctionDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/common/model/ItemDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/common/model/ItemDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/common/model/ItemImageDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/common/model/ItemImageDTO.java" afterDir="false" />
@@ -13,6 +25,13 @@
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/ItemDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/ItemDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/ItemImageDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/ItemImageDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/PaymentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/PaymentDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/AuctionDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/common/model/AuctionDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/ItemDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/common/model/ItemDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/ItemImageDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/common/model/ItemImageDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/PaymentDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/common/model/PaymentDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/ItemImageDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/ItemImageDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/PaymentDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/PaymentDAO.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +51,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="develop" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MavenImportPreferences">
@@ -56,80 +80,97 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.DBConnection.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Launcher.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
-    &quot;Application.TestConnection.executor&quot;: &quot;Run&quot;,
-    &quot;Application.TestInsert.executor&quot;: &quot;Run&quot;,
-    &quot;Database Script.DATABASE.sql.executor&quot;: &quot;Run&quot;,
-    &quot;Database Script.database.sql.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminAuctionControllertest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminAuctionsControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminDashboardControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminMainControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminUsersControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AnimationUtilTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ArtFactoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ArtTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionDetailControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionExtensionLogDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionObserverTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionsControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CreateAuctionControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.DBConnectionTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.DashboardControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ElectronicsFactoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ElectronicsTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ItemTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.LoginControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.MainControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.MyBidsControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.MyProductsControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ProfileControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.RegisterControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.SceneManagerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.SessionManagerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.SplashControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.VehicleFactoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.VehicleTest.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/ADMIN/Baitaplon_LTNC/Server/src/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.customizations&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AuctionDAOTest.executor": "Run",
+    "Application.DBConnection.executor": "Run",
+    "Application.Launcher.executor": "Run",
+    "Application.MainApp.executor": "Run",
+    "Application.TestConnection.executor": "Run",
+    "Application.TestInsert.executor": "Run",
+    "Database Script.DATABASE.sql.executor": "Run",
+    "Database Script.database.sql.executor": "Run",
+    "JUnit.AdminAuctionControllertest.executor": "Run",
+    "JUnit.AdminAuctionsControllerTest.executor": "Run",
+    "JUnit.AdminDashboardControllerTest.executor": "Run",
+    "JUnit.AdminMainControllerTest.executor": "Run",
+    "JUnit.AdminUsersControllerTest.executor": "Run",
+    "JUnit.AnimationUtilTest.executor": "Run",
+    "JUnit.ArtFactoryTest.executor": "Run",
+    "JUnit.ArtTest.executor": "Run",
+    "JUnit.AuctionDAOTest.executor": "Run",
+    "JUnit.AuctionDAOTest.testGetAll.executor": "Run",
+    "JUnit.AuctionDAOTest.testGetAllAuctions.executor": "Run",
+    "JUnit.AuctionDAOTest.testInsertAuction.executor": "Run",
+    "JUnit.AuctionDTOTest.executor": "Run",
+    "JUnit.AuctionDetailControllerTest.executor": "Run",
+    "JUnit.AuctionExtensionLogDAOTest.executor": "Run",
+    "JUnit.AuctionObserverTest.executor": "Run",
+    "JUnit.AuctionsControllerTest.executor": "Run",
+    "JUnit.CreateAuctionControllerTest.executor": "Run",
+    "JUnit.DBConnectionTest.executor": "Run",
+    "JUnit.DashboardControllerTest.executor": "Run",
+    "JUnit.ElectronicsFactoryTest.executor": "Run",
+    "JUnit.ElectronicsTest.executor": "Run",
+    "JUnit.ItemDAOTest.executor": "Run",
+    "JUnit.ItemDAOTest.testGetItemById.executor": "Run",
+    "JUnit.ItemDAOTest.testInsertItem.executor": "Run",
+    "JUnit.ItemDTOTest.executor": "Run",
+    "JUnit.ItemImageDAOTest.executor": "Run",
+    "JUnit.ItemImageDTOTest.executor": "Run",
+    "JUnit.ItemTest.executor": "Run",
+    "JUnit.LoginControllerTest.executor": "Run",
+    "JUnit.MainControllerTest.executor": "Run",
+    "JUnit.MyBidsControllerTest.executor": "Run",
+    "JUnit.MyProductsControllerTest.executor": "Run",
+    "JUnit.PaymentDAOTest.executor": "Run",
+    "JUnit.PaymentDAOTest.testGetHistoryAndUpdate.executor": "Debug",
+    "JUnit.PaymentDAOTest.testInsertPayment.executor": "Debug",
+    "JUnit.PaymentDAOTest.testUpdateAndHistory.executor": "Run",
+    "JUnit.PaymentDTOTest.executor": "Run",
+    "JUnit.ProfileControllerTest.executor": "Run",
+    "JUnit.RegisterControllerTest.executor": "Run",
+    "JUnit.SceneManagerTest.executor": "Run",
+    "JUnit.SessionManagerTest.executor": "Run",
+    "JUnit.SplashControllerTest.executor": "Run",
+    "JUnit.VehicleFactoryTest.executor": "Run",
+    "JUnit.VehicleTest.executor": "Run",
+    "Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "bid",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/ADMIN/Baitaplon_LTNC/Server/src/Main.java",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.customizations",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ],
-    &quot;RunConfigurationTargetLRU&quot;: [
-      &quot;1c51dd04-cdc9-4594-b9f0-bc35004fb068&quot;,
-      &quot;f89b9c79-0571-4441-9faa-1348da6f5751&quot;
+    "RunConfigurationTargetLRU": [
+      "1c51dd04-cdc9-4594-b9f0-bc35004fb068",
+      "f89b9c79-0571-4441-9faa-1348da6f5751"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\resources\com\auction\client" />
@@ -137,54 +178,14 @@
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\DAO" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Launcher">
-    <configuration name="DBConnection" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="server.database.DBConnection" />
-      <module name="Server" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="server.database.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Launcher" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.auction.client.Launcher" />
-      <module name="Client" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.auction.client.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.auction.client.MainApp" />
-      <module name="Client" />
-      <option name="VM_PARAMETERS" value="--module-path &quot;C:\javafx-sdk-21.0.11\lib&quot; --add-modules javafx.controls,javafx.fxml" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.auction.client.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.PaymentDAOTest">
     <configuration name="database.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/diagram/database.sql" />
       <script-mode>FILE</script-mode>
       <data-source id="1c51dd04-cdc9-4594-b9f0-bc35004fb068" />
       <method v="2" />
     </configuration>
-    <configuration name="DBConnectionTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="AuctionDAOTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Server" />
       <extension name="coverage">
         <pattern>
@@ -193,25 +194,89 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.auction" />
-      <option name="MAIN_CLASS_NAME" value="com.auction.DBConnectionTest" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.AuctionDAOTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuctionDAOTest.testGetAllAuctions" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.auction" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.AuctionDAOTest" />
+      <option name="METHOD_NAME" value="testGetAllAuctions" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuctionDAOTest.testInsertAuction" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.auction" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.AuctionDAOTest" />
+      <option name="METHOD_NAME" value="testInsertAuction" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuctionDTOTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.auction" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.AuctionDTOTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PaymentDAOTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.auction" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.PaymentDAOTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.Launcher" />
-      <item itemvalue="Application.DBConnection" />
-      <item itemvalue="Application.MainApp" />
       <item itemvalue="Database Script.database.sql" />
-      <item itemvalue="JUnit.DBConnectionTest" />
+      <item itemvalue="JUnit.AuctionDAOTest" />
+      <item itemvalue="JUnit.AuctionDAOTest.testGetAllAuctions" />
+      <item itemvalue="JUnit.AuctionDAOTest.testInsertAuction" />
+      <item itemvalue="JUnit.AuctionDTOTest" />
+      <item itemvalue="JUnit.PaymentDAOTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Launcher" />
-        <item itemvalue="Application.MainApp" />
-        <item itemvalue="JUnit.DBConnectionTest" />
-        <item itemvalue="Application.DBConnection" />
+        <item itemvalue="JUnit.PaymentDAOTest" />
+        <item itemvalue="JUnit.AuctionDAOTest" />
+        <item itemvalue="JUnit.AuctionDTOTest" />
+        <item itemvalue="JUnit.AuctionDAOTest.testInsertAuction" />
+        <item itemvalue="JUnit.AuctionDAOTest.testGetAllAuctions" />
       </list>
     </recent_temporary>
   </component>
@@ -263,6 +328,8 @@
       <workItem from="1778422026827" duration="13142000" />
       <workItem from="1778473583183" duration="37332000" />
       <workItem from="1778576010466" duration="1499000" />
+      <workItem from="1778594772270" duration="607000" />
+      <workItem from="1778602026080" duration="6383000" />
     </task>
     <servers />
   </component>
