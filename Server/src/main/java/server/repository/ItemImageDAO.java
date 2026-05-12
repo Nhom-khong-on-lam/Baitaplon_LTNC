@@ -9,10 +9,9 @@ import java.util.List;
 
 public class ItemImageDAO {
 
-    // 1. Lấy danh sách các đối tượng ItemImageDTO của một Item cụ thể
+    // 1. Lấy danh sách ảnh của một Item
     public List<ItemImageDTO> getImagesByItemId(long itemId) {
         List<ItemImageDTO> images = new ArrayList<>();
-
         String sql = "SELECT * FROM item_image WHERE item_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -34,8 +33,7 @@ public class ItemImageDAO {
         }
         return images;
     }
-
-    // 2. Thêm một ảnh mới sử dụng DTO (Khớp với ERD)
+    // 2. Thêm một ảnh mới
     public boolean insert(ItemImageDTO itemImage) {
         String sql = "INSERT INTO item_image (item_id, image_url) VALUES (?, ?)";
 
@@ -52,7 +50,6 @@ public class ItemImageDAO {
         }
         return false;
     }
-
     // 3. Xóa tất cả ảnh của một Item
     public boolean deleteByItemId(long itemId) {
         String sql = "DELETE FROM item_image WHERE item_id = ?";

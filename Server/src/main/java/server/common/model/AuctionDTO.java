@@ -1,80 +1,40 @@
 package server.common.model;
 
-import server.common.enums.AuctionStatus;
 import java.time.LocalDateTime;
 
 public class AuctionDTO {
     private Long id;
     private Long itemId;
-    private UserDTO seller;
-    private UserDTO highestBidder;
-    private double currentPrice;
+    private Long sellerId;
+    private Long highestBidderId;
+    private Double currentPrice;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private AuctionStatus status;
+    private String status;
 
-    // Constructor không tham số (Bắt buộc phải có để DAO khởi tạo)
-    public AuctionDTO() {
-    }
-    public Long getId() {
-        return id;
-    }
+    public AuctionDTO() {}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getItemId() {
-        return itemId;
-    }
+    public Long getItemId() { return itemId; }
+    public void setItemId(Long itemId) { this.itemId = itemId; }
 
-    public void setItemId(Long itemId) {
-        this.itemId = itemId;
-    }
+    public Long getSellerId() { return sellerId; }
+    public void setSellerId(Long sellerId) { this.sellerId = sellerId; }
 
-    public UserDTO getSeller() {
-        return seller;
-    }
+    public Long getHighestBidderId() { return highestBidderId; }
+    public void setHighestBidderId(Long highestBidderId) { this.highestBidderId = highestBidderId; }
 
-    public void setSeller(UserDTO seller) {
-        this.seller = seller;
-    }
+    public Double getCurrentPrice() { return currentPrice; }
+    public void setCurrentPrice(Double currentPrice) { this.currentPrice = currentPrice; }
 
-    public UserDTO getHighestBidder() {
-        return highestBidder;
-    }
+    public LocalDateTime getStartTime() { return startTime; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
 
-    public void setHighestBidder(UserDTO highestBidder) {
-        this.highestBidder = highestBidder;
-    }
-    public double getCurrentPrice() {
-        return currentPrice;
-    }
+    public LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
 
-    public void setCurrentPrice(double currentPrice) {
-        this.currentPrice = currentPrice;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public AuctionStatus getStatus() {
-        return status;
-    }
-    public void setStatus(AuctionStatus status) {
-        this.status = status;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
