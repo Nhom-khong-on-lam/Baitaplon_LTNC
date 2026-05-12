@@ -42,6 +42,7 @@ public class UserDAO {
             ps.setString(5, user.getAccountStatus() != null ? user.getAccountStatus() : "ACTIVE");
 
             LocalDateTime createdAt = (user.getCreatedAt() != null) ? user.getCreatedAt() : LocalDateTime.now();
+            ps.setObject(6, createdAt);
 
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
