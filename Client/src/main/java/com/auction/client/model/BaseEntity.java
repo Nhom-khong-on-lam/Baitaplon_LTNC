@@ -7,6 +7,16 @@ public abstract class BaseEntity {
     protected LocalDateTime createdAt;
     protected LocalDateTime updatedAt;
 
+    public BaseEntity(Long id) {
+        this.id= id;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+    public BaseEntity() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
     // Getter and Setter
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
