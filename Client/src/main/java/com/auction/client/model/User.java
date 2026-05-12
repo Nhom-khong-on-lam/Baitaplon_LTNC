@@ -15,11 +15,15 @@ public class User extends BaseEntity {
     private LocalDateTime joinedDate = LocalDateTime.now();
 
     public User(Long id, String username, String passwordHash, String email, SystemRole systemRole) {
+        super(id);
         this.username = username;
         this.passwordHash = passwordHash;
         this.email = email;
         this.systemRole = systemRole;
         this.accountStatus = AccountStatus.ACTIVE;
+    }
+
+    public User(String testUser) {
     }
 
     public String getUsername() {
