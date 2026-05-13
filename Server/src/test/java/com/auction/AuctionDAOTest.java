@@ -44,6 +44,7 @@ class AuctionDAOTest {
         auction.setEndTime(LocalDateTime.now().plusDays(1));
         auction.setStatus("OPEN"); // Khớp với ENUM trong ERD
 
-        assertTrue(auctionDAO.insert(auction));
+        long newAuctionId = auctionDAO.insert(auction);
+        assertTrue(newAuctionId > 0, "Insert thành công phải trả về ID lớn hơn 0");
     }
 }
