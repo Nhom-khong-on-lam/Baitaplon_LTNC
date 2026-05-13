@@ -28,37 +28,27 @@ public class ItemDAO {
     }
 
     // 2. Thêm sản phẩm mới (Theo đúng các trường trong ERD)
-    public long insert(ItemDTO item) {
-        String sql = "INSERT INTO item (name, description, starting_price, category, brand_make, model, artist, production_year) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public boolean insert(ItemDTO item) {
+        String sql = "INSERT INTO item (name, description, starting_price, category, brand_make, model, artist, production_year) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, item.getName());
             ps.setString(2, item.getDescription());
             ps.setDouble(3, item.getStartingPrice());
-            ps.setString(4, item.getCategory());
+            ps.setString(4, item.getCategory()); // ELECTRONICS, ART, VEHICLE
             ps.setString(5, item.getBrandMake());
             ps.setString(6, item.getModel());
             ps.setString(7, item.getArtist());
-            
-            if (item.getProductionYear() != null) {
-                ps.setInt(8, item.getProductionYear());
-            } else {
-                ps.setNull(8, Types.INTEGER);
-            }
+            ps.setInt(8, item.getProductionYear());
 
-            if (ps.executeUpdate() > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        return rs.getLong(1); // Trả về ID vừa được MySQL tạo ra
-                    }
-                }
-            }
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("LỖI trong ItemDAO.insert(): " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Lỗi insert Item: " + e.getMessage());
+            return false;
         }
-        return -1; 
     }
 
     // 3. Tìm kiếm sản phẩm theo ID

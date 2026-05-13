@@ -129,16 +129,14 @@ public class Auction extends BaseEntity {
     }
     public String getCategoryIcon() {
         String category = item.getCategory();
-        switch (category.toLowerCase()) {
-            case "electronics":
-                return "💻"; // Icon máy tính/điện tử
-            case "vehicle":
-                return "🚗"; // Icon xe cộ
-            case "art":
-                return "🎨"; // Icon bảng màu nghệ thuật
-            default:
-                return "📦"; // Icon mặc định nếu không khớp
-        }
+        if (category == null) return "CATEGORY_DEFAULT";
+
+        return switch (category.toLowerCase()) {
+            case "electronics" -> "CATEGORY_ELECTRONICS";
+            case "vehicle"     -> "CATEGORY_VEHICLE";
+            case "art"         -> "CATEGORY_ART";
+            default            -> "CATEGORY_DEFAULT";
+        };
     }
     public String getCondition() {
         if (this.endTime == null) return "Stable";
@@ -256,4 +254,4 @@ public class Auction extends BaseEntity {
     }
 
 
-    }
+}
