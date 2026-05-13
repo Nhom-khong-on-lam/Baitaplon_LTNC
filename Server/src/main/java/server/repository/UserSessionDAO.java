@@ -28,13 +28,13 @@ public class UserSessionDAO {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         long id = rs.getLong(1);
-                        LOGGER.info("SESSION CREATED: User ID=" + session.getUserId() + " đã tạo session mới.");
+                        LOGGER.info("INSERT SUCCESS: User ID=" + session.getUserId() + " đã tạo session mới ID=" + id);
                         return id;
                     }
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SESSION ERROR: Lỗi khi tạo phiên làm việc", e);
+            LOGGER.log(Level.SEVERE, "INSERT ERROR: Lỗi khi tạo phiên làm việc cho User ID=" + session.getUserId(), e); 
         }
         return -1;
     }
@@ -54,7 +54,11 @@ public class UserSessionDAO {
                     session.setToken(rs.getString("token"));
                     session.setExpiresAt(rs.getTimestamp("expires_at").toLocalDateTime());
                     session.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+
+                    LOGGER.info("READ SUCCESS: Đã tìm thấy session hợp lệ cho token.");
                     return session;
+                } else {
+                    LOGGER.warning("READ WARNING: Không tìm thấy session nào với token này.");
                 }
             }
         } catch (SQLException e) {
@@ -71,11 +75,14 @@ public class UserSessionDAO {
             
             ps.setString(1, token);
             boolean deleted = ps.executeUpdate() > 0;
-            if (deleted) LOGGER.info("SESSION DELETED: Token đã được thu hồi.");
+            if (deleted) {
+                LOGGER.info("DELETE SUCCESS: Phiên làm việc (token) đã được thu hồi thành công."); [cite: 286]
+            } else {
+                LOGGER.warning("DELETE WARNING: Không có session nào để xóa (Token không tồn tại).");
+            }
             return deleted;
-            
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SESSION ERROR: Lỗi khi xóa phiên làm việc", e);
+            LOGGER.log(Level.SEVERE, "DELETE ERROR: Lỗi khi thu hồi session", e); [cite: 287]
         }
         return false;
     }
@@ -89,12 +96,13 @@ public class UserSessionDAO {
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             int deletedCount = ps.executeUpdate();
             if (deletedCount > 0) {
-                LOGGER.info("CLEANUP: Đã xóa " + deletedCount + " phiên làm việc hết hạn.");
+                LOGGER.info("CLEANUP SUCCESS: Đã xóa " + deletedCount + " phiên làm việc hết hạn."); [cite: 291]
+            } else {
+                LOGGER.info("CLEANUP INFO: Không có phiên làm việc nào hết hạn để dọn dẹp.");
             }
             return deletedCount;
-            
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "CLEANUP ERROR: Lỗi khi dọn dẹp session", e);
+            LOGGER.log(Level.SEVERE, "CLEANUP ERROR: Lỗi trong quá trình dọn dẹp session tự động", e); [cite: 293]
         }
         return 0;
     }
