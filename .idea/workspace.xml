@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="" />
+    <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/PaymentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/PaymentDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AutoBidDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AutoBidDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/BidDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/BidDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/PaymentDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/PaymentDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/UserSessionDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/UserSessionDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionDAOTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/PaymentDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/PaymentDAOTest.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -88,7 +100,7 @@
     "JUnit.ElectronicsTest.executor": "Run",
     "JUnit.ItemDAOTest.executor": "Run",
     "JUnit.ItemDAOTest.testGetItemById.executor": "Run",
-    "JUnit.ItemDAOTest.testInsertItem.executor": "Debug",
+    "JUnit.ItemDAOTest.testInsertItem.executor": "Run",
     "JUnit.ItemDTOTest.executor": "Run",
     "JUnit.ItemImageDAOTest.executor": "Run",
     "JUnit.ItemImageDTOTest.executor": "Run",
@@ -107,6 +119,7 @@
     "JUnit.SceneManagerTest.executor": "Run",
     "JUnit.SessionManagerTest.executor": "Run",
     "JUnit.SplashControllerTest.executor": "Run",
+    "JUnit.UserSessionDAOTest.executor": "Run",
     "JUnit.VehicleFactoryTest.executor": "Run",
     "JUnit.VehicleTest.executor": "Run",
     "Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
@@ -152,28 +165,15 @@
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\DAO" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ItemDAOTest.testInsertItem">
-    <configuration name="MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.auction.client.MainApp" />
-      <module name="Client" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.auction.client.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.PaymentDAOTest">
     <configuration name="database.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/diagram/database.sql" />
       <script-mode>FILE</script-mode>
       <data-source id="1c51dd04-cdc9-4594-b9f0-bc35004fb068" />
       <method v="2" />
     </configuration>
-    <configuration name="AutoBidConfigTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Client" />
+    <configuration name="AuctionDAOTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Server" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.auction.*" />
@@ -181,24 +181,8 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.auction" />
-      <option name="MAIN_CLASS_NAME" value="com.auction.AutoBidConfigTest" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.AuctionDAOTest" />
       <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="BidTransactionTest.testConstructor" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Client" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.auction.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.auction" />
-      <option name="MAIN_CLASS_NAME" value="com.auction.BidTransactionTest" />
-      <option name="METHOD_NAME" value="testConstructor" />
-      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -234,21 +218,52 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PaymentDAOTest.testInsertPayment" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.auction" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.PaymentDAOTest" />
+      <option name="METHOD_NAME" value="testInsertPayment" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserSessionDAOTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.auction" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.UserSessionDAOTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
-      <item itemvalue="Application.MainApp" />
       <item itemvalue="Database Script.database.sql" />
+      <item itemvalue="JUnit.AuctionDAOTest" />
+      <item itemvalue="JUnit.PaymentDAOTest.testInsertPayment" />
+      <item itemvalue="JUnit.UserSessionDAOTest" />
       <item itemvalue="JUnit.ItemDAOTest.testInsertItem" />
-      <item itemvalue="JUnit.AutoBidConfigTest" />
-      <item itemvalue="JUnit.BidTransactionTest.testConstructor" />
       <item itemvalue="JUnit.PaymentDAOTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.ItemDAOTest.testInsertItem" />
         <item itemvalue="JUnit.PaymentDAOTest" />
-        <item itemvalue="JUnit.BidTransactionTest.testConstructor" />
-        <item itemvalue="JUnit.AutoBidConfigTest" />
-        <item itemvalue="Application.MainApp" />
+        <item itemvalue="JUnit.PaymentDAOTest.testInsertPayment" />
+        <item itemvalue="JUnit.AuctionDAOTest" />
+        <item itemvalue="JUnit.UserSessionDAOTest" />
+        <item itemvalue="JUnit.ItemDAOTest.testInsertItem" />
       </list>
     </recent_temporary>
   </component>
@@ -303,6 +318,7 @@
       <workItem from="1778594772270" duration="607000" />
       <workItem from="1778602026080" duration="6383000" />
       <workItem from="1778611270157" duration="303000" />
+      <workItem from="1778657284115" duration="2757000" />
     </task>
     <servers />
   </component>
