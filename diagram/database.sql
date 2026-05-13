@@ -144,7 +144,7 @@ ALTER TABLE auto_bid
     RENAME COLUMN increment TO step_increment;
 
 ALTER TABLE auto_bid
-    RENAME COLUMN max_price TO maxPrice
+    RENAME COLUMN max_price TO maxPrice;
 
 ALTER TABLE auto_bid
     RENAME COLUMN step_increment TO stepIncrement;

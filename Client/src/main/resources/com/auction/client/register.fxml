@@ -1,126 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
 
-<?import java.lang.String?>
 <?import java.net.URL?>
-<HBox xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.auction.client.controller.RegisterController"
-      styleClass="auth-root"
-      prefWidth="1100" prefHeight="700">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox prefHeight="700" prefWidth="1100" styleClass="auth-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.RegisterController">
     <stylesheets>
-        <URL value="@global.css"/>
+        <URL value="@global.css" />
     </stylesheets>
 
     <!-- ══ LEFT PANEL ════════════════════════════════════ -->
-    <VBox styleClass="auth-left" alignment="CENTER" spacing="0">
-        <padding><Insets top="60" right="52" bottom="60" left="52"/></padding>
+    <VBox alignment="CENTER" spacing="0" styleClass="auth-left">
+        <padding><Insets bottom="60" left="52" right="52" top="60" /></padding>
 
         <VBox spacing="4">
-            <Label text="AURUM" styleClass="auth-brand"/>
-            <Label text="AUCTION PLATFORM" styleClass="auth-brand-sub"/>
+            <Label styleClass="auth-brand" text="AURUM" />
+            <Label styleClass="auth-brand-sub" text="AUCTION PLATFORM" />
         </VBox>
 
-        <Region VBox.vgrow="ALWAYS" minHeight="40"/>
+        <Region minHeight="40" VBox.vgrow="ALWAYS" />
 
-        <VBox spacing="12" maxWidth="300">
-            <Label text="Join the&#10;Elite Auction Circle."
-                   styleClass="auth-headline"/>
-            <Label text="Create your account and start bidding on exclusive items from day one."
-                   styleClass="auth-headline-sub"/>
+        <VBox maxWidth="300" spacing="12">
+            <Label styleClass="auth-headline" text="Join the&#10;Elite Auction Circle." />
+            <Label styleClass="auth-headline-sub" text="Create your account and start bidding on exclusive items from day one." />
         </VBox>
 
-        <Region VBox.vgrow="ALWAYS" minHeight="40"/>
+        <Region minHeight="40" VBox.vgrow="ALWAYS" />
 
         <VBox spacing="14">
-            <HBox spacing="12" alignment="CENTER_LEFT">
-                <Label text="🎯" styleClass="auth-feature-icon"/>
-                <Label text="Smart auto-bid system" styleClass="auth-feature-text"/>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label styleClass="auth-feature-icon" text="🎯" />
+                <Label styleClass="auth-feature-text" text="Smart auto-bid system" />
             </HBox>
-            <HBox spacing="12" alignment="CENTER_LEFT">
-                <Label text="📧" styleClass="auth-feature-icon"/>
-                <Label text="OTP email verification" styleClass="auth-feature-text"/>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label styleClass="auth-feature-icon" text="📧" />
+                <Label styleClass="auth-feature-text" text="OTP email verification" />
             </HBox>
-            <HBox spacing="12" alignment="CENTER_LEFT">
-                <Label text="🏆" styleClass="auth-feature-icon"/>
-                <Label text="Track your won auctions" styleClass="auth-feature-text"/>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label styleClass="auth-feature-icon" text="🏆" />
+                <Label styleClass="auth-feature-text" text="Track your won auctions" />
             </HBox>
         </VBox>
 
-        <Region VBox.vgrow="ALWAYS" minHeight="30"/>
-        <Label text="© 2025 AURUM Inc." style="-fx-text-fill:#1e3050; -fx-font-size:10px;"/>
+        <Region minHeight="30" VBox.vgrow="ALWAYS" />
+        <Label style="-fx-text-fill:#1e3050; -fx-font-size:10px;" text="© 2025 AURUM Inc." />
     </VBox>
 
     <!-- ══ RIGHT PANEL — Register Form ═══════════════════ -->
-    <ScrollPane styleClass="scroll-pane" fitToWidth="true" HBox.hgrow="ALWAYS"
-                style="-fx-background-color:#ffffff;">
-        <VBox styleClass="auth-right" alignment="CENTER" spacing="0">
+    <ScrollPane fitToWidth="true" style="-fx-background-color:#ffffff;" styleClass="scroll-pane" HBox.hgrow="ALWAYS">
+        <VBox alignment="CENTER" spacing="0" styleClass="auth-right">
 
             <VBox maxWidth="380" spacing="0">
 
-                <Label text="Create your account" styleClass="auth-form-title"/>
-                <Label text="Fill in your details to get started"
-                       styleClass="auth-form-sub"
-                       style="-fx-padding:6 0 28 0;"/>
+                <Label styleClass="auth-form-title" text="Create your account" />
+                <Label style="-fx-padding:6 0 28 0;" styleClass="auth-form-sub" text="Fill in your details to get started" />
 
                 <!-- Username -->
                 <VBox spacing="6" style="-fx-padding:0 0 14 0;">
-                    <Label text="USERNAME" styleClass="auth-field-label"/>
-                    <TextField fx:id="regUser" styleClass="auth-input"
-                               promptText="Choose a username" maxWidth="Infinity"/>
-                    <Label fx:id="userMsg" styleClass="auth-msg" text="" maxWidth="380"/>
+                    <Label styleClass="auth-field-label" text="USERNAME" />
+                    <TextField fx:id="regUser" maxWidth="Infinity" promptText="Enter your name" styleClass="auth-input" />
+                    <Label fx:id="userMsg" maxWidth="380" styleClass="auth-msg" text="" />
                 </VBox>
 
                 <!-- Email -->
                 <VBox spacing="6" style="-fx-padding:0 0 14 0;">
-                    <Label text="EMAIL" styleClass="auth-field-label"/>
+                    <Label styleClass="auth-field-label" text="EMAIL" />
                     <HBox spacing="8">
-                        <TextField fx:id="regEmail" styleClass="auth-input"
-                                   promptText="your@email.com"
-                                   HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="sendOtpBtn" text="Send OTP"
-                                styleClass="btn-secondary" onAction="#handleSendOTP"
-                                style="-fx-pref-height:42px; -fx-font-size:11px;"/>
+                        <TextField fx:id="regEmail" promptText="Enter your email" styleClass="auth-input" HBox.hgrow="ALWAYS" />
                     </HBox>
-                    <Label fx:id="emailMsg" styleClass="auth-msg" text="" maxWidth="380"/>
+                    <Label fx:id="emailMsg" maxWidth="380" styleClass="auth-msg" text="" />
+                    <Label styleClass="auth-field-label" text="PASSWORD" />
                 </VBox>
 
                 <!-- OTP -->
                 <VBox spacing="6" style="-fx-padding:0 0 14 0;">
-                    <Label text="OTP CODE" styleClass="auth-field-label"/>
-                    <TextField fx:id="otpField" styleClass="auth-input"
-                               promptText="Enter 6-digit OTP" maxWidth="Infinity"/>
+               <children>
+                       <PasswordField fx:id="regPass" maxWidth="Infinity" promptText="At least 6 characters" styleClass="auth-input" />
+               </children>
                 </VBox>
 
                 <!-- Password -->
-                <VBox spacing="6" style="-fx-padding:0 0 14 0;">
-                    <Label text="PASSWORD" styleClass="auth-field-label"/>
-                    <PasswordField fx:id="regPass" styleClass="auth-input"
-                                   promptText="At least 6 characters" maxWidth="Infinity"/>
-                </VBox>
+                <VBox spacing="6" style="-fx-padding:0 0 14 0;" />
 
                 <!-- Confirm Password -->
                 <VBox spacing="6" style="-fx-padding:0 0 22 0;">
-                    <Label text="CONFIRM PASSWORD" styleClass="auth-field-label"/>
-                    <PasswordField fx:id="regConfirm" styleClass="auth-input"
-                                   promptText="Repeat your password" maxWidth="Infinity"/>
-                    <Label fx:id="regMsg" styleClass="auth-msg" text="" maxWidth="380"/>
+                    <Label styleClass="auth-field-label" text="CONFIRM PASSWORD" />
+                    <PasswordField fx:id="regConfirm" maxWidth="Infinity" promptText="Repeat your password" styleClass="auth-input" />
+                    <Label fx:id="regMsg" maxWidth="380" styleClass="auth-msg" text="" />
                 </VBox>
 
                 <!-- Submit -->
-                <Button fx:id="registerBtn" text="Create Account"
-                        styleClass="auth-btn-primary"
-                        onAction="#handleRegister"
-                        maxWidth="Infinity"/>
+                <Button fx:id="registerBtn" maxWidth="Infinity" onAction="#handleRegister" styleClass="auth-btn-primary" text="Create Account" />
 
                 <!-- Back to login -->
                 <HBox alignment="CENTER" spacing="6" style="-fx-padding:20 0 0 0;">
-                    <Label text="Already have an account?"
-                           style="-fx-text-fill:#718096; -fx-font-size:12px;"/>
-                    <Button text="Sign in →" styleClass="auth-link"
-                            onAction="#goToLogin"/>
+                    <Label style="-fx-text-fill:#718096; -fx-font-size:12px;" text="Already have an account?" />
+                    <Button onAction="#goToLogin" styleClass="auth-link" text="Sign in →" />
                 </HBox>
 
             </VBox>

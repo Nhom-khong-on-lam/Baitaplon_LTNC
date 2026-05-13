@@ -1,17 +1,13 @@
 package com.auction.client.controller;
 
-import com.auction.client.Enum.AuctionStatus;
 import com.auction.client.model.Auction;
 import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
-import com.auction.client.controller.AnimationUtil;
-import com.auction.client.controller.SceneManager;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

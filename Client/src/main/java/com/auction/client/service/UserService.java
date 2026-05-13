@@ -1,59 +1,67 @@
 package com.auction.client.service;
 
-import server.common.model.UserDTO;
-import server.repository.UserDAO;
-import org.mindrot.jbcrypt.BCrypt;
-import java.util.logging.Logger;
+import com.auction.client.controller.SessionManager;
 
+import java.io.IOException;
+
+/**
+ * Service quản lý thông tin người dùng:
+ * - Xem / cập nhật profile (màn Profile)
+ * - Admin: lấy danh sách / cập nhật user (màn AdminUsers)
+ */
 public class UserService {
-    private final UserDAO userDAO = new UserDAO();
-    private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
+
+    private final ServerConnection connection = ServerConnection.getInstance();
+
+    // ── GET PROFILE ──────────────────────────────────────────────────────────
     /**
-     * Đăng ký người dùng mới với mật khẩu được mã hóa
+     * Lấy thông tin profile của user đang đăng nhập.
+     * @return Response chứa UserDTO
      */
-    public boolean register(String username, String password, String email) {
-        // 1. Kiểm tra username đã tồn tại chưa
-        if (userDAO.isExisted("username", username)) {
-            return false;
-        }
-
-        // 2. Mã hóa mật khẩu bằng BCrypt
-        // gensalt() tạo ra một chuỗi ngẫu nhiên để trộn vào mật khẩu
-        String hashedParams = BCrypt.hashpw(password, BCrypt.gensalt());
-
-        // 3. Sử dụng UserDTO (Sửa lỗi Expected 5 arguments but found 3)
-        // Lưu ý: Dùng constructor mặc định rồi set hoặc constructor 3 tham số đã tạo trong UserDTO
-        UserDTO newUser = new UserDTO(username, hashedParams, email);
-        newUser.setSystemRole("USER");
-        newUser.setAccountStatus("ACTIVE");
-
-        return userDAO.insert(newUser) > 0;
+    public Response getProfile() {
+        return send(new Request(Request.GET_PROFILE));
     }
 
+    // ── UPDATE PROFILE ───────────────────────────────────────────────────────
     /**
-     * Xác thực người dùng khi đăng nhập
+     * Cập nhật thông tin profile.
+     * @param userDTO UserDTO chứa thông tin mới (không cần password nếu không đổi)
      */
-    public UserDTO login(String username, String password) {
-        // 1. Tìm user theo username
-        UserDTO user = userDAO.findByUsername(username);
+    public Response updateProfile(Object userDTO) {
+        return send(new Request(Request.UPDATE_PROFILE, userDTO));
+    }
 
-        // 2. Kiểm tra nếu user tồn tại và mật khẩu khớp
-        if (user != null) {
-            // BCrypt.checkpw tự động trích xuất Salt từ mật khẩu đã băm trong DB
-            // để so sánh với mật khẩu nhập vào
-            if (BCrypt.checkpw(password, user.getPassword())) {
+    // ── ADMIN: GET ALL USERS ─────────────────────────────────────────────────
+    /**
+     * [Admin only] Lấy danh sách tất cả user (màn AdminUsers).
+     * @return Response chứa List<UserDTO>
+     */
+    public Response adminGetAllUsers() {
+        return send(new Request(Request.ADMIN_GET_USERS));
+    }
 
-                // Kiểm tra trạng thái tài khoản
-                if ("BANNED".equalsIgnoreCase(user.getAccountStatus())) {
-                    System.out.println("Tài khoản của bạn đã bị khóa!");
-                    return null;
-                }
+    // ── ADMIN: UPDATE USER ───────────────────────────────────────────────────
+    /**
+     * [Admin only] Cập nhật thông tin / trạng thái user (khoá, mở khoá, đổi role).
+     * @param userDTO UserDTO đã chỉnh sửa (phải có ID)
+     */
+    public Response adminUpdateUser(Object userDTO) {
+        return send(new Request(Request.ADMIN_UPDATE_USER, userDTO));
+    }
 
-                return user; // Đăng nhập thành công
-            }
+    // ── Helper ───────────────────────────────────────────────────────────────
+    private Response send(Request request) {
+        try {
+            attachToken(request);
+            return (Response) connection.sendRequest(request);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return Response.error("Lỗi kết nối server: " + e.getMessage());
         }
+    }
 
-        System.out.println("Sai tài khoản hoặc mật khẩu!");
-        return null;
+    private void attachToken(Request request) {
+        String token = SessionManager.get().getToken();
+        if (token != null) request.setToken(token);
     }
 }

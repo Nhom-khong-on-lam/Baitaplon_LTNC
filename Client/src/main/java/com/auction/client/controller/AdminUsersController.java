@@ -2,7 +2,6 @@ package com.auction.client.controller;
 
 import com.auction.client.Enum.AccountStatus;
 import com.auction.client.Enum.SystemRole;
-import com.auction.client.model.Auction;
 import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
 import com.auction.client.service.AuthService;
@@ -32,7 +31,7 @@ public class AdminUsersController {
             colEmail, colRole, colStatus,
             colBids, colActions;
 
-    private final AuthService    authService    = new AuthService();
+    private final AuthService authService    = new AuthService();
     private final AuctionService auctionService = new AuctionService();
 
     private User       currentAdmin;

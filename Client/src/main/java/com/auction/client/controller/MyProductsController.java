@@ -3,14 +3,12 @@ package com.auction.client.controller;
 import com.auction.client.model.Auction;
 import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
-import com.auction.client.controller.AnimationUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 
 import java.util.List;

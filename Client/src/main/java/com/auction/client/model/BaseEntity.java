@@ -1,8 +1,9 @@
 package com.auction.client.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public abstract class BaseEntity {
+public abstract class BaseEntity implements Serializable {
     protected Long id;
     protected LocalDateTime createdAt;
     protected LocalDateTime updatedAt;

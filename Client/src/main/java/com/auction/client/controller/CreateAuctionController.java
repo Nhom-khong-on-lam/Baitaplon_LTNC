@@ -1,10 +1,8 @@
 package com.auction.client.controller;
 
 import com.auction.client.model.Auction;
-import com.auction.client.model.Item;
 import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
-import com.auction.client.controller.AnimationUtil;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;

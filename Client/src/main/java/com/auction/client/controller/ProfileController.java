@@ -4,8 +4,6 @@ import com.auction.client.model.Auction;
 import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
 import com.auction.client.service.AuthService;
-import com.auction.client.controller.AnimationUtil;
-import com.auction.client.controller.SessionManager;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -36,7 +34,7 @@ public class ProfileController {
     // ── Won list ─────────────────────────────────────────────
     @FXML private VBox wonList;
 
-    private final AuthService    authService    = new AuthService();
+    private final AuthService authService    = new AuthService();
     private final AuctionService auctionService = new AuctionService();
     private User currentUser;
 

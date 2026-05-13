@@ -14,8 +14,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -48,14 +48,18 @@ public class AdminAuctionsController {
     public void initData(User admin) {
         this.currentAdmin = admin;
         if (auctionService == null) auctionService = new AuctionService();
-        this.allAuctions = new java.util.ArrayList<>(auctionService.getAllAuctions());
+
+        // Gọi trực tiếp và khởi tạo ArrayList mới từ kết quả
+        // Vì Service trả về List<Auction> nên sẽ không còn lỗi biên dịch
+        List<Auction> dataFromServer = auctionService.getAllAuctions();
+        this.allAuctions = new ArrayList<>(dataFromServer);
+
         javafx.application.Platform.runLater(() -> {
             totalLabel.setText(allAuctions.size() + " auctions");
             setActiveTab(tabAll);
             loadTable(allAuctions);
         });
     }
-
     // ── Tab filters ───────────────────────────────────────────
     @FXML public void showAll() {
         currentTab ="ALL";

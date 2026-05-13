@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public class AdminDashboardController {
     @FXML private Label statUserDelta;
     @FXML private VBox  recentUsersList, recentAuctionsList;
 
-    private AuthService    authService    = new AuthService();
+    private AuthService authService    = new AuthService();
     private AuctionService auctionService = new AuctionService();
 
     public void initData(User admin) {
@@ -37,8 +38,8 @@ public class AdminDashboardController {
 
         // Load data
         List<User>    allUsers    = authService.getAllUsers();
-        List<Auction> allAuctions = new java.util.ArrayList<>(auctionService.getAllAuctions());
-        List<Auction> liveAuctions= new java.util.ArrayList<>(auctionService.getActiveAuctions());
+        List<Auction> allAuctions = new ArrayList<>(auctionService.getAllAuctions());
+        List<Auction> liveAuctions= new ArrayList<>(auctionService.getActiveAuctions());
         long bannedCount = allUsers.stream()
                 .filter(u -> u.getAccountStatus() == AccountStatus.BANNED)
                 .count();

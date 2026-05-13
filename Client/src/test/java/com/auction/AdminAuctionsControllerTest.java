@@ -6,7 +6,6 @@ import com.auction.client.controller.AdminAuctionsController;
 import com.auction.client.model.Auction;
 import com.auction.client.model.Item;
 import com.auction.client.model.User;
-import com.auction.client.service.AuctionService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;

@@ -1,225 +1,235 @@
 package com.auction.client.service;
 
-import com.auction.client.Enum.AuctionStatus;
-import com.auction.client.model.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.auction.client.controller.SessionManager;
+import com.auction.client.model.Auction;
+import com.auction.client.model.BidTransaction;
+import com.auction.client.model.User;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Service xử lý toàn bộ nghiệp vụ liên quan đến Auction:
+ * lấy danh sách, xem chi tiết, tạo, cập nhật, xoá, đặt giá thầu.
+ */
 public class AuctionService {
-    private static final Map<Long, Auction> auctions = new HashMap<>();
-    private static final AtomicLong auctionIdGen = new AtomicLong(1);
-    private static final AtomicLong itemIdGen = new AtomicLong(1);
-    private final AuthService authService = new AuthService();
 
+    private final ServerConnection connection = ServerConnection.getInstance();
 
-    public AuctionService() {
-        initSampleData();
-    }
-
-    private void initSampleData() {
-        if (!auctions.isEmpty()) return;
-        User user1 = authService.getUserByUsername("user1");
-        User user2 = authService.getUserByUsername("user2");
-
-        if (user1 == null || user2 == null) {
-            System.err.println("Không tìm thấy user1/user2 trong AuthService. Đảm bảo AuthService có dữ liệu.");
-            return;
+    // ── GET ALL AUCTIONS ─────────────────────────────────────────────────────
+    public List<Auction> getAllAuctions() {
+        Response res = send(new Request(Request.GET_AUCTIONS));
+        if (res.isSuccess() && res.getData() instanceof List) {
+            return (List<Auction>) res.getData();
         }
-
-        Art art = new Art("Starry Night", "Van Gogh painting", 1000.0, "Van Gogh", 1889);
-        art.setId(itemIdGen.getAndIncrement());
-        art.setSellerId(user1.getId());
-        art.setSellerName(user1.getUsername());
-
-        Electronics electronics = new Electronics("iPhone 15", "Latest model", 800.0, "Apple", "15 Pro");
-        electronics.setId(itemIdGen.getAndIncrement());
-        electronics.setSellerId(user2.getId());
-        electronics.setSellerName(user2.getUsername());
-
-        Vehicle vehicle = new Vehicle("Tesla Model S", "Electric car", 50000.0, "Tesla", "Model S", 2023);
-        vehicle.setId(itemIdGen.getAndIncrement());
-        vehicle.setSellerId(user1.getId());
-        vehicle.setSellerName(user1.getUsername());
-
-        // Tạo phiên đấu giá (endTime là tương lai)
-        Auction a1 = new Auction(art, user1, LocalDateTime.now().plusDays(3));
-        a1.setId(auctionIdGen.getAndIncrement());
-        Auction a2 = new Auction(electronics, user2, LocalDateTime.now().plusDays(5));
-        a2.setId(auctionIdGen.getAndIncrement());
-        Auction a3 = new Auction(vehicle, user1, LocalDateTime.now().plusDays(7));
-        a3.setId(auctionIdGen.getAndIncrement());
-
-        auctions.put(a1.getId(), a1);
-        auctions.put(a2.getId(), a2);
-        auctions.put(a3.getId(), a3);
-
-        System.out.println("Đã khởi tạo " + auctions.size() + " phiên đấu giá mẫu.");
+        return new ArrayList<>();
     }
-
-    public ObservableList<Auction> getActiveAuctions() {
-        List<Auction> active = new ArrayList<>();
-        for (Auction a : auctions.values()) {
-            if (a.getStatus() == AuctionStatus.RUNNING && a.getEndTime().isAfter(LocalDateTime.now())) {
-                active.add(a);
-            }
+    /**
+     * Hàm lấy các phiên đang hoạt động (Active/Live)
+     */
+    public List<Auction> getActiveAuctions() {
+        // Giả sử bạn có hằng số GET_ACTIVE_AUCTIONS trong Request
+        Response res = send(new Request("GET_ACTIVE_AUCTIONS"));
+        if (res.isSuccess() && res.getData() instanceof List) {
+            return (List<Auction>) res.getData();
         }
-        return FXCollections.observableArrayList(active);
+        return new ArrayList<>();
+    }
+    // ── GET AUCTION DETAIL ───────────────────────────────────────────────────
+    /**
+     * Lấy chi tiết một phiên đấu giá theo ID.
+     * @param auctionId ID của auction
+     * @return Response chứa AuctionDTO
+     */
+    public Response getAuctionById(Long auctionId) {
+        return send(new Request(Request.GET_AUCTION, auctionId));
     }
 
-    public ObservableList<Auction> getAllAuctions() {
-        return FXCollections.observableArrayList(auctions.values());
-    }
+    // ── CREATE AUCTION ───────────────────────────────────────────────────────
 
-    public boolean placeBid(Long auctionId, User bidder, double amount) {
-        if (auctionId == null || bidder == null) return false;
-        Auction auction = auctions.get(auctionId);
-        if (auction == null) return false;
+    // ── UPDATE AUCTION ───────────────────────────────────────────────────────
+
+    public Response updateAuction(Long auctionId, String title, String description,
+                                  String category, double startPrice,
+                                  java.time.LocalDateTime endTime) {
         try {
-            if (auction.getStatus() != AuctionStatus.RUNNING || auction.getEndTime().isBefore(LocalDateTime.now())) {
-                return false;
-            }
-            if (amount <= auction.getCurrentPrice()) return false;
-            BidTransaction bid = new BidTransaction(bidder, amount, false);
-            return auction.addBid(bid);
+            // Đóng gói dữ liệu cần cập nhật
+            Object[] updateData = {
+                    auctionId, title, description, category, startPrice, endTime
+            };
+
+            // Tạo Request với action UPDATE_AUCTION
+            Request request = new Request(Request.UPDATE_AUCTION, updateData);
+
+            // Đính kèm token để xác thực quyền sở hữu/quyền Admin
+            attachToken(request);
+
+            // Gửi yêu cầu tới Server
+            return (Response) connection.sendRequest(request);
+
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return Response.error("Lỗi khi cập nhật phiên đấu giá: " + e.getMessage());
         }
     }
-    //Gia hạn phiên đấu giá
-    public boolean extendAuction(Long auctionId, int extraHours) {
-        Auction auction = auctions.get(auctionId);
-        if (auction == null || auction.getStatus() != AuctionStatus.RUNNING)
-            return false;
-        auction.setEndTime(auction.getEndTime().plusHours(extraHours));
-        return true;
-    }
+    public Response createAuction(User owner, String title, String description,
+                                  String category, String condition, double startPrice,
+                                  double reservePrice, double increment,
+                                  java.time.LocalDateTime startTime,
+                                  java.time.LocalDateTime endTime,
+                                  String imagePath) {
+        try {
+            // Đóng gói tất cả tham số vào một mảng Object
+            Object[] auctionData = {
+                    owner, title, description, category, condition,
+                    startPrice, reservePrice, increment,
+                    startTime, endTime, imagePath
+            };
 
-    public List<Auction> getMyBids(Long userId) {
-        if (userId == null) return Collections.emptyList();
-        List<Auction> result = new ArrayList<>();
-        for (Auction a : auctions.values()) {
-            for (BidTransaction bid : a.getBidHistory()) {
-                if (bid.getBidder().getId().equals(userId)) {
-                    result.add(a);
-                    break; // Tìm thấy 1 bid là đủ để xác nhận tham gia phiên này
-                }
-            }
+            // Tạo Request với action CREATE_AUCTION (cần định nghĩa trong Request.java)
+            Request request = new Request("CREATE_AUCTION", auctionData);
+
+            // Đính kèm token xác thực của người dùng hiện tại
+            attachToken(request);
+
+            // Gửi lên server thông qua ServerConnection
+            return (Response) connection.sendRequest(request);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.error("Lỗi khi tạo phiên đấu giá: " + e.getMessage());
         }
-        return result;
     }
 
     public List<Auction> getWinningBids(Long userId) {
-        if (userId == null) return Collections.emptyList();
-        List<Auction> result = new ArrayList<>();
-        for (Auction a : auctions.values()) {
-            // Giả sử Auction có hàm getHighestBidder() hoặc lấy bid cuối cùng trong list
-            List<BidTransaction> history = a.getBidHistory();
-            if (!history.isEmpty()) {
-                BidTransaction lastBid = history.get(history.size() - 1);
-                if (lastBid.getBidder().getId().equals(userId)) {
-                    result.add(a);
-                }
+        try {
+            Request req = new Request("GET_WINNING_BIDS", userId);
+            attachToken(req);
+            Response res = send(req);
+            if (res != null && res.isSuccess() && res.getData() instanceof List) {
+                return (List<Auction>) res.getData();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return result;
+        return new java.util.ArrayList<>();
+    }
+    // ── DELETE AUCTION ───────────────────────────────────────────────────────
+    /**
+     * Xoá phiên đấu giá (Admin only).
+     * @param auctionId ID của auction cần xoá
+     */
+    public Response deleteAuction(Long auctionId) {
+        return send(new Request(Request.DELETE_AUCTION, auctionId));
     }
 
-    public void registerAutoBid(Long auctionId, User bidder, double maxPrice, double step) {
-        if (auctionId == null || bidder == null) return;
-        Auction auction = auctions.get(auctionId);
-        if (auction != null) {
-            auction.registerAutoBid(new AutoBidConfig(bidder, maxPrice, step));
+    // ── PLACE BID ────────────────────────────────────────────────────────────
+    public Response placeBid(Long auctionId, User user, double amount) {
+        try {
+            // Tạo một mảng Object hoặc một DTO để đóng gói dữ liệu gửi lên server
+            Object[] bidData = { auctionId, user, amount };
+
+            // Gửi request PLACE_BID kèm dữ liệu
+            Request request = new Request(Request.PLACE_BID, bidData);
+
+            // Đính kèm token để server xác thực người dùng đang đặt giá
+            String token = com.auction.client.controller.SessionManager.get().getToken();
+            if (token != null) request.setToken(token);
+
+            return (Response) ServerConnection.getInstance().sendRequest(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.error("Lỗi kết nối khi đặt giá: " + e.getMessage());
         }
     }
 
-    // Trong AuctionService.java
-    public Auction createAuction(User seller, String title, String desc,
-                                 String category, String condition, double startPrice,
-                                 double reserve, double increment,
-                                 LocalDateTime start, LocalDateTime end, String imagePath) {
+    // ── GET MY BIDS ──────────────────────────────────────────────────────────
+    /**
+     * Lấy lịch sử đặt giá của user hiện tại (màn MyBids).
+     * @return Response chứa List<BidTransactionDTO>
+     */
+    public List<Auction> getMyBids(Long userId) { // Chuyển từ Long sang int
+        try {
+            // Gửi Request kèm userId
+            Response res = send(new Request(Request.GET_MY_BIDS, userId));
 
-        // 1. Tạo Item: Dùng Anonymous Class để xử lý class abstract
-        // Lưu ý: Phải Override hàm getCategory() vì IDE báo lỗi ở ảnh trước
-        Item newItem = new Item(title, desc, startPrice) {
-            @Override
-            public String getCategory() {
-                return category;
+            // Kiểm tra và ép kiểu sang List<Auction>
+            if (res != null && res.isSuccess() && res.getData() instanceof List) {
+                return (List<Auction>) res.getData();
             }
-        };
-
-        // 2. Khởi tạo Auction: Dùng luôn 'seller' vừa truyền vào
-        Auction auction = new Auction(newItem, seller, end);
-
-        // 3. Cấp ID và lưu vào danh sách
-        auction.setId(auctionIdGen.getAndIncrement());
-        auctions.put(auction.getId(), auction);
-
-        return auction;
-    }
-
-    public void endAuctionEarly(Long auctionId) {
-        if (auctionId == null) return;
-        Auction auction = auctions.get(auctionId);
-        if (auction != null) auction.closeAuction();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Trả về danh sách rỗng để tránh lỗi NullPointerException
+        return new ArrayList<>();
     }
 
     public List<BidTransaction> getBidHistory(Long auctionId) {
-        if (auctionId == null) return Collections.emptyList();
-        Auction auction = auctions.get(auctionId);
-        if (auction != null) {
-            // Trả về danh sách lịch sử đấu giá từ đối tượng Auction
-            return auction.getBidHistory();
-        }
-        return Collections.emptyList();
-    }
-    public List<BidTransaction> getBidsByUser(Long userId) {
-        if (userId == null) return Collections.emptyList();
-        List<BidTransaction> result = new ArrayList<>();
-        for (Auction a : auctions.values()) {
-            for (BidTransaction bid : a.getBidHistory()) {
-                if (bid.getBidder().getId().equals(userId)) {
-                    result.add(bid);
-                }
+        try {
+            Response res = send(new Request(Request.GET_BID_HISTORY, auctionId));
+            if (res != null && res.isSuccess() && res.getData() instanceof List) {
+                return (List<BidTransaction>) res.getData();
             }
-        }
-        return result;
+        } catch (Exception e) { e.printStackTrace(); }
+        return new java.util.ArrayList<>();
     }
 
     public List<Auction> getAuctionsBySeller(Long sellerId) {
-        if (sellerId == null) return Collections.emptyList();
-        List<Auction> result = new ArrayList<>();
-        for (Auction a : auctions.values()) {
-            if (a.getSeller().getId().equals(sellerId)) {
-                result.add(a);
+        try {
+            Request req = new Request("GET_AUCTIONS_BY_SELLER", sellerId);
+            attachToken(req);
+            Response res = send(req);
+            if (res != null && res.isSuccess() && res.getData() instanceof List) {
+                return (List<Auction>) res.getData();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return result;
-    }
-    public void deleteAuction(Long auctionId) {
-        // Logic xóa auction khỏi database hoặc danh sách tập trung
-        System.out.println("Deleted auction ID: " + auctionId);
-    }
-    public void updateAuction(Long id, String title, String desc, String category, double price, LocalDateTime end) {
-        Auction auction = auctions.get(id);
-        if (auction != null) {
-            Item item = auction.getItem();
-            if (item != null) {
-                item.setName(title);
-                item.setDescription(desc);
-                // Vì category trong Item là abstract/chỉ có getter,
-                // bạn có thể cần setter hoặc xử lý riêng tùy logic class Item của bạn
-            }
-            auction.setEndTime(end);
-            // Lưu ý: class Auction của bạn dùng currentPrice, không phải startPrice khi update
-        }
+        return new java.util.ArrayList<>();
     }
 
-    public List<User> getAllUsers() {
-        return authService.getAllUsers();
+    // ── AUTO BID ─────────────────────────────────────────────────────────────
+    /**
+     * Lấy cấu hình AutoBid của user cho 1 auction.
+     * @param auctionId ID auction
+     */
+    public Response getAutoBid(Long auctionId) {
+        return send(new Request(Request.GET_AUTO_BID, auctionId));
+    }
+
+    /**
+     * Thiết lập / cập nhật AutoBid.
+     * @param autoBidDTO object AutoBidDTO (auctionId + maxAmount)
+     */
+    public Response setAutoBid(Object autoBidDTO) {
+        return send(new Request(Request.SET_AUTO_BID, autoBidDTO));
+    }
+
+    // ── Helper ───────────────────────────────────────────────────────────────
+    private Response send(Request request) {
+        try {
+            attachToken(request);
+            return (Response) connection.sendRequest(request);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return Response.error("Lỗi kết nối server: " + e.getMessage());
+        }
+    }
+    public boolean extendAuction(Long auctionId, int hours) {
+        // Gom dữ liệu vào một mảng hoặc Map để gửi đi
+        Object[] data = { auctionId, hours };
+        Response res = send(new Request(Request.EXTEND_AUCTION, data));
+
+        return res != null && res.isSuccess();
+    }
+
+    public void endAuctionEarly(Long auctionId) {
+        send(new Request(Request.END_AUCTION_EARLY, auctionId));
+    }
+
+    private void attachToken(Request request) {
+        String token = SessionManager.get().getToken();
+        if (token != null) request.setToken(token);
     }
 }

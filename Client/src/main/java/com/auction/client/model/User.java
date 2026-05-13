@@ -3,10 +3,11 @@ package com.auction.client.model;
 import com.auction.client.Enum.SystemRole;
 import com.auction.client.Enum.AccountStatus;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
     private String username;
     private String passwordHash;
     private String email;

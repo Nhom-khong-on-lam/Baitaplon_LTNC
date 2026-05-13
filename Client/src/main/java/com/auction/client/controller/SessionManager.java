@@ -12,7 +12,14 @@ public class SessionManager {
     private SessionManager() {}
 
     private User currentUser;
+    private String token;
+    public void setToken(String token) {
+        this.token = token;
+    }
 
+    public String getToken() {
+        return token;
+    }
     public void   login(User user)  { this.currentUser = user; }
     public void   logout()          { this.currentUser = null; }
     public User   getUser()         { return currentUser; }

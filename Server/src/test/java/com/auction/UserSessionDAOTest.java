@@ -33,13 +33,12 @@ class UserSessionDAOTest {
         validUserId = userDAO.insert(tempUser);
         assertTrue(validUserId > 0, "Phải tạo được User tạm thời để test");
     }
-
     @AfterEach
     void tearDown() {
         // 2. DỌN DẸP DỮ LIỆU SAU KHI TEST XONG
         // Nhờ cơ chế ON DELETE CASCADE bạn đã cài đặt, khi xóa User, các Session của User đó cũng tự động bay màu
-        sessionDAO.deleteByToken(testToken);
-        userDAO.delete(validUserId);
+       sessionDAO.deleteByToken(testToken);
+       userDAO.delete(validUserId);
     }
 
     @Test
