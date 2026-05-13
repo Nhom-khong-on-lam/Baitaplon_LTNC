@@ -9,11 +9,7 @@ public class Auction_watchDTO implements Serializable {
     private long id;
     private long userId;
     private long auctionId;
-    private LocalDateTime createdAt;
-
-    // Các trường bổ sung để hiển thị lên giao diện mà không cần query nhiều lần
-    private String auctionTitle; // Tên phiên đấu giá
-    private String status; // Trạng thái phiên hiện tại
+    private LocalDateTime watchedAt;
 
     public Auction_watchDTO() {}
 
@@ -21,14 +17,14 @@ public class Auction_watchDTO implements Serializable {
     public Auction_watchDTO(long userId, long auctionId) {
         this.userId = userId;
         this.auctionId = auctionId;
-        this.createdAt = LocalDateTime.now();
+        this.watchedAt = LocalDateTime.now();
     }
     // Constructor đầy đủ cho DAO
-    public Auction_watchDTO(long id, long userId, long auctionId, LocalDateTime createdAt) {
+    public Auction_watchDTO(long id, long userId, long auctionId, LocalDateTime watchedAt) {
         this.id = id;
         this.userId = userId;
         this.auctionId = auctionId;
-        this.createdAt = createdAt;
+        this.watchedAt = watchedAt;
     }
     // ---  Getters and Setters ---
     public long getId() { return id; }
@@ -40,14 +36,16 @@ public class Auction_watchDTO implements Serializable {
     public long getAuctionId() { return auctionId; }
     public void setAuctionId(long auctionId) { this.auctionId = auctionId; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public String getAuctionTitle() { return auctionTitle; }
-    public void setAuctionTitle(String auctionTitle) { this.auctionTitle = auctionTitle; }
+    public LocalDateTime getWatchedAt() { return watchedAt; }
+    public void setWatchedAt(LocalDateTime watchedAt) { this.watchedAt = watchedAt; }
 
     @Override
     public String toString() {
-        return "AuctionWatchDTO{" + "userId=" + userId + ", auctionId=" + auctionId + '}';
+        return "Auction_watchDTO{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", auctionId=" + auctionId +
+                ", watchedAt=" + watchedAt +
+                '}';
     }
 }

@@ -15,24 +15,18 @@ public class AuctionWatchDAO {
 
     // Thêm một phiên đấu giá vào danh sách theo dõi
     public boolean addWatch(Auction_watchDTO watch) {
-        String sql = "INSERT INTO auction_watch (user_id, auction_id, created_at) VALUES (?, ?, ?)";
-
+        // Đổi created_at thành watched_at
+        String sql = "INSERT INTO auction_watch (user_id, auction_id, watched_at) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setLong(1, watch.getUserId());
             ps.setLong(2, watch.getAuctionId());
             ps.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-
-            boolean success = ps.executeUpdate() > 0;
-            if (success) {
-                LOGGER.info("WATCH_ADD: User ID " + watch.getUserId() + " đang theo dõi Auction ID " + watch.getAuctionId());
-            }
-            return success;
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "WATCH_ERROR: Lỗi khi thêm theo dõi cho User " + watch.getUserId(), e);
+            LOGGER.log(Level.SEVERE, "Lỗi addWatch", e);
+            return false;
         }
-        return false;
     }
     // Hủy theo dõi (Xóa khỏi watchlist)
     public boolean removeWatch(long userId, long auctionId) {
@@ -57,10 +51,8 @@ public class AuctionWatchDAO {
     // Lấy danh sách tất cả các phiên đấu giá mà một User đang theo dõi
     public List<Auction_watchDTO> findByUserId(long userId) {
         List<Auction_watchDTO> list = new ArrayList<>();
-        // Query có Join với bảng auction để lấy thêm tiêu đề hiển thị
-        String sql = "SELECT aw.*, a.title FROM auction_watch aw " +
-                "JOIN auction a ON aw.auction_id = a.id " +
-                "WHERE aw.user_id = ?";
+        // Truy vấn thẳng bảng auction_watch, không JOIN đi đâu cả
+        String sql = "SELECT * FROM auction_watch WHERE user_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -72,14 +64,14 @@ public class AuctionWatchDAO {
                             rs.getLong("id"),
                             rs.getLong("user_id"),
                             rs.getLong("auction_id"),
-                            rs.getTimestamp("created_at").toLocalDateTime()
+                            rs.getTimestamp("watched_at").toLocalDateTime()
                     );
-                    dto.setAuctionTitle(rs.getString("title"));
+                    // Không set title/name nữa
                     list.add(dto);
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "WATCH_READ_ERROR: Lỗi lấy watchlist của User " + userId, e);
+            e.printStackTrace();
         }
         return list;
     }
