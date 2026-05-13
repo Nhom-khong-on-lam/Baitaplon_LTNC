@@ -13,14 +13,14 @@ public class UserSessionDAO {
 
     public long insert(User_SessionDTO session) {
         String sql = "INSERT INTO user_session (user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?)";
-        
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+
             ps.setLong(1, session.getUserId());
             ps.setString(2, session.getToken());
             ps.setTimestamp(3, Timestamp.valueOf(session.getExpiresAt()));
-            
+
             LocalDateTime createdAt = (session.getCreatedAt() != null) ? session.getCreatedAt() : LocalDateTime.now();
             ps.setTimestamp(4, Timestamp.valueOf(createdAt));
 
@@ -34,17 +34,17 @@ public class UserSessionDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "INSERT ERROR: Lỗi khi tạo phiên làm việc cho User ID=" + session.getUserId(), e); 
+            LOGGER.log(Level.SEVERE, "INSERT ERROR: Lỗi khi tạo phiên làm việc cho User ID=" + session.getUserId(), e);
         }
         return -1;
     }
 
     public User_SessionDTO findByToken(String token) {
         String sql = "SELECT * FROM user_session WHERE token = ?";
-        
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+
             ps.setString(1, token);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -69,40 +69,40 @@ public class UserSessionDAO {
 
     public boolean deleteByToken(String token) {
         String sql = "DELETE FROM user_session WHERE token = ?";
-        
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+
             ps.setString(1, token);
             boolean deleted = ps.executeUpdate() > 0;
             if (deleted) {
-                LOGGER.info("DELETE SUCCESS: Phiên làm việc (token) đã được thu hồi thành công."); [cite: 286]
+                LOGGER.info("DELETE SUCCESS: Phiên làm việc (token) đã được thu hồi thành công.");
             } else {
                 LOGGER.warning("DELETE WARNING: Không có session nào để xóa (Token không tồn tại).");
             }
             return deleted;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "DELETE ERROR: Lỗi khi thu hồi session", e); [cite: 287]
+            LOGGER.log(Level.SEVERE, "DELETE ERROR: Lỗi khi thu hồi session", e);
         }
         return false;
     }
 
     public int deleteExpiredSessions() {
         String sql = "DELETE FROM user_session WHERE expires_at < ?";
-        
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             int deletedCount = ps.executeUpdate();
             if (deletedCount > 0) {
-                LOGGER.info("CLEANUP SUCCESS: Đã xóa " + deletedCount + " phiên làm việc hết hạn."); [cite: 291]
+                LOGGER.info("CLEANUP SUCCESS: Đã xóa " + deletedCount + " phiên làm việc hết hạn.");
             } else {
                 LOGGER.info("CLEANUP INFO: Không có phiên làm việc nào hết hạn để dọn dẹp.");
             }
             return deletedCount;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "CLEANUP ERROR: Lỗi trong quá trình dọn dẹp session tự động", e); [cite: 293]
+            LOGGER.log(Level.SEVERE, "CLEANUP ERROR: Lỗi trong quá trình dọn dẹp session tự động", e);
         }
         return 0;
     }
