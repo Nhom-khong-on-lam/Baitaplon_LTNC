@@ -8,21 +8,28 @@ import java.util.List;
 
 public class AuctionDAO {
     // Sửa lỗi insert: Sử dụng trực tiếp getSellerId() kiểu Long
-    public boolean insert(AuctionDTO a) {
+    public long insert(AuctionDTO a) {
         String sql = "INSERT INTO auction (item_id, seller_id, current_price, start_time, end_time, status) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, a.getItemId());
             ps.setLong(2, a.getSellerId()); // Sửa lỗi gọi getSeller().getId()
             ps.setDouble(3, a.getCurrentPrice());
             ps.setTimestamp(4, Timestamp.valueOf(a.getStartTime()));
             ps.setTimestamp(5, Timestamp.valueOf(a.getEndTime()));
             ps.setString(6, a.getStatus()); // Truyền trực tiếp String thay vì .name()
-            return ps.executeUpdate() > 0;
+            if (ps.executeUpdate() > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        long id = rs.getLong(1);
+                        return id; // Trả về con số ID vừa được sinh ra trong DB
+                    }
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return -1;
     }
 
     private AuctionDTO mapResultSetToDTO(ResultSet rs) throws SQLException {
