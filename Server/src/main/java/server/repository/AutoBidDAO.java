@@ -102,7 +102,6 @@ public class AutoBidDAO {
         return configs;
     }
 
-    // Thêm hàm này để Test có thể đọc lại dữ liệu vừa Insert
     public AutoBidDTO findById(long id) {
         String sql = "SELECT * FROM auto_bid WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -122,8 +121,10 @@ public class AutoBidDAO {
 
                     Timestamp ts = rs.getTimestamp("registered_at");
                     if (ts != null) config.setRegisteredAt(ts.toLocalDateTime());
-
+                    LOGGER.info("READ SUCCESS: Đã tìm thấy AutoBid ID=" + id);
                     return config;
+                } else {
+                    LOGGER.warning("READ WARNING: Không tồn tại AutoBid với ID=" + id);
                 }
             }
         } catch (SQLException e) {
