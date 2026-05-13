@@ -8,29 +8,29 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class User_SessionDTOTest {
+public class User_SessionDTOTest {
 
     @Test
     @DisplayName("Test khởi tạo bằng Constructor rỗng và dùng Setter/Getter")
     void testNoArgsConstructorAndSetters() {
         // Arrange: Chuẩn bị dữ liệu
-        User_SessionDTO session = new User_SessionDTO(); // [cite: 200]
+        User_SessionDTO session = new User_SessionDTO(); 
         LocalDateTime createdTime = LocalDateTime.now();
         LocalDateTime expireTime = createdTime.plusDays(1); // Hết hạn sau 1 ngày
 
         // Act: Gán giá trị bằng Setter
-        session.setId(1L); // [cite: 203]
-        session.setUserId(100L); // [cite: 205]
-        session.setToken("abc-123-xyz"); // [cite: 207]
-        session.setCreatedAt(createdTime); // [cite: 211]
-        session.setExpiresAt(expireTime); // [cite: 209]
+        session.setId(1L); 
+        session.setUserId(100L); 
+        session.setToken("abc-123-xyz"); 
+        session.setCreatedAt(createdTime); 
+        session.setExpiresAt(expireTime); 
 
         // Assert: Kiểm tra lại bằng Getter
-        assertEquals(1L, session.getId()); // [cite: 202]
-        assertEquals(100L, session.getUserId()); // [cite: 204]
-        assertEquals("abc-123-xyz", session.getToken()); // [cite: 206]
-        assertEquals(createdTime, session.getCreatedAt()); // [cite: 210]
-        assertEquals(expireTime, session.getExpiresAt()); // [cite: 208]
+        assertEquals(1L, session.getId()); 
+        assertEquals(100L, session.getUserId()); 
+        assertEquals("abc-123-xyz", session.getToken()); 
+        assertEquals(createdTime, session.getCreatedAt()); 
+        assertEquals(expireTime, session.getExpiresAt()); 
     }
 
     @Test
