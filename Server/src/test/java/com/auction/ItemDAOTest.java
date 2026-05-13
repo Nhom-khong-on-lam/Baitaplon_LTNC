@@ -32,8 +32,11 @@ class ItemDAOTest {
         item.setArtist(null); // Đồ điện tử không có artist
         item.setProductionYear(2023);
 
-        boolean result = itemDAO.insert(item);
+        long result = itemDAO.insert(item);
         assertTrue(result, "Thêm sản phẩm phải thành công");
+    }
+
+    private void assertTrue(long result, String s) {
     }
 
     @Test

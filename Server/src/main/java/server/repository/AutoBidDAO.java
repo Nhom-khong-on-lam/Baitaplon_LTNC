@@ -12,19 +12,20 @@ import java.util.logging.Logger;
 
 public class AutoBidDAO {
     private static final Logger LOGGER = Logger.getLogger(AutoBidDAO.class.getName());
-    
+
     public long insert(AutoBidDTO config) {
-        String sql = "INSERT INTO auto_bid (auction_id, bidder_id, max_amount, increment, active, registered_at) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO auto_bid (auction_id, bidder_id, maxPrice, stepIncrement, active, registered_at) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, config.getAuctionId());
             ps.setLong(2, config.getBidderId());
-            
-            ps.setDouble(3, config.getMaxPrice());        
-            ps.setDouble(4, config.getStepIncrement());  
-            
+
+            // Map với Getter của Java
+            ps.setDouble(3, config.getMaxPrice());
+            ps.setDouble(4, config.getStepIncrement());
+
             ps.setBoolean(5, config.isActive());
 
             LocalDateTime timeToSave = (config.getRegisteredAt() != null) ? config.getRegisteredAt() : LocalDateTime.now();
@@ -55,15 +56,19 @@ public class AutoBidDAO {
             ps.setLong(2, configId);
 
             boolean updated = ps.executeUpdate() > 0;
-            if (updated) LOGGER.info("UPDATE SUCCESS: Đã đổi trạng thái AutoBid ID=" + configId + " thành " + isActive);
+            if (updated) {
+                LOGGER.info("UPDATE SUCCESS: Đã đổi trạng thái AutoBid ID=" + configId + " thành " + isActive);
+            } else {
+                LOGGER.warning("UPDATE WARNING: Không tìm thấy AutoBid ID=" + configId + " để cập nhật trạng thái.");
+            }
             return updated;
-            
+
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "UPDATE ERROR: Lỗi cập nhật trạng thái AutoBid ID=" + configId, e);
         }
         return false;
     }
-    
+
     public List<AutoBidDTO> getActiveConfigsForAuction(Long auctionId) {
         List<AutoBidDTO> configs = new ArrayList<>();
         String sql = "SELECT * FROM auto_bid WHERE auction_id = ? AND active = 1 ORDER BY registered_at ASC";
@@ -78,21 +83,53 @@ public class AutoBidDAO {
                     config.setId(rs.getLong("id"));
                     config.setAuctionId(rs.getLong("auction_id"));
                     config.setBidderId(rs.getLong("bidder_id"));
-                    
-                    config.setMaxPrice(rs.getDouble("max_amount"));
-                    config.setStepIncrement(rs.getDouble("increment"));
-                    
+
+                    config.setMaxPrice(rs.getDouble("maxPrice"));
+                    config.setStepIncrement(rs.getDouble("stepIncrement"));
+
                     config.setActive(rs.getBoolean("active"));
-                    
+
                     Timestamp ts = rs.getTimestamp("registered_at");
                     if (ts != null) config.setRegisteredAt(ts.toLocalDateTime());
-                    
+
                     configs.add(config);
                 }
+                LOGGER.info("READ SUCCESS: Lấy thành công " + configs.size() + " cấu hình AutoBid active cho Auction ID=" + auctionId);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi lấy danh sách AutoBid của auction_id=" + auctionId, e);
         }
         return configs;
+    }
+
+    public AutoBidDTO findById(long id) {
+        String sql = "SELECT * FROM auto_bid WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    AutoBidDTO config = new AutoBidDTO();
+                    config.setId(rs.getLong("id"));
+                    config.setAuctionId(rs.getLong("auction_id"));
+                    config.setBidderId(rs.getLong("bidder_id"));
+
+                    config.setMaxPrice(rs.getDouble("maxPrice"));
+                    config.setStepIncrement(rs.getDouble("stepIncrement"));
+                    config.setActive(rs.getBoolean("active"));
+
+                    Timestamp ts = rs.getTimestamp("registered_at");
+                    if (ts != null) config.setRegisteredAt(ts.toLocalDateTime());
+                    LOGGER.info("READ SUCCESS: Đã tìm thấy AutoBid ID=" + id);
+                    return config;
+                } else {
+                    LOGGER.warning("READ WARNING: Không tồn tại AutoBid với ID=" + id);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi tìm AutoBid theo ID=" + id, e);
+        }
+        return null;
     }
 }
