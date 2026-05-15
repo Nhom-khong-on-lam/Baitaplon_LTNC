@@ -46,8 +46,27 @@ public class AuctionsController {
 
     public void initData(User user) {
         this.currentUser = user;
-        this.allAuctions = auctionService.getAllAuctions();
-        renderAuctions(allAuctions);
+
+        // Tùy chọn: Hiện chữ Loading để UI thân thiện hơn trong lúc chờ
+        resultCount.setText("Loading auctions...");
+        auctionListContainer.getChildren().clear();
+
+        // 1. Mở luồng phụ để tải dữ liệu danh sách đấu giá
+        new Thread(() -> {
+            List<Auction> fetchedAuctions = auctionService.getAllAuctions();
+
+            // 2. Tải xong thì đưa lại cho luồng UI để vẽ danh sách
+            javafx.application.Platform.runLater(() -> {
+                this.allAuctions = fetchedAuctions;
+
+                // Nếu chưa có file nào, khởi tạo list rỗng tránh lỗi NullPointer ở bộ lọc
+                if (this.allAuctions == null) {
+                    this.allAuctions = new java.util.ArrayList<>();
+                }
+
+                renderAuctions(this.allAuctions);
+            });
+        }).start();
     }
 
     /** Gọi từ MainController khi search từ topbar */
