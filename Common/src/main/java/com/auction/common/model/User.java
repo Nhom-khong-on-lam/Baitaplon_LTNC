@@ -15,6 +15,7 @@ public class User extends BaseEntity implements Serializable {
     private SystemRole systemRole;
     private AccountStatus accountStatus;
     private LocalDateTime joinedDate = LocalDateTime.now();
+    private int bidCount;
 
     public User(Long id, String username, String passwordHash, String email, SystemRole systemRole) {
         super(id);
@@ -48,6 +49,8 @@ public class User extends BaseEntity implements Serializable {
         return this.accountStatus;
     }
 
+    public int getBidCount() {return this.bidCount;}
+
     public void setAccountStatus(AccountStatus accountStatus) {
         this.accountStatus = accountStatus;
     }
@@ -72,4 +75,5 @@ public class User extends BaseEntity implements Serializable {
     }
     public void setUsername(String username) { this.username = username; }
     public void setEmail(String email) { this.email = email; }
+    public void setbidCount(int bidCount) { this.bidCount = bidCount; }
 }
