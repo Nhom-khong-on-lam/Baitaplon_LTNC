@@ -1,8 +1,7 @@
 package server.repository;
 
-import com.auction.common.dto.UserDTO;
 import server.database.DBConnection;
-
+import com.auction.common.dto.UserDTO;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,8 +27,17 @@ public class UserDAO {
         if(ts != null) {
             user.setCreatedAt(ts.toLocalDateTime());
         }
+
+        // [TỐI ƯU MỚI] Đọc cột bid_count đã được tính toán từ SQL
+        try {
+            user.setBidCount(rs.getInt("bid_count"));
+        } catch (SQLException ignore) {
+            // An toàn: Bỏ qua nếu có câu truy vấn nào đó vô tình không select cột này
+        }
+
         return user;
     }
+
     // --- CREATE ---
     public long insert(UserDTO user) {
         String sql = "INSERT INTO user (username, password, email, systemRole, accountStatus, created_at) VALUES (?, ?, ?, ?, ?, ?)";
@@ -40,10 +48,8 @@ public class UserDAO {
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getSystemRole() != null ? user.getSystemRole() : "USER");
             ps.setString(5, user.getAccountStatus() != null ? user.getAccountStatus() : "ACTIVE");
-
             LocalDateTime createdAt = (user.getCreatedAt() != null) ? user.getCreatedAt() : LocalDateTime.now();
             ps.setObject(6, createdAt);
-
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -58,9 +64,12 @@ public class UserDAO {
         }
         return -1;
     }
+
     // --- READ (Dùng chung field name để tối ưu) ---
     public UserDTO findByField(String fieldName, Object value) {
-        String sql = "SELECT * FROM user WHERE " + fieldName + " = ?";
+        // [TỐI ƯU MỚI] Gắn thêm Sub-query đếm số lượng phiên đấu giá (distinct auction_id) từ bảng bid
+        String sql = "SELECT u.*, (SELECT COUNT(DISTINCT auction_id) FROM bid b WHERE b.bidder_id = u.id) AS bid_count " +
+                "FROM user u WHERE u." + fieldName + " = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setObject(1, value);
@@ -72,12 +81,15 @@ public class UserDAO {
         }
         return null;
     }
+
     public UserDTO findById(long id) { return findByField("id", id); }
     public UserDTO findByUsername(String username) { return findByField("username", username); }
 
     public List<UserDTO> findAll() {
         List<UserDTO> users = new ArrayList<>();
-        String sql = "SELECT * FROM user";
+        // [TỐI ƯU MỚI] Sub-query chạy 1 lần duy nhất cho toàn bộ danh sách User
+        String sql = "SELECT u.*, (SELECT COUNT(DISTINCT auction_id) FROM bid b WHERE b.bidder_id = u.id) AS bid_count " +
+                "FROM user u";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -87,6 +99,7 @@ public class UserDAO {
         }
         return users;
     }
+
     // --- UPDATE ---
     public boolean update(UserDTO user) {
         String sql = "UPDATE user SET email = ?, systemRole = ?, accountStatus = ?, password = ? WHERE id = ?";
@@ -105,6 +118,7 @@ public class UserDAO {
         }
         return false;
     }
+
     // --- DELETE ---
     public boolean delete(long id) {
         String sql = "DELETE FROM user WHERE id = ?";
@@ -119,6 +133,7 @@ public class UserDAO {
         }
         return false;
     }
+
     // --- UTILITY ---
     public boolean isExisted(String fieldName, String value) {
         return findByField(fieldName, value) != null;
