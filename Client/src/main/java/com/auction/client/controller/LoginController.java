@@ -4,6 +4,7 @@ import com.auction.client.service.AuthService;
 import com.auction.common.enums.SystemRole;
 import com.auction.common.model.User;
 import javafx.animation.PauseTransition;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -52,50 +53,67 @@ public class LoginController {
     }
 
     private void doLogin(String user, String pass) {
-        User currentUser = authService.authenticate(user, pass);
-
-        loginBtn.setText("Sign In");
-        loginBtn.setDisable(false);
-        System.out.println("DEBUG currentUser = " + currentUser);
-
-        if (currentUser == null) {
-            showError("Invalid username or password.");
-            AnimationUtil.shake(loginPass);
-            return;
-        }
-
-        // ✅ FIX: So sánh String thay vì Enum để tránh luôn trả về "suspended"
-        Object status = currentUser.getAccountStatus();
-        boolean isActive = (status instanceof String)
-                ? "ACTIVE".equalsIgnoreCase((String) status)
-                : status != null && status.toString().equalsIgnoreCase("ACTIVE");
-
-        if (!isActive) {
-            showError("Your account has been suspended. Contact support.");
-            return;
-        }
-
-        showSuccess("Login successful! Redirecting...");
-        SessionManager.get().login(currentUser);
-        AnimationUtil.pulse(loginBtn);
-
-        PauseTransition nav = new PauseTransition(Duration.millis(600));
-        nav.setOnFinished(ev -> {
-            // ✅ So sánh SystemRole an toàn tương tự
-            Object role = currentUser.getSystemRole();
-            boolean isAdmin = (role instanceof SystemRole)
-                    ? role == SystemRole.ADMIN
-                    : role != null && role.toString().equalsIgnoreCase("ADMIN");
-
-            if (isAdmin) {
-                SceneManager.get().navigate(SceneManager.Screen.ADMIN_MAIN,
-                        (AdminMainController ctrl) -> ctrl.initForUser(currentUser));
-            } else {
-                SceneManager.get().navigate(SceneManager.Screen.MAIN,
-                        (MainController ctrl) -> ctrl.initForUser(currentUser));
+        // Chạy network call trên background thread để tránh đơ UI
+        Task<User> loginTask = new Task<>() {
+            @Override
+            protected User call() {
+                return authService.authenticate(user, pass);
             }
+        };
+
+        loginTask.setOnSucceeded(ev -> {
+            User currentUser = loginTask.getValue();
+
+            loginBtn.setText("Sign In");
+            loginBtn.setDisable(false);
+            System.out.println("DEBUG currentUser = " + currentUser);
+
+            if (currentUser == null) {
+                showError("Invalid username or password.");
+                AnimationUtil.shake(loginPass);
+                return;
+            }
+
+            Object status = currentUser.getAccountStatus();
+            boolean isActive = (status instanceof String)
+                    ? "ACTIVE".equalsIgnoreCase((String) status)
+                    : status != null && status.toString().equalsIgnoreCase("ACTIVE");
+
+            if (!isActive) {
+                showError("Your account has been suspended. Contact support.");
+                return;
+            }
+
+            showSuccess("Login successful! Redirecting...");
+            SessionManager.get().login(currentUser);
+            AnimationUtil.pulse(loginBtn);
+
+            PauseTransition nav = new PauseTransition(Duration.millis(600));
+            nav.setOnFinished(e2 -> {
+                Object role = currentUser.getSystemRole();
+                boolean isAdmin = (role instanceof SystemRole)
+                        ? role == SystemRole.ADMIN
+                        : role != null && role.toString().equalsIgnoreCase("ADMIN");
+
+                if (isAdmin) {
+                    SceneManager.get().navigate(SceneManager.Screen.ADMIN_MAIN,
+                            (AdminMainController ctrl) -> ctrl.initForUser(currentUser));
+                } else {
+                    SceneManager.get().navigate(SceneManager.Screen.MAIN,
+                            (MainController ctrl) -> ctrl.initForUser(currentUser));
+                }
+            });
+            nav.play();
         });
-        nav.play();
+
+        loginTask.setOnFailed(ev -> {
+            loginBtn.setText("Sign In");
+            loginBtn.setDisable(false);
+            showError("Cannot connect to server. Please try again.");
+            AnimationUtil.shake(loginPass);
+        });
+
+        new Thread(loginTask).start();
     }
 
     @FXML
