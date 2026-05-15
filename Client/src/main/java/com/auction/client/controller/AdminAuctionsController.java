@@ -48,14 +48,18 @@ public class AdminAuctionsController {
         this.currentAdmin = admin;
         if (auctionService == null) auctionService = new AuctionService();
 
-        List<Auction> dataFromServer = auctionService.getAllAuctions();
-        this.allAuctions = new ArrayList<>(dataFromServer);
+        // 1. Mở luồng phụ để tải dữ liệu từ Server, tránh đơ UI
+        new Thread(() -> {
+            List<Auction> dataFromServer = auctionService.getAllAuctions();
 
-        javafx.application.Platform.runLater(() -> {
-            totalLabel.setText(allAuctions.size() + " auctions");
-            setActiveTab(tabAll);
-            loadTable(allAuctions);
-        });
+            // 2. Tải xong thì đưa về luồng chính để vẽ lên bảng
+            javafx.application.Platform.runLater(() -> {
+                this.allAuctions = new ArrayList<>(dataFromServer);
+                totalLabel.setText(allAuctions.size() + " auctions");
+                setActiveTab(tabAll);
+                loadTable(allAuctions);
+            });
+        }).start();
     }
 
     // ── Tab filters ───────────────────────────────────────────
@@ -311,12 +315,20 @@ public class AdminAuctionsController {
                 default         -> 1;
             };
 
-            if (auctionService.extendAuction(auction.getId(), hours)) {
-                refreshCurrentTab();
-                showInfo("✓ Auction extended successfully.");
-            } else {
-                showError("Failed to extend auction.");
-            }
+            // Chạy ngầm việc gửi yêu cầu gia hạn lên Server
+            new Thread(() -> {
+                boolean success = auctionService.extendAuction(auction.getId(), hours);
+
+                // Cập nhật lại thông báo trên UI
+                javafx.application.Platform.runLater(() -> {
+                    if (success) {
+                        refreshCurrentTab();
+                        showInfo("✓ Auction extended successfully.");
+                    } else {
+                        showError("Failed to extend auction.");
+                    }
+                });
+            }).start();
         });
     }
 
@@ -328,9 +340,16 @@ public class AdminAuctionsController {
 
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                auctionService.endAuctionEarly(auction.getId());
-                refreshCurrentTab();
-                showInfo("Auction ended successfully.");
+
+                // Chạy ngầm gọi mạng
+                new Thread(() -> {
+                    auctionService.endAuctionEarly(auction.getId());
+
+                    javafx.application.Platform.runLater(() -> {
+                        refreshCurrentTab();
+                        showInfo("Auction ended successfully.");
+                    });
+                }).start();
             }
         });
     }
@@ -343,10 +362,16 @@ public class AdminAuctionsController {
 
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                auctionService.deleteAuction(auction.getId());
-                allAuctions.removeIf(a -> a.getId().equals(auction.getId()));
-                refreshCurrentTab();
-                showInfo("Auction deleted.");
+
+                new Thread(() -> {
+                    auctionService.deleteAuction(auction.getId());
+
+                    javafx.application.Platform.runLater(() -> {
+                        allAuctions.removeIf(a -> a.getId().equals(auction.getId()));
+                        refreshCurrentTab();
+                        showInfo("Auction deleted.");
+                    });
+                }).start();
             }
         });
     }
