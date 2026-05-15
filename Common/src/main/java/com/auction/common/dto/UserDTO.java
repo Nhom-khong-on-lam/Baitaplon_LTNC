@@ -16,6 +16,7 @@ public class UserDTO implements Serializable {
     private String systemRole;
     private String accountStatus;
     private LocalDateTime createdAt;
+    private int bidCount;
 
     // 1. Constructor mặc định
     public UserDTO() {
@@ -62,6 +63,9 @@ public class UserDTO implements Serializable {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public int getBidCount() { return bidCount; }
+    public void setBidCount(int bidCount) { this.bidCount = bidCount; }
 
     @Override
     public String toString() {
