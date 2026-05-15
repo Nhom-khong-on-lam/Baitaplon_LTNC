@@ -35,6 +35,10 @@ public class AuctionsController {
     private int visibleCount = 0;
     private final int LOAD_STEP = 10; // Số lượng hiển thị thêm mỗi lần cuộn
     private boolean isRendering = false;
+    private int currentPage = 1;
+    private final int PAGE_SIZE = 12; // Số lượng tải mỗi đợt từ Server
+    private boolean isFull = false;   // Đã tải hết dữ liệu trên Server chưa
+    private boolean isLoading = false;
 
     @FXML
     public void initialize() {
