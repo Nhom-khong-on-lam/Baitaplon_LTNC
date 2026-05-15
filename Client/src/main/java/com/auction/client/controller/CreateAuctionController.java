@@ -5,247 +5,247 @@ import com.auction.common.model.Auction;
 import com.auction.common.model.User;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
- * AuctionsController — Danh sách live auctions.
- * Hỗ trợ search, filter theo category, sort, và navigate to detail.
+ * CreateAuctionController — Form tạo và chỉnh sửa phiên đấu giá.
+ * Hỗ trợ 2 chế độ: Create mới hoặc Edit auction có sẵn.
  */
-public class AuctionsController {
+public class CreateAuctionController {
 
-    @FXML private TextField  searchField;
-    @FXML private ComboBox<String> categoryFilter;
-    @FXML private ComboBox<String> sortBox;
-    @FXML private Label      resultCount;
-    @FXML private VBox       auctionListContainer;
-    @FXML private Button     gridViewBtn;
-    @FXML private Button     listViewBtn;
+    @FXML private Label    pageTitle;
+    @FXML private TextField fieldTitle, fieldStartPrice, fieldReservePrice,
+            fieldBidIncrement, fieldStartTime, fieldEndTime;
+    @FXML private TextArea  fieldDesc;
+    @FXML private ComboBox<String> fieldCategory, fieldCondition;
+    @FXML private Label    msgTitle, msgDesc, msgCategory, msgPrice,
+            msgTime, msgImage, formMsg;
+    @FXML private Button   submitBtn;
+    @FXML private VBox     imagePreviewBox;
+    @FXML private Label    imageIcon, imageHint;
 
     private final AuctionService auctionService = new AuctionService();
+    private static final DateTimeFormatter FMT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     private User currentUser;
-    private List<Auction> allAuctions;
+    private Auction editingAuction; // null = create mode
+    private String  selectedImagePath;
 
     @FXML
     public void initialize() {
-        categoryFilter.setItems(FXCollections.observableArrayList(
-                "All Categories", "Electronics", "Art", "Jewelry",
-                "Vehicles", "Real Estate", "Fashion", "Collectibles"));
-        categoryFilter.getSelectionModel().selectFirst();
+        fieldCategory.setItems(FXCollections.observableArrayList(
+                "Electronics", "Art", "Jewelry", "Vehicles",
+                "Real Estate", "Fashion", "Collectibles", "Other"));
 
-        sortBox.setItems(FXCollections.observableArrayList(
-                "Ending Soon", "Newest First", "Price: Low → High",
-                "Price: High → Low", "Most Bids"));
-        sortBox.getSelectionModel().selectFirst();
+        fieldCondition.setItems(FXCollections.observableArrayList(
+                "New", "Like New", "Excellent", "Good", "Fair", "For Parts"));
+
+        // Default start time = now + 5 min
+        fieldStartTime.setText(LocalDateTime.now().plusMinutes(5)
+                .format(FMT));
+        // Default end = now + 3 days
+        fieldEndTime.setText(LocalDateTime.now().plusDays(3)
+                .format(FMT));
+
+        // Real-time clear errors
+        fieldTitle.textProperty().addListener((o, v, n) -> msgTitle.setText(""));
+        fieldStartPrice.textProperty().addListener((o, v, n) -> msgPrice.setText(""));
+        fieldEndTime.textProperty().addListener((o, v, n) -> msgTime.setText(""));
     }
 
+    /** Create mode */
     public void initData(User user) {
         this.currentUser = user;
+        this.editingAuction = null;
+        pageTitle.setText("Create Auction");
+        submitBtn.setText("Publish Auction →");
+    }
 
-        // Tùy chọn: Hiện chữ Loading để UI thân thiện hơn trong lúc chờ
-        resultCount.setText("Loading auctions...");
-        auctionListContainer.getChildren().clear();
+    /** Edit mode — điền sẵn dữ liệu */
+    public void initEdit(User user, Auction auction) {
+        this.currentUser    = user;
+        this.editingAuction = auction;
+        pageTitle.setText("Edit Auction");
+        submitBtn.setText("Save Changes →");
 
-        // 1. Mở luồng phụ để tải dữ liệu danh sách đấu giá
+        fieldTitle.setText(auction.getTitle());
+        fieldDesc.setText(auction.getDescription());
+        fieldCategory.setValue(auction.getCategory());
+        fieldStartPrice.setText(String.valueOf((int) auction.getItem().getStartingPrice()));
+        fieldEndTime.setText(auction.getEndTimeFormatted());
+        imageHint.setText("Image uploaded ✓");
+        imageIcon.setText("🖼");
+    }
+
+    // ── Quick duration buttons ────────────────────────────────
+    @FXML public void set1Day()  { setEndFromNow(1); }
+    @FXML public void set3Days() { setEndFromNow(3); }
+    @FXML public void set7Days() { setEndFromNow(7); }
+
+    private void setEndFromNow(int days) {
+        fieldEndTime.setText(LocalDateTime.now().plusDays(days).format(FMT));
+    }
+
+    // ── Image upload ─────────────────────────────────────────
+    @FXML public void handleImageUpload() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Select Product Image");
+        fc.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
+        File file = fc.showOpenDialog(imagePreviewBox.getScene().getWindow());
+        if (file != null) {
+            selectedImagePath = file.getAbsolutePath();
+            imageIcon.setText("🖼");
+            imageHint.setText(file.getName());
+            imagePreviewBox.setStyle(imagePreviewBox.getStyle()
+                    .replace("border-style:dashed", "border-style:solid")
+                    + " -fx-border-color:#2563eb;");
+            msgImage.setText("");
+        }
+    }
+
+    // ── Save draft ───────────────────────────────────────────
+    @FXML public void saveDraft() {
+        if (!validateBasic()) return;
+        formMsg.setText("✓ Draft saved successfully.");
+        formMsg.setStyle("-fx-text-fill:#16a34a; -fx-font-weight:bold;");
+        AnimationUtil.pulse(submitBtn);
+    }
+
+    // ── Submit ────────────────────────────────────────────────
+    @FXML public void handleSubmit() {
+        if (!validateAll()) return;
+
+        // 1. Lấy TẤT CẢ dữ liệu từ các ô giao diện (Bắt buộc làm ở luồng UI)
+        String title       = fieldTitle.getText().trim();
+        String desc        = fieldDesc.getText().trim();
+        String category    = fieldCategory.getValue();
+        String condition   = fieldCondition.getValue() == null ? "Good" : fieldCondition.getValue();
+        double startPrice  = Double.parseDouble(fieldStartPrice.getText().trim());
+        double reserve     = parseOptionalDouble(fieldReservePrice.getText());
+        double increment   = parseOptionalDouble(fieldBidIncrement.getText());
+        LocalDateTime start= parseDateTime(fieldStartTime.getText());
+        LocalDateTime end  = parseDateTime(fieldEndTime.getText());
+
+        // 2. Khóa nút bấm và báo đang xử lý
+        submitBtn.setDisable(true);
+        formMsg.setText("Processing...");
+        formMsg.setStyle("-fx-text-fill:#d97706;"); // Màu cam
+
+        // 3. Mở luồng phụ để gửi dữ liệu lên Server
         new Thread(() -> {
-            List<Auction> fetchedAuctions = auctionService.getAllAuctions();
+            if (editingAuction == null) {
+                // Create new
+                auctionService.createAuction(currentUser, title, desc,
+                        category, condition, startPrice, reserve, increment,
+                        start, end, selectedImagePath);
+            } else {
+                // Edit existing
+                auctionService.updateAuction(editingAuction.getId(), title, desc,
+                        category, startPrice, end);
+            }
 
-            // 2. Tải xong thì đưa lại cho luồng UI để vẽ danh sách
+            // 4. Server chạy xong, báo luồng chính cập nhật lại UI
             javafx.application.Platform.runLater(() -> {
-                this.allAuctions = fetchedAuctions;
-
-                // Nếu chưa có file nào, khởi tạo list rỗng tránh lỗi NullPointer ở bộ lọc
-                if (this.allAuctions == null) {
-                    this.allAuctions = new java.util.ArrayList<>();
+                if (editingAuction == null) {
+                    showSuccess("Auction published successfully!");
+                } else {
+                    showSuccess("Auction updated successfully! ✓");
                 }
 
-                renderAuctions(this.allAuctions);
+                AnimationUtil.pulse(submitBtn);
+                submitBtn.setDisable(false); // Mở khóa nút bấm
+
+                // Navigate to my products after short delay
+                javafx.animation.PauseTransition p =
+                        new javafx.animation.PauseTransition(javafx.util.Duration.millis(1200));
+                p.setOnFinished(e -> {
+                    MainController main = (MainController) submitBtn
+                            .getScene().lookup("#mainRoot").getUserData();
+                    main.navMyProducts();
+                });
+                p.play();
             });
         }).start();
     }
 
-    /** Gọi từ MainController khi search từ topbar */
-    public void applySearch(String keyword) {
-        searchField.setText(keyword);
-        handleSearch();
-    }
-
-    @FXML
-    public void handleSearch() {
-        applyFilters();
-    }
-
-    @FXML
-    public void handleFilter() {
-        applyFilters();
-    }
-
-    @FXML
-    public void handleSort() {
-        applyFilters();
-    }
-
-    @FXML
-    public void clearFilters() {
-        searchField.clear();
-        categoryFilter.getSelectionModel().selectFirst();
-        sortBox.getSelectionModel().selectFirst();
-        renderAuctions(allAuctions);
-    }
-
-    @FXML public void switchToGrid() {
-        // TODO: implement grid view
-        gridViewBtn.getStyleClass().setAll("btn-primary");
-        listViewBtn.getStyleClass().setAll("btn-secondary");
-    }
-
-    @FXML public void switchToList() {
-        listViewBtn.getStyleClass().setAll("btn-primary");
-        gridViewBtn.getStyleClass().setAll("btn-secondary");
-    }
-
-    /** Lọc và sắp xếp danh sách */
-    private void applyFilters() {
-        String kw  = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
-        String cat = categoryFilter.getValue();
-        String sort = sortBox.getValue();
-
-        List<Auction> filtered = allAuctions.stream()
-                .filter(a -> kw.isEmpty()
-                        || a.getTitle().toLowerCase().contains(kw)
-                        || a.getCategory().toLowerCase().contains(kw))
-                .filter(a -> cat == null || cat.equals("All Categories")
-                        || a.getCategory().equals(cat))
-                .collect(Collectors.toList());
-
-        // Sort
-        if ("Price: Low → High".equals(sort)) {
-            filtered.sort((a, b) -> Double.compare(a.getCurrentPrice(), b.getCurrentPrice()));
-        } else if ("Price: High → Low".equals(sort)) {
-            filtered.sort((a, b) -> Double.compare(b.getCurrentPrice(), a.getCurrentPrice()));
-        } else if ("Most Bids".equals(sort)) {
-            filtered.sort((a, b) -> b.getBidCount() - a.getBidCount());
-        } else if ("Newest First".equals(sort)) {
-            filtered.sort((a, b) -> Long.compare(b.getId(), a.getId()));
-        } else { // Ending Soon
-            filtered.sort((a, b) -> Long.compare(a.getRemainingSeconds(), b.getRemainingSeconds()));
-        }
-
-        renderAuctions(filtered);
-    }
-
-    /** Render danh sách auction cards */
-    private void renderAuctions(List<Auction> list) {
-        auctionListContainer.getChildren().clear();
-        resultCount.setText("Showing " + list.size() + " auction" + (list.size() != 1 ? "s" : ""));
-
-        for (int i = 0; i < list.size(); i++) {
-            Auction a = list.get(i);
-            HBox card = buildCard(a);
-            auctionListContainer.getChildren().add(card);
-
-            // Staggered animation
-            int delayMs = Math.min(i * 40, 300);
-            javafx.animation.PauseTransition p =
-                    new javafx.animation.PauseTransition(javafx.util.Duration.millis(delayMs));
-            p.setOnFinished(e -> AnimationUtil.slideUp(card, 14, 240));
-            p.play();
-        }
-
-        if (list.isEmpty()) {
-            Label empty = new Label("No auctions found. Try adjusting your filters.");
-            empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px; -fx-padding:40 0;");
-            auctionListContainer.getChildren().add(empty);
-        }
-    }
-
-    /** Tạo auction card hoàn chỉnh */
-    private HBox buildCard(Auction a) {
-        HBox card = new HBox(16);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.getStyleClass().add("auction-card");
-        card.setPadding(new Insets(14, 18, 14, 18));
-
-        // ── Thumbnail ──
-        Label thumb = new Label(a.getCategoryIcon());
-        thumb.setStyle(
-                "-fx-font-size:28px; -fx-alignment:CENTER;" +
-                        "-fx-min-width:80px; -fx-max-width:80px;" +
-                        "-fx-min-height:80px; -fx-max-height:80px;" +
-                        "-fx-background-color:#f1f5f9; -fx-background-radius:10;");
-
-        // ── Info ──
-        VBox info = new VBox(5);
-        HBox.setHgrow(info, Priority.ALWAYS);
-
-        // Title + badge row
-        HBox titleRow = new HBox(10);
-        titleRow.setAlignment(Pos.CENTER_LEFT);
-        Label title = new Label(a.getTitle());
-        title.getStyleClass().add("auction-card-title");
-
-        // Status badge
-        Label statusBadge = new Label(a.getStatusLabel());
-        statusBadge.getStyleClass().add(a.getStatusStyleClass());
-
-        // Category badge
-        Label catBadge = new Label(a.getCategory());
-        catBadge.getStyleClass().addAll("badge", "badge-blue");
-
-        titleRow.getChildren().addAll(title, statusBadge, catBadge);
-
-        Label desc = new Label(a.getItem().getDescription());
-        desc.getStyleClass().add("auction-card-sub");
-        desc.setWrapText(false);
-
-        Label meta = new Label("👤 " + a.getSeller().getUsername() + "   ·   🔨 " + a.getBidCount() + " bids");
-        meta.getStyleClass().add("auction-card-sub");
-
-        info.getChildren().addAll(titleRow, desc, meta);
-
-        // ── Right: Price + Timer + Bid Btn ──
-        VBox right = new VBox(6);
-        right.setAlignment(Pos.CENTER_RIGHT);
-        right.setMinWidth(160);
-
-        Label priceLabel = new Label("CURRENT BID");
-        priceLabel.getStyleClass().add("auction-card-price-label");
-
-        Label price = new Label( String.format("%,.0f", a.getCurrentPrice()));
-        price.getStyleClass().add("auction-card-price");
-
-        Label timerLbl = new Label("⏱ " + a.getTimeRemaining());
-        String timerStyle = a.getRemainingSeconds() < 3600
-                ? (a.getRemainingSeconds() < 600 ? "timer-critical" : "timer-warning")
-                : "timer-normal";
-        timerLbl.getStyleClass().add(timerStyle);
-
-        Button bidBtn = new Button("Place Bid →");
-        bidBtn.getStyleClass().add("btn-primary");
-        bidBtn.setOnAction(e -> openDetail(a));
-
-        right.getChildren().addAll(priceLabel, price, timerLbl, bidBtn);
-
-        card.getChildren().addAll(thumb, info, right);
-        card.setOnMouseClicked(e -> {
-            if (!(e.getTarget() instanceof Button)) openDetail(a);
-        });
-
-        return card;
-    }
-
-    /** Mở chi tiết auction — load AuctionDetailController vào contentPane */
-    private void openDetail(Auction auction) {
-        MainController main = (MainController) auctionListContainer
+    @FXML public void goBack() {
+        MainController main = (MainController) submitBtn
                 .getScene().lookup("#mainRoot").getUserData();
-        main.loadContent(
-                "/com/auction/client/fxml/auction_detail.fxml",
-                (AuctionDetailController ctrl) -> ctrl.initData(currentUser, auction)
-        );
+        main.navMyProducts();
+    }
+
+    // ── Validation ────────────────────────────────────────────
+    private boolean validateBasic() {
+        boolean ok = true;
+        if (fieldTitle.getText().trim().isEmpty()) {
+            msgTitle.setText("Title is required.");
+            AnimationUtil.shake(fieldTitle); ok = false;
+        }
+        if (fieldStartPrice.getText().trim().isEmpty()) {
+            msgPrice.setText("Start price is required.");
+            AnimationUtil.shake(fieldStartPrice); ok = false;
+        } else {
+            try { Double.parseDouble(fieldStartPrice.getText().trim()); }
+            catch (NumberFormatException e) {
+                msgPrice.setText("Enter a valid number.");
+                AnimationUtil.shake(fieldStartPrice); ok = false;
+            }
+        }
+        return ok;
+    }
+
+    private boolean validateAll() {
+        if (!validateBasic()) return false;
+        boolean ok = true;
+
+        if (fieldDesc.getText().trim().isEmpty()) {
+            msgDesc.setText("Description is required.");
+            ok = false;
+        }
+        if (fieldCategory.getValue() == null) {
+            msgCategory.setText("Select a category.");
+            ok = false;
+        }
+        LocalDateTime end = parseDateTime(fieldEndTime.getText());
+        if (end == null) {
+            msgTime.setText("End time format: YYYY-MM-DD HH:mm");
+            AnimationUtil.shake(fieldEndTime); ok = false;
+        } else if (end.isBefore(LocalDateTime.now().plusMinutes(30))) {
+            msgTime.setText("End time must be at least 30 min from now.");
+            ok = false;
+        }
+        if (!ok) {
+            formMsg.setText("Please fix the errors above.");
+            formMsg.setStyle("-fx-text-fill:#dc2626;");
+            AnimationUtil.shake(submitBtn);
+        }
+        return ok;
+    }
+
+    // ── Helpers ───────────────────────────────────────────────
+    private void showSuccess(String msg) {
+        formMsg.setText(msg);
+        formMsg.setStyle("-fx-text-fill:#16a34a; -fx-font-weight:bold;");
+    }
+
+    private LocalDateTime parseDateTime(String text) {
+        if (text == null || text.isBlank()) return null;
+        try { return LocalDateTime.parse(text.trim(), FMT); }
+        catch (DateTimeParseException e) { return null; }
+    }
+
+    private double parseOptionalDouble(String text) {
+        if (text == null || text.isBlank()) return 0;
+        try { return Double.parseDouble(text.trim()); }
+        catch (NumberFormatException e) { return 0; }
     }
 }
