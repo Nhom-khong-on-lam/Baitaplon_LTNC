@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import javafx.concurrent.Task;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -41,52 +42,70 @@ public class DashboardController {
     public void initData(User user) {
         this.currentUser = user;
 
-        // Welcome greeting
+        // Welcome greeting (chạy trên UI thread — an toàn)
         String hour = java.time.LocalTime.now().getHour() < 12 ? "morning"
                 : java.time.LocalTime.now().getHour() < 18 ? "afternoon" : "evening";
         welcomeGreeting.setText("Good " + hour + ", " + user.getUsername() + " 👋");
         welcomeDate.setText(LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("EEEE, MMM dd")));
 
-        // Load data
-        List<Auction> allAuctions  = auctionService.getAllAuctions();
-        List<Auction> myBids       = auctionService.getMyBids(user.getId());
-        List<Auction> myWinning    = auctionService.getWinningBids(user.getId());
-        List<Auction> myProducts   = auctionService.getAuctionsBySeller(user.getId());
-        List<Auction> live         = auctionService.getActiveAuctions();
+        // Chạy tất cả network call trên background thread để tránh đơ UI
+        Task<Void> loadTask = new Task<>() {
+            List<Auction> allAuctions, myBids, myWinning, myProducts, live;
 
-        // Stat cards với count-up animation
-        AnimationUtil.countUp(statActiveAuctions, 0, allAuctions.size(), 800, "", "");
-        AnimationUtil.countUp(statMyBids,         0, myBids.size(),       800, "", "");
-        AnimationUtil.countUp(statWinning,        0, myWinning.size(),    800, "", "");
-        AnimationUtil.countUp(statMyProducts,     0, myProducts.size(),   800, "", "");
+            @Override
+            protected Void call() {
+                allAuctions = auctionService.getAllAuctions();
+                myBids      = auctionService.getMyBids(user.getId());
+                myWinning   = auctionService.getWinningBids(user.getId());
+                myProducts  = auctionService.getAuctionsBySeller(user.getId());
+                live        = auctionService.getActiveAuctions();
+                return null;
+            }
 
-        long previousCount = allAuctions.stream()
-                .filter(a -> a.getEndTime().getMonthValue() == LocalDateTime.now().minusMonths(1).getMonthValue())
-                .count();
+            @Override
+            protected void succeeded() {
+                // Cập nhật UI — phải chạy trên JavaFX thread (succeeded() tự động chạy trên UI thread)
+                AnimationUtil.countUp(statActiveAuctions, 0, allAuctions.size(), 800, "", "");
+                AnimationUtil.countUp(statMyBids,         0, myBids.size(),       800, "", "");
+                AnimationUtil.countUp(statWinning,        0, myWinning.size(),    800, "", "");
+                AnimationUtil.countUp(statMyProducts,     0, myProducts.size(),   800, "", "");
 
-        welcomeBadge.setText("🟢  LIVE NOW — " + live.size() + " Auctions");
-        statAuctionDelta.setText("↑ " + (allAuctions.size() - previousCount)); // hoặc giá trị cố định
-        statBidDelta.setText("↑ 1");
-        welcomeSub.setText("There are " + live.size() + " live auctions right now. Good luck!");
-        // Build live auction rows
-        liveAuctionList.getChildren().clear();
-        List<Auction> preview = live.subList(0, Math.min(live.size(), 5));
-        for (int i = 0; i < preview.size(); i++) {
-            Auction a = preview.get(i);
-            HBox row = buildAuctionRow(a);
-            liveAuctionList.getChildren().add(row);
-            // Staggered slide-up
-            int delay = i * 60;
-            javafx.animation.PauseTransition pause =
-                    new javafx.animation.PauseTransition(javafx.util.Duration.millis(delay));
-            pause.setOnFinished(e -> AnimationUtil.slideUp(row, 12, 220));
-            pause.play();
-        }
+                long previousCount = allAuctions.stream()
+                        .filter(a -> a.getEndTime().getMonthValue() == LocalDateTime.now().minusMonths(1).getMonthValue())
+                        .count();
 
-        // Build activity list
-        activityList.getChildren().clear();
-        buildActivity();
+                welcomeBadge.setText("🟢  LIVE NOW — " + live.size() + " Auctions");
+                statAuctionDelta.setText("↑ " + (allAuctions.size() - previousCount));
+                statBidDelta.setText("↑ 1");
+                welcomeSub.setText("There are " + live.size() + " live auctions right now. Good luck!");
+
+                // Build live auction rows
+                liveAuctionList.getChildren().clear();
+                List<Auction> preview = live.subList(0, Math.min(live.size(), 5));
+                for (int i = 0; i < preview.size(); i++) {
+                    Auction a = preview.get(i);
+                    HBox row = buildAuctionRow(a);
+                    liveAuctionList.getChildren().add(row);
+                    int delay = i * 60;
+                    javafx.animation.PauseTransition pause =
+                            new javafx.animation.PauseTransition(javafx.util.Duration.millis(delay));
+                    pause.setOnFinished(e -> AnimationUtil.slideUp(row, 12, 220));
+                    pause.play();
+                }
+
+                // Build activity list
+                activityList.getChildren().clear();
+                buildActivity(allAuctions);
+            }
+
+            @Override
+            protected void failed() {
+                System.err.println("Dashboard load failed: " + getException().getMessage());
+            }
+        };
+
+        new Thread(loadTask).start();
     }
 
     /** Tạo 1 hàng auction nhỏ trong live section */
@@ -130,22 +149,23 @@ public class DashboardController {
 
     /** Xây dựng recent activity giả */
     // HÀM CHÍNH: Duyệt dữ liệu thật
-    private void buildActivity() {
+    // Truyền danh sách vào qua tham số
+    private void buildActivity(List<Auction> auctions) {
         activityList.getChildren().clear(); // Xóa sạch giao diện cũ
 
         Long curId = currentUser.getId();
-        List<Auction> auctions = auctionService.getAllAuctions();
+
+        // XÓA DÒNG NÀY ĐỂ TRÁNH GỌI MẠNG LÀM ĐƠ UI:
+        // List<Auction> auctions = auctionService.getAllAuctions();
 
         for (Auction a : auctions) {
             // Kiểm tra nếu mình là người đặt giá cao nhất
             boolean isWinning = (a.getHighestBidder() != null && a.getHighestBidder().getId().equals(curId));
-
-            // Kiểm tra nếu mình có tham gia đấu giá phiên này (dùng hàm bạn đã viết trong Auction)
+            // Kiểm tra nếu mình có tham gia đấu giá phiên này
             boolean hasBid = a.getBidCountByUser(curId) > 0;
 
             if (hasBid) {
                 if (isWinning) {
-                    // Gọi hàm tạo dòng UI (thay thế cho đoạn code cũ của bạn)
                     addActivityItem("🏆", "You're winning '" + a.getTitle() + "'", "Live", "#16a34a");
                 } else {
                     addActivityItem("⚠️", "Outbid on '" + a.getTitle() + "'", "Action needed", "#dc2626");
