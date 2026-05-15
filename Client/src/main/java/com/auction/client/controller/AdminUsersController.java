@@ -44,10 +44,20 @@ public class AdminUsersController {
 
     public void initData(User admin) {
         this.currentAdmin = admin;
-        this.allUsers     = authService.getAllUsers();
-        totalLabel.setText(allUsers.size() + " users total");
-        setActiveTab(tabAll);
-        loadTable(allUsers);
+        totalLabel.setText("Loading users...");
+
+        // Tách việc gọi mạng ra luồng phụ
+        new Thread(() -> {
+            List<User> fetchedUsers = authService.getAllUsers();
+
+            // Tải xong đưa về luồng UI để vẽ
+            javafx.application.Platform.runLater(() -> {
+                this.allUsers = fetchedUsers != null ? fetchedUsers : new java.util.ArrayList<>();
+                totalLabel.setText(this.allUsers.size() + " users total");
+                setActiveTab(tabAll);
+                loadTable(this.allUsers);
+            });
+        }).start();
     }
 
     /** Gọi từ AdminMainController khi search từ topbar */
@@ -170,7 +180,7 @@ public class AdminUsersController {
 
         // Bids count
         colBids.setCellValueFactory(c -> {
-            int count = auctionService.getMyBids(c.getValue().getId()).size();
+            int count = c.getValue().getBidCount();
             return new SimpleStringProperty(String.valueOf(count));
         });
 
@@ -241,12 +251,17 @@ public class AdminUsersController {
         confirm.setContentText(msg);
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                AccountStatus newStatus = isBanned
-                        ? AccountStatus.ACTIVE : AccountStatus.BANNED;
-                authService.updateUserStatus(user.getId(), newStatus);
-                user.setAccountStatus(newStatus);    // cập nhật local
-                usersTable.refresh();
-                showInfo(user.getUsername() + " has been " + action.toLowerCase() + "ned.");
+                AccountStatus newStatus = isBanned ? AccountStatus.ACTIVE : AccountStatus.BANNED;
+
+                new Thread(() -> {
+                    authService.updateUserStatus(user.getId(), newStatus);
+
+                    javafx.application.Platform.runLater(() -> {
+                        user.setAccountStatus(newStatus);
+                        usersTable.refresh();
+                        showInfo(user.getUsername() + " has been " + action.toLowerCase() + "ned.");
+                    });
+                }).start();
             }
         });
     }
@@ -259,11 +274,9 @@ public class AdminUsersController {
 
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                // 1. MỞ LUỒNG PHỤ ĐỂ CHẠY LỆNH XÓA TRÊN SERVER
                 new Thread(() -> {
                     authService.deleteUser(user.getId());
 
-                    // 2. KHI XÓA XONG THÌ ĐƯA VỀ LUỒNG GIAO DIỆN ĐỂ CẬP NHẬT BẢNG
                     javafx.application.Platform.runLater(() -> {
                         allUsers.removeIf(u -> u.getId().equals(user.getId()));
                         loadTable(allUsers);
