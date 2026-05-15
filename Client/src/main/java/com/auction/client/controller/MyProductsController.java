@@ -38,10 +38,25 @@ public class MyProductsController {
 
     public void initData(User user) {
         this.currentUser = user;
-        this.myProducts = auctionService.getAuctionsBySeller(user.getId());
-        productCount.setText(myProducts.size() + " products");
-        setActiveTab(tabAll);
-        loadTable(myProducts);
+
+        // 1. Mở luồng phụ để tải danh sách sản phẩm của mình
+        new Thread(() -> {
+            List<Auction> fetchedProducts = auctionService.getAuctionsBySeller(user.getId());
+
+            // 2. Tải xong thì đưa về luồng UI để nạp vào Bảng (TableView)
+            javafx.application.Platform.runLater(() -> {
+                this.myProducts = fetchedProducts;
+
+                // Tránh lỗi NullPointerException
+                if (this.myProducts == null) {
+                    this.myProducts = new java.util.ArrayList<>();
+                }
+
+                productCount.setText(this.myProducts.size() + " products");
+                setActiveTab(tabAll);
+                loadTable(this.myProducts);
+            });
+        }).start();
     }
 
     // ── Tab handlers ──────────────────────────────────────────
