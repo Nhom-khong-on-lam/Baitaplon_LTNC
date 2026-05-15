@@ -256,12 +256,20 @@ public class AdminUsersController {
         confirm.setTitle("Delete User");
         confirm.setHeaderText("Delete " + user.getUsername() + "?");
         confirm.setContentText("⚠️ This action cannot be undone. All data will be removed.");
+
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                authService.deleteUser(user.getId());
-                allUsers.removeIf(u -> u.getId().equals(user.getId()));
-                loadTable(allUsers);
-                showInfo("User \"" + user.getUsername() + "\" deleted.");
+                // 1. MỞ LUỒNG PHỤ ĐỂ CHẠY LỆNH XÓA TRÊN SERVER
+                new Thread(() -> {
+                    authService.deleteUser(user.getId());
+
+                    // 2. KHI XÓA XONG THÌ ĐƯA VỀ LUỒNG GIAO DIỆN ĐỂ CẬP NHẬT BẢNG
+                    javafx.application.Platform.runLater(() -> {
+                        allUsers.removeIf(u -> u.getId().equals(user.getId()));
+                        loadTable(allUsers);
+                        showInfo("User \"" + user.getUsername() + "\" deleted.");
+                    });
+                }).start();
             }
         });
     }
