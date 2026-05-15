@@ -32,42 +32,47 @@ public class AdminDashboardController {
     private AuctionService auctionService = new AuctionService();
 
     public void initData(User admin) {
-        // Header
+        // Header: Cập nhật các text tĩnh ngay lập tức trên luồng UI
         welcomeLabel.setText("Welcome back, " + admin.getUsername() );
         dateLabel.setText(LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy")));
 
-        // Load data
-        List<User>    allUsers    = authService.getAllUsers();
-        List<Auction> allAuctions = new ArrayList<>(auctionService.getAllAuctions());
-        List<Auction> liveAuctions= new ArrayList<>(auctionService.getActiveAuctions());
-        long bannedCount = allUsers.stream()
-                .filter(u -> u.getAccountStatus() == AccountStatus.BANNED)
-                .count();
+        // 1. Mở một luồng phụ để đi lấy 3 cục dữ liệu nặng từ Server
+        new Thread(() -> {
+            List<User>    allUsers    = authService.getAllUsers();
+            List<Auction> allAuctions = new ArrayList<>(auctionService.getAllAuctions());
+            List<Auction> liveAuctions= new ArrayList<>(auctionService.getActiveAuctions());
 
-        // Count-up animations
-        AnimationUtil.countUp(statTotalUsers,    0, allUsers.size(),     800, "", "");
-        AnimationUtil.countUp(statTotalAuctions, 0, allAuctions.size(),  800, "", "");
-        AnimationUtil.countUp(statLiveAuctions,  0, liveAuctions.size(), 800, "", "");
-        AnimationUtil.countUp(statBanned,        0, bannedCount,         800, "", "");
+            long bannedCount = allUsers.stream()
+                    .filter(u -> u.getAccountStatus() == AccountStatus.BANNED)
+                    .count();
 
-        statUserDelta.setText("↑ " + allUsers.size() + " total registered");
+            // 2. Lấy xong thì nhờ luồng giao diện chính (Platform.runLater) vẽ lên màn hình
+            javafx.application.Platform.runLater(() -> {
+                // Count-up animations
+                AnimationUtil.countUp(statTotalUsers,    0, allUsers.size(),     800, "", "");
+                AnimationUtil.countUp(statTotalAuctions, 0, allAuctions.size(),  800, "", "");
+                AnimationUtil.countUp(statLiveAuctions,  0, liveAuctions.size(), 800, "", "");
+                AnimationUtil.countUp(statBanned,        0, bannedCount,         800, "", "");
+                statUserDelta.setText("↑ " + allUsers.size() + " total registered");
 
-        // Recent users (last 5)
-        recentUsersList.getChildren().clear();
-        List<User> recent = allUsers.subList(
-                Math.max(0, allUsers.size() - 5), allUsers.size());
-        for (int i = recent.size() - 1; i >= 0; i--) {
-            recentUsersList.getChildren().add(buildUserRow(recent.get(i)));
-        }
+                // Recent users (last 5)
+                recentUsersList.getChildren().clear();
+                List<User> recent = allUsers.subList(
+                        Math.max(0, allUsers.size() - 5), allUsers.size());
+                for (int i = recent.size() - 1; i >= 0; i--) {
+                    recentUsersList.getChildren().add(buildUserRow(recent.get(i)));
+                }
 
-        // Recent auctions (last 5)
-        recentAuctionsList.getChildren().clear();
-        List<Auction> recentAuc = allAuctions.subList(
-                Math.max(0, allAuctions.size() - 5), allAuctions.size());
-        for (int i = recentAuc.size() - 1; i >= 0; i--) {
-            recentAuctionsList.getChildren().add(buildAuctionRow(recentAuc.get(i)));
-        }
+                // Recent auctions (last 5)
+                recentAuctionsList.getChildren().clear();
+                List<Auction> recentAuc = allAuctions.subList(
+                        Math.max(0, allAuctions.size() - 5), allAuctions.size());
+                for (int i = recentAuc.size() - 1; i >= 0; i--) {
+                    recentAuctionsList.getChildren().add(buildAuctionRow(recentAuc.get(i)));
+                }
+            });
+        }).start();
     }
 
     private HBox buildUserRow(User user) {
