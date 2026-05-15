@@ -165,22 +165,35 @@ public class AuctionDetailController {
         confirm.setContentText("On: " + auction.getTitle());
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                auctionService.placeBid(auction.getId(), currentUser, amount);
-                BidTransaction newBid = new BidTransaction(currentUser, amount, false);
-                boolean success = auction.addBid(newBid);
+                // Tạm khóa nút và hiện thông báo chờ để tránh click 2 lần
+                placeBidBtn.setDisable(true);
+                bidMsg.setText("Processing bid...");
+                bidMsg.setTextFill(Color.web("#d97706")); // Màu cam
 
-                if (success) {
-                    // Giá tự động tăng bên trong đối tượng auction rồi
-                    // Bạn chỉ cần render lại giao diện thôi
-                    renderUI();
-                }
-                minBid = amount + auction.getMinIncrement();
-                minBidHint.setText("Minimum bid:" + String.format("%,.0f", minBid));
-                bidAmountField.clear();
-                updatePriceDisplay();
-                loadBidHistory();
-                showBidSuccess("🎉 Bid placed successfully!");
-                AnimationUtil.pulse(placeBidBtn);
+                // 1. Đẩy lệnh Bid lên Server thông qua luồng chạy ngầm
+                new Thread(() -> {
+                    auctionService.placeBid(auction.getId(), currentUser, amount);
+                    BidTransaction newBid = new BidTransaction(currentUser, amount, false);
+                    boolean success = auction.addBid(newBid);
+
+                    // 2. Nhận kết quả xong thì mở khóa UI và cập nhật màn hình
+                    javafx.application.Platform.runLater(() -> {
+                        if (success) {
+                            // Giá tự động tăng bên trong đối tượng auction rồi
+                            renderUI();
+                        }
+
+                        minBid = amount + auction.getMinIncrement();
+                        minBidHint.setText("Minimum bid:" + String.format("%,.0f", minBid));
+                        bidAmountField.clear();
+                        updatePriceDisplay();
+                        loadBidHistory();
+                        showBidSuccess("🎉 Bid placed successfully!");
+                        AnimationUtil.pulse(placeBidBtn);
+
+                        placeBidBtn.setDisable(false); // Mở khóa nút
+                    });
+                }).start();
             }
         });
     }
@@ -218,23 +231,30 @@ public class AuctionDetailController {
 
     // ── Bid history ───────────────────────────────────────────
     private void loadBidHistory() {
-        List<BidTransaction> history = auctionService.getBidHistory(auction.getId());
-        bidHistoryList.getChildren().clear();
-        bidHistoryCount.setText(history.size() + " bids");
+        // 1. Mở luồng phụ đi lấy dữ liệu mạng
+        new Thread(() -> {
+            List<BidTransaction> history = auctionService.getBidHistory(auction.getId());
 
-        if (history.isEmpty()) {
-            Label empty = new Label("No bids yet. Be the first!");
-            empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px;");
-            bidHistoryList.getChildren().add(empty);
-            return;
-        }
+            // 2. Có dữ liệu rồi thì nhờ luồng UI vẽ lên giao diện
+            javafx.application.Platform.runLater(() -> {
+                bidHistoryList.getChildren().clear();
+                bidHistoryCount.setText(history.size() + " bids");
 
-        for (int i = 0; i < history.size(); i++) {
-            BidTransaction bid = history.get(i);
-            boolean isTop = i == 0;
-            HBox row = buildBidHistoryRow(bid, isTop);
-            bidHistoryList.getChildren().add(row);
-        }
+                if (history.isEmpty()) {
+                    Label empty = new Label("No bids yet. Be the first!");
+                    empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px;");
+                    bidHistoryList.getChildren().add(empty);
+                    return;
+                }
+
+                for (int i = 0; i < history.size(); i++) {
+                    BidTransaction bid = history.get(i);
+                    boolean isTop = i == 0;
+                    HBox row = buildBidHistoryRow(bid, isTop);
+                    bidHistoryList.getChildren().add(row);
+                }
+            });
+        }).start();
     }
 
     private HBox buildBidHistoryRow(BidTransaction bid, boolean isTop) {
