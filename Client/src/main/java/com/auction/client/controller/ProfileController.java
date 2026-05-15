@@ -41,37 +41,33 @@ public class ProfileController {
     public void initData(User user) {
         this.currentUser = user;
 
-        // Avatar initials
+        // Cập nhật text tĩnh ngay lập tức
         String name = user.getUsername();
-        String initials = name.length() >= 2
-                ? name.substring(0, 2).toUpperCase()
-                : name.toUpperCase();
+        String initials = name.length() >= 2 ? name.substring(0, 2).toUpperCase() : name.toUpperCase();
         profileAvatar.setText(initials);
         profileName.setText(name);
         profileRoleBadge.setText(user.isAdmin() ? "Administrator" : "Member");
         profileJoined.setText("Joined " + user.getJoinedDate());
-
-        // Info fields
         infoUsername.setText(user.getUsername());
         infoEmail.setText(user.getEmail());
         infoRole.setText(user.isAdmin() ? "Administrator" : "Member");
         infoStatus.setText(user.getAccountStatus().toString());
-
-        // Stats
-        List<Auction> myBids     = auctionService.getMyBids(user.getId());
-        List<Auction> myWon      = auctionService.getWinningBids(user.getId());
-        List<Auction> myProducts = auctionService.getAuctionsBySeller(user.getId());
-
-        AnimationUtil.countUp(statBidsTotal, 0, myBids.size(),     700, "", "");
-        AnimationUtil.countUp(statWon,       0, myWon.size(),      700, "", "");
-        AnimationUtil.countUp(statListed,    0, myProducts.size(), 700, "", "");
-
-        // Won auctions list
-        buildWonList(myWon);
-
-        // Prefill edit fields
         editUsername.setText(user.getUsername());
         editEmail.setText(user.getEmail());
+
+        // Mở luồng phụ để tải các con số thống kê và list từ Server
+        new Thread(() -> {
+            List<Auction> myBids     = auctionService.getMyBids(user.getId());
+            List<Auction> myWon      = auctionService.getWinningBids(user.getId());
+            List<Auction> myProducts = auctionService.getAuctionsBySeller(user.getId());
+
+            javafx.application.Platform.runLater(() -> {
+                AnimationUtil.countUp(statBidsTotal, 0, myBids.size(),     700, "", "");
+                AnimationUtil.countUp(statWon,       0, myWon.size(),      700, "", "");
+                AnimationUtil.countUp(statListed,    0, myProducts.size(), 700, "", "");
+                buildWonList(myWon);
+            });
+        }).start();
     }
 
     // ── Toggle edit mode ──────────────────────────────────────
@@ -103,7 +99,7 @@ public class ProfileController {
         String oldPass     = editOldPass.getText();
         String newPass     = editNewPass.getText();
 
-        // Basic validation
+        // Validate cơ bản trên UI
         if (newUsername.isEmpty()) {
             setMsg("Username cannot be empty.", false);
             AnimationUtil.shake(editUsername); return;
@@ -112,39 +108,45 @@ public class ProfileController {
             setMsg("Invalid email format.", false);
             AnimationUtil.shake(editEmail); return;
         }
-
-        // Password change validation (optional)
-        if (!oldPass.isEmpty()) {
-            if (!authService.checkPassword(currentUser, oldPass)) {
-                setMsg("Current password is incorrect.", false);
-                AnimationUtil.shake(editOldPass); return;
-            }
-            if (newPass.length() < 6) {
-                setMsg("New password must be at least 6 characters.", false);
-                AnimationUtil.shake(editNewPass); return;
-            }
+        if (!oldPass.isEmpty() && newPass.length() < 6) {
+            setMsg("New password must be at least 6 characters.", false);
+            AnimationUtil.shake(editNewPass); return;
         }
 
-        // Save
-        currentUser.setUsername(newUsername);
-        currentUser.setEmail(newEmail);
-        if (!oldPass.isEmpty()) {
-            authService.updatePassword(currentUser.getEmail(), newPass);
-        }
-        authService.updateUser(currentUser);
-        SessionManager.get().login(currentUser); // refresh session
+        setMsg("Saving changes...", true);
 
-        // Update view
-        profileName.setText(newUsername);
-        infoUsername.setText(newUsername);
-        infoEmail.setText(newEmail);
+        // Chạy ngầm gọi mạng kiểm tra & update
+        new Thread(() -> {
+            if (!oldPass.isEmpty()) {
+                if (!authService.checkPassword(currentUser, oldPass)) {
+                    javafx.application.Platform.runLater(() -> {
+                        setMsg("Current password is incorrect.", false);
+                        AnimationUtil.shake(editOldPass);
+                    });
+                    return; // Dừng luồng nếu sai pass
+                }
+                authService.updatePassword(currentUser.getEmail(), newPass);
+            }
 
-        setMsg("✓ Profile updated successfully!", true);
+            currentUser.setUsername(newUsername);
+            currentUser.setEmail(newEmail);
+            authService.updateUser(currentUser);
 
-        javafx.animation.PauseTransition p =
-                new javafx.animation.PauseTransition(javafx.util.Duration.millis(1000));
-        p.setOnFinished(e -> cancelEdit());
-        p.play();
+            // Vẽ lại giao diện sau khi thành công
+            javafx.application.Platform.runLater(() -> {
+                SessionManager.get().login(currentUser); // refresh session
+                profileName.setText(newUsername);
+                infoUsername.setText(newUsername);
+                infoEmail.setText(newEmail);
+
+                setMsg("✓ Profile updated successfully!", true);
+
+                javafx.animation.PauseTransition p =
+                        new javafx.animation.PauseTransition(javafx.util.Duration.millis(1000));
+                p.setOnFinished(e -> cancelEdit());
+                p.play();
+            });
+        }).start();
     }
 
     /** Build danh sách phiên đấu giá thắng */
