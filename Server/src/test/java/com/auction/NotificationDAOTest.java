@@ -1,10 +1,10 @@
 package com.auction;
 
+import com.auction.common.dto.NotificationDTO;
+import com.auction.common.dto.UserDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.common.model.NotificationDTO;
-import server.common.model.UserDTO;
 import server.repository.NotificationDAO;
 import server.repository.UserDAO;
 

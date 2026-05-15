@@ -1,10 +1,11 @@
 package com.auction.client.controller;
 
-import com.auction.client.Enum.AccountStatus;
-import com.auction.client.model.Auction;
-import com.auction.client.model.User;
+
 import com.auction.client.service.AuctionService;
 import com.auction.client.service.AuthService;
+import com.auction.common.enums.AccountStatus;
+import com.auction.common.model.Auction;
+import com.auction.common.model.User;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

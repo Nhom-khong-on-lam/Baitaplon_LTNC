@@ -1,8 +1,8 @@
 package com.auction;
 
+import com.auction.common.dto.User_SessionDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.common.model.User_SessionDTO;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,7 @@ public class User_SessionDTOTest {
     @DisplayName("Test khởi tạo bằng Constructor rỗng và dùng Setter/Getter")
     void testNoArgsConstructorAndSetters() {
         // Arrange: Chuẩn bị dữ liệu
-        User_SessionDTO session = new User_SessionDTO(); 
+        User_SessionDTO session = new User_SessionDTO();
         LocalDateTime createdTime = LocalDateTime.now();
         LocalDateTime expireTime = createdTime.plusDays(1); // Hết hạn sau 1 ngày
 
@@ -41,13 +41,7 @@ public class User_SessionDTOTest {
         LocalDateTime expireTime = createdTime.plusHours(2);
 
         // Sử dụng Constructor chứa tất cả tham số
-        User_SessionDTO session = new User_SessionDTO(
-                5L,
-                200L,
-                "token-xyz-789",
-                expireTime,
-                createdTime
-        ); // [cite: 200, 201]
+        User_SessionDTO session = new User_SessionDTO(5L, 200L, "token-xyz-789", expireTime, createdTime); // [cite: 200, 201]
 
         // Assert: Kiểm tra lại dữ liệu
         assertEquals(5L, session.getId()); // [cite: 202]

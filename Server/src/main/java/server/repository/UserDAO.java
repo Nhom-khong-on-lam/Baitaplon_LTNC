@@ -1,8 +1,8 @@
 package server.repository;
 
+import com.auction.common.dto.UserDTO;
 import server.database.DBConnection;
 
-import server.common.model.UserDTO;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

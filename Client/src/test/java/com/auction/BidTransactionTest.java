@@ -1,13 +1,12 @@
 package com.auction; // Đảm bảo package này khớp với thư mục test của bạn
 
-import com.auction.client.model.BidTransaction;
-import com.auction.client.model.User;
+
+import com.auction.common.model.BidTransaction;
+import com.auction.common.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.time.LocalDateTime;
 
 class BidTransactionTest {
 

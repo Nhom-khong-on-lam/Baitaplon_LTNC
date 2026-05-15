@@ -1,16 +1,24 @@
 package server.network;
 
+import com.auction.common.dto.AuctionDTO;
+import com.auction.common.dto.UserDTO;
+import com.auction.common.enums.AccountStatus;
+import com.auction.common.enums.AuctionStatus;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.Auction;
+import com.auction.common.model.Electronics;
+import com.auction.common.model.User;
+import com.auction.common.network.Request;
+import com.auction.common.network.Response;
+import server.repository.AuctionDAO;
+import server.repository.UserDAO;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.UUID;
 
-import com.auction.client.service.Request;
-import com.auction.client.service.Response;
-import server.common.model.AuctionDTO;
-import server.repository.UserDAO;
-import server.repository.AuctionDAO;
-import server.common.model.UserDTO;
+
 
 public class ClientHandler extends Thread {
     private final Socket socket;
@@ -63,14 +71,14 @@ public class ClientHandler extends Thread {
                 }
 
                 String token = UUID.randomUUID().toString();
-                com.auction.client.model.User clientUser = toClientUser(user);
+                User clientUser = toClientUser(user);
                 Response res = Response.ok(clientUser);
                 res.setToken(token);
                 return res;
             }
 
             case Request.REGISTER: {
-                com.auction.client.model.User incoming = (com.auction.client.model.User) req.getData();
+                User incoming = (User) req.getData();
 
                 if (userDAO.isExisted("username", incoming.getUsername())) {
                     return Response.error("Username already exists.");
@@ -129,7 +137,7 @@ public class ClientHandler extends Thread {
             }
 
             case "UPDATE_USER": {
-                com.auction.client.model.User incoming = (com.auction.client.model.User) req.getData();
+                User incoming = (User) req.getData();
                 UserDTO user = userDAO.findById(incoming.getId());
                 if (user == null) return Response.error("User not found.");
                 user.setEmail(incoming.getEmail());
@@ -142,7 +150,7 @@ public class ClientHandler extends Thread {
 
             case Request.ADMIN_GET_USERS: {
                 java.util.List<UserDTO> dtos  = userDAO.findAll();
-                java.util.List<com.auction.client.model.User> users = new java.util.ArrayList<>();
+                java.util.List<User> users = new java.util.ArrayList<>();
                 for (UserDTO dto : dtos) users.add(toClientUser(dto));
                 return Response.ok(users);
             }
@@ -185,7 +193,7 @@ public class ClientHandler extends Thread {
                 if (dto == null) return Response.error("Auction not found.");
                 java.util.List<AuctionDTO> single = new java.util.ArrayList<>();
                 single.add(dto);
-                java.util.List<com.auction.client.model.Auction> result = toClientAuctions(single, userDAO);
+                java.util.List<Auction> result = toClientAuctions(single, userDAO);
                 return Response.ok(result.isEmpty() ? null : result.get(0));
             }
 
@@ -213,7 +221,7 @@ public class ClientHandler extends Thread {
             case "CREATE_AUCTION": {
                 Object[] data = (Object[]) req.getData();
                 // data: owner, title, desc, category, condition, startPrice, reservePrice, increment, startTime, endTime, imagePath
-                com.auction.client.model.User owner = (com.auction.client.model.User) data[0];
+                User owner = (User) data[0];
                 String title       = (String) data[1];
                 String description = (String) data[2];
                 String category    = (String) data[3];
@@ -296,22 +304,22 @@ public class ClientHandler extends Thread {
      * Convert list of AuctionDTO (server) to list of Auction (client model).
      * Creates lightweight Auction objects with Item and User placeholders.
      */
-    private java.util.List<com.auction.client.model.Auction> toClientAuctions(
+    private java.util.List<Auction> toClientAuctions(
             java.util.List<AuctionDTO> dtos, UserDAO userDAO) {
 
-        java.util.List<com.auction.client.model.Auction> result = new java.util.ArrayList<>();
+        java.util.List<Auction> result = new java.util.ArrayList<>();
         for (AuctionDTO dto : dtos) {
             try {
                 // Build seller User
                 UserDTO sellerDto = userDAO.findById(dto.getSellerId());
-                com.auction.client.model.User seller = sellerDto != null
+                User seller = sellerDto != null
                         ? toClientUser(sellerDto)
-                        : new com.auction.client.model.User(dto.getSellerId(), "Unknown", "", "",
-                        com.auction.client.Enum.SystemRole.USER);
+                        : new User(dto.getSellerId(), "Unknown", "", "",
+                        SystemRole.USER);
 
                 // Build a minimal Item — use Electronics as concrete subclass (placeholder)
                 // Category/type info is not stored in auction table, so default to Electronics
-                com.auction.client.model.Electronics item = new com.auction.client.model.Electronics(
+                Electronics item = new Electronics(
                         "Item #" + dto.getItemId(), // name placeholder
                         "",                          // description
                         dto.getCurrentPrice(),        // startingPrice
@@ -321,11 +329,11 @@ public class ClientHandler extends Thread {
                 item.setId(dto.getItemId());
 
                 // Build Auction
-                com.auction.client.model.Auction auction =
-                        new com.auction.client.model.Auction(item, seller, dto.getEndTime());
+                Auction auction =
+                        new Auction(item, seller, dto.getEndTime());
                 auction.setId(dto.getId());
                 auction.setCurrentPrice(dto.getCurrentPrice());
-                auction.setStatus(com.auction.client.Enum.AuctionStatus.valueOf(
+                auction.setStatus(AuctionStatus.valueOf(
                         dto.getStatus() != null ? dto.getStatus().toUpperCase() : "RUNNING"));
 
                 // Set highest bidder if exists
@@ -346,16 +354,16 @@ public class ClientHandler extends Thread {
         return result;
     }
 
-    private com.auction.client.model.User toClientUser(UserDTO dto) {
-        com.auction.client.Enum.SystemRole role;
+    private User toClientUser(UserDTO dto) {
+        SystemRole role;
         try {
-            role = com.auction.client.Enum.SystemRole.valueOf(
+            role = SystemRole.valueOf(
                     dto.getSystemRole() != null ? dto.getSystemRole().toUpperCase() : "USER");
         } catch (IllegalArgumentException e) {
-            role = com.auction.client.Enum.SystemRole.USER;
+            role = SystemRole.USER;
         }
 
-        com.auction.client.model.User u = new com.auction.client.model.User(
+        User u = new User(
                 dto.getId(),
                 dto.getUsername(),
                 dto.getPassword(),
@@ -366,8 +374,7 @@ public class ClientHandler extends Thread {
         if (dto.getAccountStatus() != null
                 && !dto.getAccountStatus().equalsIgnoreCase("ACTIVE")) {
             try {
-                com.auction.client.Enum.AccountStatus status =
-                        com.auction.client.Enum.AccountStatus.valueOf(dto.getAccountStatus().toUpperCase());
+                AccountStatus status = AccountStatus.valueOf(dto.getAccountStatus().toUpperCase());
                 u.setAccountStatus(status);
             } catch (IllegalArgumentException ignored) {}
         }

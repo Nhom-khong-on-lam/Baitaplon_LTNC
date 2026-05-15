@@ -1,11 +1,12 @@
 package com.auction;
 
-import com.auction.client.model.Item;
+
+import com.auction.common.model.Item;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ItemTest {
 

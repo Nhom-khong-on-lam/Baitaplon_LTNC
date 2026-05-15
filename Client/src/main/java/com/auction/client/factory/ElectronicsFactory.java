@@ -1,7 +1,8 @@
 package com.auction.client.factory;
 
-import com.auction.client.model.Electronics;
-import com.auction.client.model.Item;
+
+import com.auction.common.model.Electronics;
+import com.auction.common.model.Item;
 
 public class ElectronicsFactory extends ItemFactory {
     private String name;

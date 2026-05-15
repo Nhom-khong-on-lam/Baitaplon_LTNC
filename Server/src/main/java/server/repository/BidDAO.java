@@ -1,6 +1,6 @@
 package server.repository;
 
-import server.common.model.BidDTO;
+import com.auction.common.dto.BidDTO;
 import server.database.DBConnection;
 
 import java.sql.*;

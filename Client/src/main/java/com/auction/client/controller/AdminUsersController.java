@@ -1,10 +1,10 @@
 package com.auction.client.controller;
 
-import com.auction.client.Enum.AccountStatus;
-import com.auction.client.Enum.SystemRole;
-import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
 import com.auction.client.service.AuthService;
+import com.auction.common.enums.AccountStatus;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.User;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -98,6 +98,11 @@ public class AdminUsersController {
 
     // ── Table setup ───────────────────────────────────────────
     private void setupColumns() {
+        usersTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        colId.setMinWidth(70);
+        colUsername.setMinWidth(150);
+        colEmail.setMinWidth(120);
+        colActions.setMinWidth(150);
         colId.setCellValueFactory(c ->
                 new SimpleStringProperty(String.valueOf(c.getValue().getId())));
 

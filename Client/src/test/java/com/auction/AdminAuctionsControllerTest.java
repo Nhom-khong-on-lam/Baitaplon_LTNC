@@ -1,11 +1,13 @@
 package com.auction;
 
-import com.auction.client.Enum.AuctionStatus;
-import com.auction.client.Enum.SystemRole;
+
 import com.auction.client.controller.AdminAuctionsController;
-import com.auction.client.model.Auction;
-import com.auction.client.model.Item;
-import com.auction.client.model.User;
+import com.auction.client.service.AuctionService;
+import com.auction.common.enums.AuctionStatus;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.Auction;
+import com.auction.common.model.Item;
+import com.auction.common.model.User;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;

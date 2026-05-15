@@ -1,7 +1,6 @@
 package com.auction;
 
 import com.auction.client.controller.MainController;
-import com.auction.client.model.User;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;

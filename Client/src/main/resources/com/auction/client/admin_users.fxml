@@ -1,82 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
 <!--
   admin_users.fxml — Quản lý toàn bộ users.
   Có search, filter theo status, TableView với action buttons.
 -->
-<?import java.net.URL?>
-<VBox xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.auction.client.controller.AdminUsersController"
-      spacing="16" styleClass="content-area">
+
+<VBox spacing="16" styleClass="content-area" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.AdminUsersController">
     <stylesheets>
-        <URL value="@global.css"/>
+        <URL value="@global.css" />
     </stylesheets>
 
     <!-- ── Header ─────────────────────────────────────────── -->
     <HBox alignment="CENTER_LEFT" spacing="12">
-        <VBox HBox.hgrow="ALWAYS" spacing="3">
-            <Label text="Manage Users" styleClass="section-title"
-                   style="-fx-font-size:18px;"/>
-            <Label text="View, ban, or remove user accounts from the system."
-                   styleClass="section-subtitle"/>
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label style="-fx-font-size:18px;" styleClass="section-title" text="Manage Users" />
+            <Label styleClass="section-subtitle" text="View, ban, or remove user accounts from the system." />
         </VBox>
-        <Label fx:id="totalLabel" styleClass="section-subtitle" text="0 users total"/>
+        <Label fx:id="totalLabel" styleClass="section-subtitle" text="0 users total" />
     </HBox>
 
     <!-- ── Filter + Search bar ────────────────────────────── -->
-    <HBox spacing="10" alignment="CENTER_LEFT">
+    <HBox alignment="CENTER_LEFT" spacing="10">
 
-        <!-- Status filter tabs -->
-        <Button fx:id="tabAll"    text="All"          styleClass="btn-primary"
-                onAction="#showAll"/>
-        <Button fx:id="tabActive" text="✅ Active"    styleClass="btn-secondary"
-                onAction="#showActive"/>
-        <Button fx:id="tabBanned" text="🚫 Banned"   styleClass="btn-secondary"
-                onAction="#showBanned"/>
-        <Button fx:id="tabAdmin"  text="⚙ Admins"   styleClass="btn-secondary"
-                onAction="#showAdmins"/>
+        <Button fx:id="tabAll" onAction="#showAll" styleClass="btn-primary" text="All" textAlignment="CENTER" />
+        <Button fx:id="tabActive" onAction="#showActive" styleClass="btn-secondary" text="Active" />
+        <Button fx:id="tabBanned" onAction="#showBanned" styleClass="btn-secondary" text="Banned" />
+        <Button fx:id="tabAdmin" onAction="#showAdmins" styleClass="btn-secondary" text="Admins" />
 
-        <Region HBox.hgrow="ALWAYS"/>
+        <Region HBox.hgrow="ALWAYS" />
 
         <!-- Search -->
-        <HBox styleClass="section-card" spacing="0" alignment="CENTER_LEFT"
-              style="-fx-padding:6 12; -fx-background-radius:8;">
-            <Label text="🔍" style="-fx-font-size:13px; -fx-text-fill:#a0aec0;"/>
-            <TextField fx:id="searchField" promptText="Search by username or email..."
-                       style="-fx-background-color:transparent; -fx-border-width:0;"
-                       prefWidth="220" onAction="#handleSearch"/>
+        <HBox alignment="CENTER_LEFT" spacing="0" style="-fx-padding:6 12; -fx-background-radius:8;" styleClass="section-card">
+            <Label style="-fx-font-size:13px; -fx-text-fill:#a0aec0;" text="🔍" />
+            <TextField fx:id="searchField" onAction="#handleSearch" prefWidth="220" promptText="Search by username or email..." style="-fx-background-color:transparent; -fx-border-width:0;" />
         </HBox>
-        <Button text="Search" styleClass="btn-primary" onAction="#handleSearch"/>
+        <Button onAction="#handleSearch" styleClass="btn-primary" text="Search" />
     </HBox>
 
     <!-- ── Users Table ────────────────────────────────────── -->
-    <VBox styleClass="section-card" VBox.vgrow="ALWAYS" spacing="0">
-        <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" styleClass="table-view">
+    <VBox spacing="0" styleClass="section-card" VBox.vgrow="ALWAYS">
+        <TableView fx:id="usersTable" styleClass="table-view" VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn fx:id="colId"      text="ID"
-                             prefWidth="55" style="-fx-alignment:CENTER;"/>
-                <TableColumn fx:id="colAvatar"  text=""
-                             prefWidth="52" style="-fx-alignment:CENTER;"/>
-                <TableColumn fx:id="colUsername" text="USERNAME"
-                             prefWidth="150"/>
-                <TableColumn fx:id="colEmail"   text="EMAIL"
-                             prefWidth="210"/>
-                <TableColumn fx:id="colRole"    text="ROLE"
-                             prefWidth="100" style="-fx-alignment:CENTER;"/>
-                <TableColumn fx:id="colStatus"  text="STATUS"
-                             prefWidth="100" style="-fx-alignment:CENTER;"/>
-                <TableColumn fx:id="colBids"    text="BIDS"
-                             prefWidth="65"  style="-fx-alignment:CENTER;"/>
-                <TableColumn fx:id="colActions" text="ACTIONS"
-                             prefWidth="180" style="-fx-alignment:CENTER;"/>
+                <TableColumn fx:id="colId" prefWidth="80" style="-fx-alignment:CENTER;" text="ID" />
+                <TableColumn fx:id="colAvatar" prefWidth="52" style="-fx-alignment:CENTER;" text="" />
+                <TableColumn fx:id="colUsername" prefWidth="200" text="USERNAME" />
+                <TableColumn fx:id="colEmail" prefWidth="170" text="EMAIL" />
+                <TableColumn fx:id="colRole" prefWidth="80" style="-fx-alignment:CENTER;" text="ROLE" />
+                <TableColumn fx:id="colStatus" prefWidth="80" style="-fx-alignment:CENTER;" text="STATUS" />
+                <TableColumn fx:id="colBids" prefWidth="70" style="-fx-alignment:CENTER;" text="BIDS" />
+                <TableColumn fx:id="colActions" prefWidth="200" style="-fx-alignment:CENTER;" text="ACTIONS" />
             </columns>
             <placeholder>
-                <Label text="No users found."
-                       style="-fx-text-fill:#a0aec0; -fx-font-size:13px;"/>
+                <Label style="-fx-text-fill:#a0aec0; -fx-font-size:13px;" text="No users found." />
             </placeholder>
         </TableView>
     </VBox>

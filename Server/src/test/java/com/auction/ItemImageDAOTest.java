@@ -1,8 +1,8 @@
 package com.auction;
 
+import com.auction.common.dto.ItemImageDTO;
 import org.junit.jupiter.api.*;
 import server.repository.ItemImageDAO;
-import server.common.model.ItemImageDTO;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

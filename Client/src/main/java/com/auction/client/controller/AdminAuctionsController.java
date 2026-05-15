@@ -1,17 +1,17 @@
 package com.auction.client.controller;
 
-import com.auction.client.Enum.AuctionStatus;
-import com.auction.client.model.Auction;
-import com.auction.client.model.User;
+
 import com.auction.client.service.AuctionService;
-import javafx.beans.property.SimpleStringProperty;
+import com.auction.common.enums.AuctionStatus;
+import com.auction.common.model.Auction;
+import com.auction.common.model.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.beans.property.SimpleStringProperty;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,20 +24,19 @@ import java.util.stream.Collectors;
  */
 public class AdminAuctionsController {
 
-    @FXML private Button    tabAll, tabLive, tabEnding, tabFinished;
-    @FXML private Label     totalLabel;
+    @FXML private Button tabAll, tabLive, tabEnding, tabFinished;
+    @FXML private Label totalLabel;
     @FXML private TextField searchField;
 
-    @FXML private TableView<Auction>              auctionsTable;
-    @FXML private TableColumn<Auction, String>    colId, colIcon, colTitle,
+    @FXML private TableView<Auction> auctionsTable;
+    @FXML private TableColumn<Auction, String> colId, colTitle,
             colSeller, colCat, colPrice,
             colBids, colStatus, colEnds,
             colActions;
 
     private AuctionService auctionService;
-
-    private User           currentAdmin;
-    private List<Auction>  allAuctions;
+    private User currentAdmin;
+    private List<Auction> allAuctions;
     private String currentTab = "ALL";
 
     @FXML
@@ -49,8 +48,6 @@ public class AdminAuctionsController {
         this.currentAdmin = admin;
         if (auctionService == null) auctionService = new AuctionService();
 
-        // Gọi trực tiếp và khởi tạo ArrayList mới từ kết quả
-        // Vì Service trả về List<Auction> nên sẽ không còn lỗi biên dịch
         List<Auction> dataFromServer = auctionService.getAllAuctions();
         this.allAuctions = new ArrayList<>(dataFromServer);
 
@@ -60,14 +57,18 @@ public class AdminAuctionsController {
             loadTable(allAuctions);
         });
     }
+
     // ── Tab filters ───────────────────────────────────────────
-    @FXML public void showAll() {
-        currentTab ="ALL";
+
+    @FXML
+    public void showAll() {
+        currentTab = "ALL";
         setActiveTab(tabAll);
         loadTable(allAuctions);
     }
 
-    @FXML public void showLive() {
+    @FXML
+    public void showLive() {
         currentTab = "LIVE";
         setActiveTab(tabLive);
         loadTable(allAuctions.stream()
@@ -76,8 +77,9 @@ public class AdminAuctionsController {
                 .collect(Collectors.toList()));
     }
 
-    @FXML public void showEnding() {
-        currentTab ="ENDING";
+    @FXML
+    public void showEnding() {
+        currentTab = "ENDING";
         setActiveTab(tabEnding);
         loadTable(allAuctions.stream()
                 .filter(a -> a.getStatus() == AuctionStatus.RUNNING
@@ -86,8 +88,9 @@ public class AdminAuctionsController {
                 .collect(Collectors.toList()));
     }
 
-    @FXML public void showFinished() {
-        currentTab ="FINISHED";
+    @FXML
+    public void showFinished() {
+        currentTab = "FINISHED";
         setActiveTab(tabFinished);
         loadTable(allAuctions.stream()
                 .filter(a -> a.getStatus() == AuctionStatus.FINISHED
@@ -105,7 +108,8 @@ public class AdminAuctionsController {
         }
     }
 
-    @FXML public void handleSearch() {
+    @FXML
+    public void handleSearch() {
         String kw = searchField.getText() == null ? ""
                 : searchField.getText().trim().toLowerCase();
         if (kw.isEmpty()) {
@@ -119,27 +123,25 @@ public class AdminAuctionsController {
     }
 
     // ── Table setup ───────────────────────────────────────────
+
     private void setupColumns() {
+        auctionsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        colId.setMinWidth(70);
+        colTitle.setMinWidth(100);
+        colSeller.setMinWidth(150);
+        colCat.setMinWidth(120);
+        colPrice.setMinWidth(120);
+        colStatus.setMinWidth(120);
+        colActions.setMinWidth(200);
 
         colId.setCellValueFactory(c ->
                 new SimpleStringProperty(String.valueOf(c.getValue().getId())));
 
-        colIcon.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getItem().getCategory()));
-        colIcon.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String cat, boolean empty) {
-                super.updateItem(cat, empty);
-                if (empty || cat == null) { setGraphic(null); return; }
-                Label icon = new Label(categoryIcon(cat));
-                icon.setStyle("-fx-font-size:20px;");
-                setGraphic(icon); setAlignment(Pos.CENTER);
-            }
-        });
-
         colTitle.setCellValueFactory(c ->
                 new SimpleStringProperty(c.getValue().getItem().getName()));
         colTitle.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String t, boolean empty) {
+            @Override
+            protected void updateItem(String t, boolean empty) {
                 super.updateItem(t, empty);
                 if (empty) { setText(null); return; }
                 setText(t);
@@ -153,12 +155,14 @@ public class AdminAuctionsController {
         colCat.setCellValueFactory(c ->
                 new SimpleStringProperty(c.getValue().getItem().getCategory()));
         colCat.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String cat, boolean empty) {
+            @Override
+            protected void updateItem(String cat, boolean empty) {
                 super.updateItem(cat, empty);
                 if (empty || cat == null) { setGraphic(null); return; }
                 Label badge = new Label(cat);
                 badge.getStyleClass().addAll("badge", "badge-blue");
-                setGraphic(badge); setAlignment(Pos.CENTER);
+                setGraphic(badge);
+                setAlignment(Pos.CENTER);
             }
         });
 
@@ -166,7 +170,8 @@ public class AdminAuctionsController {
                 new SimpleStringProperty(
                         String.format("%,.0f", c.getValue().getCurrentPrice())));
         colPrice.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String p, boolean empty) {
+            @Override
+            protected void updateItem(String p, boolean empty) {
                 super.updateItem(p, empty);
                 if (empty) { setText(null); return; }
                 setText(p);
@@ -188,7 +193,8 @@ public class AdminAuctionsController {
             return new SimpleStringProperty(label);
         });
         colStatus.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String status, boolean empty) {
+            @Override
+            protected void updateItem(String status, boolean empty) {
                 super.updateItem(status, empty);
                 if (empty || status == null) { setGraphic(null); return; }
                 Label pill = new Label(status);
@@ -198,23 +204,24 @@ public class AdminAuctionsController {
                     default       -> "pill-finished";
                 };
                 pill.getStyleClass().add(sc);
-                setGraphic(pill); setAlignment(Pos.CENTER);
+                setGraphic(pill);
+                setAlignment(Pos.CENTER);
             }
         });
 
         colEnds.setCellValueFactory(c -> {
             LocalDateTime end = c.getValue().getEndTime();
-            return new SimpleStringProperty(
-                    end != null ? end.format(java.time.format.DateTimeFormatter
-                            .ofPattern("MMM dd, HH:mm")) : "—");
+            String text = end == null ? "—"
+                    : end.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, HH:mm"));
+            return new SimpleStringProperty(text);
         });
 
         // ── Actions: End Early + Extend + Delete ──────────────
         colActions.setCellFactory(col -> new TableCell<Auction, String>() {
             private final Button endBtn    = new Button("End Early");
-            private final Button extendBtn = new Button("⏱ Extend");
+            private final Button extendBtn = new Button("Extend");
             private final Button delBtn    = new Button("Delete");
-            private final HBox   box       = new HBox(6, endBtn, extendBtn, delBtn);
+            private final HBox box         = new HBox(6, endBtn, extendBtn, delBtn);
 
             {
                 endBtn.setStyle("-fx-padding:4 8; -fx-font-size:11px;");
@@ -251,10 +258,8 @@ public class AdminAuctionsController {
                 boolean live = a.getStatus() == AuctionStatus.RUNNING
                         && a.getEndTime().isAfter(LocalDateTime.now());
 
-                // Chỉ enable End Early và Extend khi phiên đang live
                 endBtn.setDisable(!live);
                 extendBtn.setDisable(!live);
-
                 setGraphic(box);
             }
         });
@@ -282,7 +287,6 @@ public class AdminAuctionsController {
     // ── Actions ───────────────────────────────────────────────
 
     private void handleExtend(Auction auction) {
-        // Kiểm tra an toàn trước khi hiện Dialog
         boolean isLive = auction.getStatus() == AuctionStatus.RUNNING
                 && auction.getEndTime().isAfter(LocalDateTime.now());
         if (!isLive) {
@@ -290,22 +294,24 @@ public class AdminAuctionsController {
             return;
         }
 
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("1 hour", "1 hour", "3 hours", "6 hours", "12 hours", "24 hours");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(
+                "1 hour", "1 hour", "3 hours", "6 hours", "12 hours", "24 hours");
         dialog.setTitle("Extend Auction");
         dialog.setHeaderText("Extend \"" + auction.getItem().getName() + "\"");
-        dialog.setContentText("Current end time: " + auction.getEndTime().format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm")));
+        dialog.setContentText("Current end time: "
+                + auction.getEndTime().format(
+                java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm")));
 
         dialog.showAndWait().ifPresent(choice -> {
             int hours = switch (choice) {
-                case "3 hours" -> 3;
-                case "6 hours" -> 6;
+                case "3 hours"  -> 3;
+                case "6 hours"  -> 6;
                 case "12 hours" -> 12;
                 case "24 hours" -> 24;
-                default -> 1;
+                default         -> 1;
             };
 
             if (auctionService.extendAuction(auction.getId(), hours)) {
-                // THAY THẾ: Refresh lại tab thay vì chỉ refresh bảng
                 refreshCurrentTab();
                 showInfo("✓ Auction extended successfully.");
             } else {
@@ -315,37 +321,30 @@ public class AdminAuctionsController {
     }
 
     private void handleEndEarly(Auction auction) {
-        Alert confirm = new Alert(AlertType.CONFIRMATION);
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("End Auction Early");
         confirm.setHeaderText("End \"" + auction.getItem().getName() + "\" now?");
         confirm.setContentText("The current highest bidder will win this auction.");
 
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                // Gọi hàm bình thường (dù nó là void)
                 auctionService.endAuctionEarly(auction.getId());
-
-                // Sau đó gọi refresh tab luôn
                 refreshCurrentTab();
                 showInfo("Auction ended successfully.");
             }
         });
     }
+
     private void handleDelete(Auction auction) {
-        Alert confirm = new Alert(AlertType.CONFIRMATION);
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Delete Auction");
         confirm.setHeaderText("Delete \"" + auction.getItem().getName() + "\"?");
         confirm.setContentText("⚠️ This will permanently remove the auction and all bids.");
 
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                // Gọi service xóa
                 auctionService.deleteAuction(auction.getId());
-
-                // Xóa khỏi danh sách dữ liệu gốc để không hiện lại khi chuyển tab
                 allAuctions.removeIf(a -> a.getId().equals(auction.getId()));
-
-                // Cập nhật lại giao diện
                 refreshCurrentTab();
                 showInfo("Auction deleted.");
             }
@@ -353,8 +352,9 @@ public class AdminAuctionsController {
     }
 
     // ── Helpers ───────────────────────────────────────────────
+
     private void showInfo(String msg) {
-        Alert info = new Alert(AlertType.INFORMATION);
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
         info.setTitle("Admin Action");
         info.setHeaderText(null);
         info.setContentText(msg);
@@ -362,7 +362,7 @@ public class AdminAuctionsController {
     }
 
     private void showError(String msg) {
-        Alert error = new Alert(AlertType.ERROR);
+        Alert error = new Alert(Alert.AlertType.ERROR);
         error.setTitle("Error");
         error.setHeaderText(null);
         error.setContentText(msg);
@@ -382,12 +382,15 @@ public class AdminAuctionsController {
         };
     }
 
+    // ── Getters & Setters ─────────────────────────────────────
+
     public void setAuctionService(AuctionService auctionService) {
         this.auctionService = auctionService;
     }
 
-    public TableView<Auction> getAuctionsTable() { return auctionsTable; }
-    public TextField getSearchField()            { return searchField; }
+    public TableView<Auction> getAuctionsTable()  { return auctionsTable; }
+    public TextField getSearchField()             { return searchField; }
+
     public void setAuctionsTable(TableView<Auction> auctionsTable) {
         this.auctionsTable = auctionsTable;
     }
@@ -396,23 +399,9 @@ public class AdminAuctionsController {
         this.searchField = searchField;
     }
 
-    public void setTotalLabel(Label label) {
-        this.totalLabel = label;
-    }
-
-    public void setTabAll(Button button) {
-        this.tabAll = button;
-    }
-
-    public void setTabLive(Button button) {
-        this.tabLive = button;
-    }
-
-    public void setTabEnding(Button button) {
-        this.tabEnding = button;
-    }
-
-    public void setTabFinished(Button button) {
-        this.tabFinished = button;
-    }
+    public void setTotalLabel(Label label)   { this.totalLabel = label; }
+    public void setTabAll(Button button)     { this.tabAll = button; }
+    public void setTabLive(Button button)    { this.tabLive = button; }
+    public void setTabEnding(Button button)  { this.tabEnding = button; }
+    public void setTabFinished(Button button){ this.tabFinished = button; }
 }

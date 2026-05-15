@@ -1,6 +1,7 @@
 package server.repository;
 
-import server.common.model.ItemImageDTO;
+
+import com.auction.common.dto.ItemImageDTO;
 import server.database.DBConnection;
 
 import java.sql.*;

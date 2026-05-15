@@ -1,7 +1,6 @@
 package com.auction.client.controller;
 
-import com.auction.client.Enum.SystemRole;
-import com.auction.client.model.User;
+import com.auction.common.model.User;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -38,7 +37,7 @@ public class AdminMainController {
 
     // ── State ─────────────────────────────────────────────
     private Button activeBtn;
-    private User   currentAdmin;
+    private User currentAdmin;
 
     private static final String BASE = "/com/auction/client/";
 

@@ -1,9 +1,10 @@
 package com.auction;
 
-import com.auction.client.Enum.AccountStatus;
-import com.auction.client.Enum.SystemRole;
+
 import com.auction.client.controller.AdminUsersController;
-import com.auction.client.model.User;
+import com.auction.common.enums.AccountStatus;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.User;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import org.junit.jupiter.api.*;

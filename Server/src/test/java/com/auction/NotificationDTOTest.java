@@ -1,7 +1,7 @@
 package com.auction;
 
+import com.auction.common.dto.NotificationDTO;
 import org.junit.jupiter.api.Test;
-import server.common.model.NotificationDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,14 +10,7 @@ class NotificationDTOTest {
     @Test
     void testNotificationCreationAndDefaults() {
         // Tạo một thông báo bằng Constructor đầy đủ
-        NotificationDTO notif = new NotificationDTO(
-                1L,
-                "Có người trả giá cao hơn",
-                "User ABC vừa trả 500k cho sản phẩm của bạn",
-                "OUTBID",
-                5L,
-                20L
-        );
+        NotificationDTO notif = new NotificationDTO(1L, "Có người trả giá cao hơn", "User ABC vừa trả 500k cho sản phẩm của bạn", "OUTBID", 5L, 20L);
 
         // Xác minh các dữ liệu thông thường
         assertEquals(1L, notif.getUserId());

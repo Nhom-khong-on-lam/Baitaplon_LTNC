@@ -1,6 +1,7 @@
 package server.repository;
 
-import server.common.model.AuctionDTO;
+
+import com.auction.common.dto.AuctionDTO;
 import server.database.DBConnection;
 
 import java.sql.*;

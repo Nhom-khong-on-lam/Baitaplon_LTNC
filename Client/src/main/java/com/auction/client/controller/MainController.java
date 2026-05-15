@@ -1,6 +1,6 @@
 package com.auction.client.controller;
 
-import com.auction.client.model.User;
+import com.auction.common.model.User;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -38,7 +38,7 @@ public class MainController {
 
     // ── State ─────────────────────────────────────────────────
     private Button activeNavBtn;
-    private User   currentUser;
+    private User currentUser;
 
     private static final String BASE = "/com/auction/client/";
 

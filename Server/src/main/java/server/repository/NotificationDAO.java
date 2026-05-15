@@ -1,6 +1,7 @@
 package server.repository;
 
-import server.common.model.NotificationDTO;
+
+import com.auction.common.dto.NotificationDTO;
 import server.database.DBConnection;
 
 import java.sql.*;

@@ -1,9 +1,9 @@
 package com.auction.client.controller;
 
-import com.auction.client.model.Auction;
-import com.auction.client.model.BidTransaction;
-import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
+import com.auction.common.model.Auction;
+import com.auction.common.model.BidTransaction;
+import com.auction.common.model.User;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;

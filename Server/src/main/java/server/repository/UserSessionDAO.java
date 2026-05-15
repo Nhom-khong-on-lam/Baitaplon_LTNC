@@ -1,6 +1,7 @@
 package server.repository;
 
-import server.common.model.User_SessionDTO;
+
+import com.auction.common.dto.User_SessionDTO;
 import server.database.DBConnection;
 
 import java.sql.*;

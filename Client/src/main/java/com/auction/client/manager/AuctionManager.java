@@ -1,9 +1,10 @@
 package com.auction.client.manager;
 
-import com.auction.client.model.Auction;
-import com.auction.client.model.User;
-import com.auction.client.model.BidTransaction;
-import java.util.HashMap;
+
+
+import com.auction.common.model.Auction;
+import com.auction.common.model.User;
+
 import java.util.Map;
 
 public class AuctionManager {

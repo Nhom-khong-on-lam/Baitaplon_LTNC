@@ -32,11 +32,11 @@
 
         <Button fx:id="tabAll"      text="All"          styleClass="btn-primary"
                 onAction="#showAll"/>
-        <Button fx:id="tabLive"     text="🟢 Live"     styleClass="btn-secondary"
+        <Button fx:id="tabLive"     text="Live"     styleClass="btn-secondary"
                 onAction="#showLive"/>
-        <Button fx:id="tabEnding"   text="🔴 Ending"   styleClass="btn-secondary"
+        <Button fx:id="tabEnding"   text="Ending"   styleClass="btn-secondary"
                 onAction="#showEnding"/>
-        <Button fx:id="tabFinished" text="✅ Finished" styleClass="btn-secondary"
+        <Button fx:id="tabFinished" text="Finished" styleClass="btn-secondary"
                 onAction="#showFinished"/>
 
         <Region HBox.hgrow="ALWAYS"/>
@@ -57,25 +57,30 @@
         <TableView fx:id="auctionsTable" VBox.vgrow="ALWAYS" styleClass="table-view">
             <columns>
                 <TableColumn fx:id="colId"      text="ID"
-                             prefWidth="55"  style="-fx-alignment:CENTER;"/>
-                <TableColumn fx:id="colIcon"    text=""
-                             prefWidth="50"  style="-fx-alignment:CENTER;"/>
+                             prefWidth="80"
+                             style="-fx-alignment:CENTER;"/>
+
                 <TableColumn fx:id="colTitle"   text="TITLE"
-                             prefWidth="200"/>
+                             prefWidth="150"/>
                 <TableColumn fx:id="colSeller"  text="SELLER"
-                             prefWidth="130"/>
+                             prefWidth="200"/>
                 <TableColumn fx:id="colCat"     text="CATEGORY"
-                             prefWidth="120" style="-fx-alignment:CENTER;"/>
+                             prefWidth="120"
+                             style="-fx-alignment:CENTER;"/>
                 <TableColumn fx:id="colPrice"   text="CURRENT BID"
-                             prefWidth="120" style="-fx-alignment:CENTER_RIGHT;"/>
+                             prefWidth="130"
+                             style="-fx-alignment:CENTER_RIGHT;"/>
                 <TableColumn fx:id="colBids"    text="BIDS"
-                             prefWidth="65"  style="-fx-alignment:CENTER;"/>
+                             prefWidth="65"
+                             style="-fx-alignment:CENTER;"/>
                 <TableColumn fx:id="colStatus"  text="STATUS"
-                             prefWidth="100" style="-fx-alignment:CENTER;"/>
+                             prefWidth="105"
+                             style="-fx-alignment:CENTER;"/>
                 <TableColumn fx:id="colEnds"    text="ENDS"
-                             prefWidth="140"/>
+                             prefWidth="120"/>
                 <TableColumn fx:id="colActions" text="ACTIONS"
-                             prefWidth="160" style="-fx-alignment:CENTER;"/>
+                             prefWidth="250"
+                             style="-fx-alignment:CENTER;"/>
             </columns>
             <placeholder>
                 <Label text="No auctions found."

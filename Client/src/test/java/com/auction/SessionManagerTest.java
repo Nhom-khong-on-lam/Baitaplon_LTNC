@@ -1,8 +1,9 @@
 package com.auction;
 
-import com.auction.client.Enum.SystemRole;
+
 import com.auction.client.controller.SessionManager;
-import com.auction.client.model.User;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.User;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,13 +31,7 @@ public class SessionManagerTest {
 
         SessionManager session = SessionManager.get();
 
-        User user = new User(
-                1L,
-                "chau",
-                "123456",
-                "chau@gmail.com",
-                SystemRole.USER
-        );
+        User user = new User(1L, "chau", "123456", "chau@gmail.com", SystemRole.USER);
 
         session.login(user);
 

@@ -1,8 +1,8 @@
 package com.auction;
 
+import com.auction.common.dto.UserDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.common.model.UserDTO;
 
 import java.time.LocalDateTime;
 

@@ -1,8 +1,13 @@
 package com.auction.client.service;
 
+
 import com.auction.client.controller.SessionManager;
-import com.auction.client.model.User;
+import com.auction.common.model.User;
+import com.auction.common.network.Request;
+import com.auction.common.network.Response;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AuthService {
@@ -13,7 +18,7 @@ public class AuthService {
     public Response login(String username, String password) {
         try {
             String[] credentials = {username, password};
-            Request  request     = new Request(Request.LOGIN, credentials);
+            Request request     = new Request(Request.LOGIN, credentials);
             Response response    = (Response) connection.sendRequest(request);
 
             if (response.isSuccess()) {
@@ -97,7 +102,7 @@ public class AuthService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new java.util.ArrayList<>();
+        return new ArrayList<>();
     }
 
     public boolean deleteUser(Long userId) {

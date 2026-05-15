@@ -5,19 +5,145 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/47706e5f-bbff-4ef5-80bc-0738429b09f7.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/47706e5f-bbff-4ef5-80bc-0738429b09f7.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminAuctionsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminAuctionsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminDashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminMainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminMainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminUsersController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminUsersController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionDetailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionDetailController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/CreateAuctionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/CreateAuctionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/DashboardController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyBidsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyBidsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyProductsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyProductsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/ProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/ProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/SessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/SessionManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ArtFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ArtFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ElectronicsFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ElectronicsFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ItemFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/ItemFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/VehicleFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/factory/VehicleFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/manager/AuctionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/manager/AuctionManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuctionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuctionService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuthService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/ItemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/ItemService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_auctions.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_auctions.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_users.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_users.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/global.css" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/global.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AdminAuctionsControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AdminAuctionsControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AdminDashboardControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AdminDashboardControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AdminMainControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AdminMainControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AdminUsersControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AdminUsersControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/ArtFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ArtFactoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/ArtTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ArtTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionDetailControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionDetailControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionObserverTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionObserverTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AutoBidConfigTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AutoBidConfigTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/BaseEntityTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/BaseEntityTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/BidTransactionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/BidTransactionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/ElectronicsFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ElectronicsFactoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/ElectronicsTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ElectronicsTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/ItemTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ItemTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/MainControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/MainControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/MyBidsControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/MyBidsControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/MyProductsControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/MyProductsControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/ProfileControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/ProfileControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/RegisterControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/RegisterControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/SessionManagerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/SessionManagerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/UserTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/UserTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/VehicleFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/VehicleFactoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/VehicleTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/VehicleTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Server/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/Auction_watchDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/common/model/Auction_watchDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionExtensionLogDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionExtensionLogDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionWatchDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionWatchDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/AutoBidDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/AutoBidDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/BidDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/BidDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/ItemDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/ItemDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/ItemImageDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/ItemImageDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/NotificationDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/NotificationDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/PaymentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/PaymentDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserSessionDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserSessionDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionExtensionLogDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionExtensionLogDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionWatchDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionWatchDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/Auction_extension_logDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/Auction_extension_logDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/Auction_watchDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/Auction_watchDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AutoBidDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AutoBidDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AutoBidDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AutoBidDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/BidDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/BidDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/BidDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/BidDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemImageDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemImageDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemImageDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemImageDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/NotificationDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/NotificationDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/NotificationDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/NotificationDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserSessionDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserSessionDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/User_SessionDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/User_SessionDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/enums/AccountStatus.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/enums/AuctionStatus.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/enums/Category.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/enums/NotificationType.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/enums/PaymentStatus.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/enums/SystemRole.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/AuctionDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/Auction_extension_logDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/Auction_watchDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/AutoBidDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/BidDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/ItemDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/ItemImageDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/NotificationDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/PaymentDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/UserDTO.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/common/model/User_SessionDTO.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionExtensionLogDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionExtensionLogDAO.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionWatchDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionWatchDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AutoBidDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AutoBidDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/BidDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/BidDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/ItemDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/ItemDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/ItemImageDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/ItemImageDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/PaymentDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/PaymentDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/UserDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/UserSessionDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/UserSessionDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionDTOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AutoBidDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AutoBidDTOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/BidDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/BidDTOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/DBConnectionTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemDTOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemImageDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemImageDTOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/NotificationDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/NotificationDTOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/PaymentDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/PaymentDTOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/UserDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/UserSessionDAOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/User_SessionDTOTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,12 +219,18 @@
     &quot;JUnit.AuctionDetailControllerTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.AuctionExtensionLogDAOTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.AuctionObserverTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionWatchDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Auction_extension_logDTOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Auction_watchDTOTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.AuctionsControllerTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.AutoBidConfigTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.AutoBidDAOTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.AutoBidDTOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BaseEntityTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.BidDAOTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.BidDTOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BidTransactionTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.BidTransactionTest.testConstructor.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.CreateAuctionControllerTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.DBConnectionTest.executor&quot;: &quot;Run&quot;,
@@ -128,7 +260,11 @@
     &quot;JUnit.SceneManagerTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.SessionManagerTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.SplashControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserDTOTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.UserSessionDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.User_SessionDTOTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.VehicleFactoryTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.VehicleTest.executor&quot;: &quot;Run&quot;,
     &quot;Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
@@ -148,7 +284,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/ADMIN/Baitaplon_LTNC/Server/src/Main.java&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/ADMIN/Baitaplon_LTNC/untitled/src/Main.java&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
@@ -174,7 +310,7 @@
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\DAO" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.MainApp">
     <configuration name="MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.auction.client.MainApp" />
       <module name="Client" />
@@ -332,11 +468,25 @@
       <workItem from="1778657179685" duration="21819000" />
       <workItem from="1778724805964" duration="26000" />
       <workItem from="1778748968662" duration="829000" />
-      <workItem from="1778750023631" duration="747000" />
+      <workItem from="1778750023631" duration="1946000" />
+      <workItem from="1778752278724" duration="3637000" />
+      <workItem from="1778777630212" duration="10925000" />
+      <workItem from="1778853898368" duration="597000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/Common/src/Main.java</url>
+          <line>11</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -1,6 +1,7 @@
 package com.auction;
 
-import com.auction.client.model.BaseEntity;
+
+import com.auction.common.model.BaseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;

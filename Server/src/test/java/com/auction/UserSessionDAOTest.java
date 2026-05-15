@@ -1,10 +1,10 @@
 package com.auction;
 
+import com.auction.common.dto.UserDTO;
+import com.auction.common.dto.User_SessionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.common.model.UserDTO;
-import server.common.model.User_SessionDTO;
 import server.repository.UserDAO;
 import server.repository.UserSessionDAO;
 

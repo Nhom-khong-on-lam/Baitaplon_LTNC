@@ -1,15 +1,15 @@
 package com.auction;
 
+import com.auction.common.dto.AuctionDTO;
+import com.auction.common.dto.BidDTO;
+import com.auction.common.dto.ItemDTO;
+import com.auction.common.dto.UserDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.common.model.*;
 import server.repository.*;
-import server.database.DBConnection;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 

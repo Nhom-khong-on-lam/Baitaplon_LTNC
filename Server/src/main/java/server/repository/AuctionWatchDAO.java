@@ -1,6 +1,7 @@
 package server.repository;
 
-import server.common.model.Auction_watchDTO;
+
+import com.auction.common.dto.Auction_watchDTO;
 import server.database.DBConnection;
 
 import java.sql.*;

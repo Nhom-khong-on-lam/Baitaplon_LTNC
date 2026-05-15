@@ -1,8 +1,11 @@
 package com.auction;
 
-import com.auction.client.Enum.SystemRole;
+
 import com.auction.client.controller.AuctionDetailController;
-import com.auction.client.model.*;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.Auction;
+import com.auction.common.model.Item;
+import com.auction.common.model.User;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -34,13 +37,7 @@ public class AuctionDetailControllerTest {
         controller = new AuctionDetailController();
 
         // fake data
-        User user = new User(
-                1L,
-                "test",
-                "123",
-                "test@gmail.com",
-                SystemRole.USER
-        );
+        User user = new User(1L, "test", "123", "test@gmail.com", SystemRole.USER);
 
         Item item = new Item() {
             @Override

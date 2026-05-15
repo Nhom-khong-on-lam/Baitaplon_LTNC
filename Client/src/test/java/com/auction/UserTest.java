@@ -1,9 +1,10 @@
 package com.auction;
 
-import com.auction.client.model.User;
-import com.auction.client.model.BaseEntity;
-import com.auction.client.Enum.AccountStatus;
-import com.auction.client.Enum.SystemRole;
+
+import com.auction.common.enums.AccountStatus;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.BaseEntity;
+import com.auction.common.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class UserTest {
     private User user;

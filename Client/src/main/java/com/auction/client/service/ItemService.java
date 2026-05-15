@@ -1,6 +1,8 @@
 package com.auction.client.service;
 
 import com.auction.client.controller.SessionManager;
+import com.auction.common.network.Request;
+import com.auction.common.network.Response;
 
 import java.io.IOException;
 

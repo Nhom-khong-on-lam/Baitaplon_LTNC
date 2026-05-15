@@ -1,6 +1,7 @@
 package com.auction.client.controller;
 
-import com.auction.client.model.User;
+
+import com.auction.common.model.User;
 
 /**
  * SessionManager — lưu trạng thái đăng nhập toàn cục.

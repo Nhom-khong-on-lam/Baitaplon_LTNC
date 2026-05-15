@@ -581,6 +581,19 @@
     -fx-border-color: #e8edf4;
     -fx-border-width: 0 0 1 0;
 }
+
+.table-view .column-header .label {
+    -fx-text-overrun: clip;       /* Ép cắt thẳng chữ, không hiện ... */
+    -fx-ellipsis-string: "";      /* Xóa chuỗi ba chấm */
+    -fx-padding: 0 2 0 2;         /* Thu hẹp khoảng cách lề của chữ */
+    -fx-alignment: CENTER_LEFT;   /* Căn trái cho thoáng */
+}
+
+/* Tăng chiều cao hàng tiêu đề để chữ không bị kẹt */
+.table-view .column-header, .table-view .filler {
+    -fx-size: 45;
+    -fx-min-height: 45;
+}
 .table-view .column-header .label {
     -fx-text-fill: #718096;
     -fx-font-weight: bold;

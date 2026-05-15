@@ -1,10 +1,10 @@
 package com.auction;
 
+import com.auction.common.dto.Auction_watchDTO;
+import com.auction.common.dto.UserDTO;
 import org.junit.jupiter.api.*;
-import server.common.model.Auction_watchDTO;
 import server.repository.AuctionWatchDAO;
 import server.repository.UserDAO;
-import server.common.model.UserDTO;
 import server.database.DBConnection;
 
 import java.sql.Connection;

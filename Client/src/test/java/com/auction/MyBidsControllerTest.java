@@ -1,13 +1,13 @@
 package com.auction;
 
-import com.auction.client.Enum.SystemRole;
+
 import com.auction.client.controller.MyBidsController;
-import com.auction.client.model.Auction;
-import com.auction.client.model.User;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.Auction;
+import com.auction.common.model.User;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.junit.jupiter.api.*;
 

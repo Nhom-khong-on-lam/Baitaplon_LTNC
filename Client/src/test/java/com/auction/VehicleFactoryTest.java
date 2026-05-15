@@ -1,8 +1,8 @@
 package com.auction;
 
 import com.auction.client.factory.VehicleFactory;
-import com.auction.client.model.Item;
-import com.auction.client.model.Vehicle;
+import com.auction.common.model.Item;
+import com.auction.common.model.Vehicle;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

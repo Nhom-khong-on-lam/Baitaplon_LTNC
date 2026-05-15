@@ -1,8 +1,8 @@
 package com.auction;
 
+import com.auction.common.dto.PaymentDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.common.model.PaymentDTO;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;

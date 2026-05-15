@@ -1,8 +1,9 @@
 package com.auction;
 
+import com.auction.common.dto.AutoBidDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.common.model.AutoBidDTO;
+
 
 import java.time.LocalDateTime;
 
@@ -44,15 +45,7 @@ class AutoBidDTOTest {
     void testAllArgsConstructor() {
         // Arrange & Act: Khởi tạo thẳng bằng constructor
         LocalDateTime testTime = LocalDateTime.now();
-        AutoBidDTO autoBid = new AutoBidDTO(
-                5L,           // id
-                150L,         // auctionId
-                300L,         // bidderId
-                10000.0,      // maxPrice
-                500.0,        // stepIncrement
-                false,        // active
-                testTime      // registeredAt
-        );
+        AutoBidDTO autoBid = new AutoBidDTO(5L, 150L, 300L, 10000.0, 500.0, false, testTime);
 
         // Assert: Kiểm tra lại dữ liệu
         assertEquals(5L, autoBid.getId());

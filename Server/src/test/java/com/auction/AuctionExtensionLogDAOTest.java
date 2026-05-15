@@ -1,7 +1,7 @@
 package com.auction;
 
+import com.auction.common.dto.Auction_extension_logDTO;
 import org.junit.jupiter.api.*;
-import server.common.model.Auction_extension_logDTO;
 import server.repository.AuctionExtensionLogDAO;
 import server.database.DBConnection;
 

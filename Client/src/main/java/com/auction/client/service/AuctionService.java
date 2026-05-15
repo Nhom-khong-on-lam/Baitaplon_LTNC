@@ -1,9 +1,13 @@
 package com.auction.client.service;
 
+
+
 import com.auction.client.controller.SessionManager;
-import com.auction.client.model.Auction;
-import com.auction.client.model.BidTransaction;
-import com.auction.client.model.User;
+import com.auction.common.model.Auction;
+import com.auction.common.model.BidTransaction;
+import com.auction.common.model.User;
+import com.auction.common.network.Request;
+import com.auction.common.network.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,7 +1,8 @@
 package com.auction;
 
+import com.auction.common.dto.AuctionDTO;
 import org.junit.jupiter.api.*;
-import server.common.model.AuctionDTO;
+
 import server.database.DBConnection;
 import server.repository.AuctionDAO;
 import java.sql.*;

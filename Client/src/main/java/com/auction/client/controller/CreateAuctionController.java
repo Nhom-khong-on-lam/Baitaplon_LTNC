@@ -1,8 +1,8 @@
 package com.auction.client.controller;
 
-import com.auction.client.model.Auction;
-import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
+import com.auction.common.model.Auction;
+import com.auction.common.model.User;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -35,7 +35,7 @@ public class CreateAuctionController {
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private User    currentUser;
+    private User currentUser;
     private Auction editingAuction; // null = create mode
     private String  selectedImagePath;
 

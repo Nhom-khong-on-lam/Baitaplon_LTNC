@@ -1,9 +1,10 @@
 package com.auction;
 
-import com.auction.client.model.Art;
+
+import com.auction.common.model.Art;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ArtTest {
 

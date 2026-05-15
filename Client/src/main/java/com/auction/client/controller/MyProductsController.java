@@ -1,8 +1,7 @@
 package com.auction.client.controller;
 
-import com.auction.client.model.Auction;
-import com.auction.client.model.User;
 import com.auction.client.service.AuctionService;
+import com.auction.common.model.Auction;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
+import com.auction.common.model.User;
 import java.util.List;
 import java.util.stream.Collectors;
 

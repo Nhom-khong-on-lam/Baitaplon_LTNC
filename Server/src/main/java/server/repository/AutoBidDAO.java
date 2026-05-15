@@ -1,7 +1,8 @@
 package server.repository;
 
+import com.auction.common.dto.AutoBidDTO;
 import server.database.DBConnection;
-import server.common.model.AutoBidDTO;
+
 
 import java.sql.*;
 import java.time.LocalDateTime;

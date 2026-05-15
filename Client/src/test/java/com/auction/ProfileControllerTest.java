@@ -1,11 +1,12 @@
 package com.auction;
 
-import com.auction.client.Enum.AccountStatus;
-import com.auction.client.Enum.SystemRole;
+
 import com.auction.client.controller.ProfileController;
-import com.auction.client.model.Auction;
-import com.auction.client.model.Item;
-import com.auction.client.model.User;
+import com.auction.common.enums.AccountStatus;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.Auction;
+import com.auction.common.model.Item;
+import com.auction.common.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -73,13 +74,7 @@ public class ProfileControllerTest {
     @Test
     void testAdminRole() {
 
-        User admin = new User(
-                1L,
-                "admin",
-                "123456",
-                "admin@gmail.com",
-                SystemRole.ADMIN
-        );
+        User admin = new User(1L, "admin", "123456", "admin@gmail.com", SystemRole.ADMIN);
 
         assertTrue(admin.isAdmin());
     }

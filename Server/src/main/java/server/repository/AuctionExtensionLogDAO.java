@@ -1,6 +1,7 @@
 package server.repository;
 
-import server.common.model.Auction_extension_logDTO;
+
+import com.auction.common.dto.Auction_extension_logDTO;
 import server.database.DBConnection;
 
 import java.sql.*;

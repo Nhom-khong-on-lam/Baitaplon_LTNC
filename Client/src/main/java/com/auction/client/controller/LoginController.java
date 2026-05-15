@@ -1,8 +1,8 @@
 package com.auction.client.controller;
 
-import com.auction.client.Enum.SystemRole;
-import com.auction.client.model.User;
 import com.auction.client.service.AuthService;
+import com.auction.common.enums.SystemRole;
+import com.auction.common.model.User;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;

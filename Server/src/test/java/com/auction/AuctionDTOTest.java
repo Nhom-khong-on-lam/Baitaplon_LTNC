@@ -1,7 +1,7 @@
 package com.auction;
 
+import com.auction.common.dto.AuctionDTO;
 import org.junit.jupiter.api.Test;
-import server.common.model.AuctionDTO;
 import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 

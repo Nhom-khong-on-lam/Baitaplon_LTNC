@@ -1,7 +1,8 @@
 package com.auction.client.factory;
 
-import com.auction.client.model.Item;
-import com.auction.client.model.Art;
+
+import com.auction.common.model.Art;
+import com.auction.common.model.Item;
 
 public class ArtFactory extends ItemFactory {
     private String name;

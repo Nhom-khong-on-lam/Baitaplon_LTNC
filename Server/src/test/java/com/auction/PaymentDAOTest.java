@@ -1,7 +1,7 @@
 package com.auction;
 
+import com.auction.common.dto.PaymentDTO;
 import org.junit.jupiter.api.*;
-import server.common.model.PaymentDTO;
 import server.database.DBConnection;
 import server.repository.PaymentDAO;
 import java.sql.*;

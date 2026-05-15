@@ -1,10 +1,11 @@
 package com.auction;
 
 // 1. Import các class từ model của bạn
-import com.auction.client.model.AutoBidConfig;
-import com.auction.client.model.User;
+
 
 // 2. Import các công cụ test của JUnit 5
+import com.auction.common.model.AutoBidConfig;
+import com.auction.common.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
