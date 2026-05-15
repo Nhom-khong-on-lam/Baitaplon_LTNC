@@ -29,10 +29,25 @@ public class MyBidsController {
 
     public void initData(User user) {
         this.currentUser = user;
-        this.myBids = auctionService.getMyBids(user.getId());
-        bidCount.setText(myBids.size() + " bids total");
-        setActiveTab(tabAll);
-        renderBids(myBids);
+
+        // 1. Mở luồng phụ để tải danh sách các phiên đã đặt giá
+        new Thread(() -> {
+            List<Auction> fetchedBids = auctionService.getMyBids(user.getId());
+
+            // 2. Tải xong thì đưa về luồng giao diện để vẽ lên màn hình
+            javafx.application.Platform.runLater(() -> {
+                this.myBids = fetchedBids;
+
+                // Tránh lỗi NullPointerException nếu Server trả về null
+                if (this.myBids == null) {
+                    this.myBids = new java.util.ArrayList<>();
+                }
+
+                bidCount.setText(this.myBids.size() + " bids total");
+                setActiveTab(tabAll);
+                renderBids(this.myBids);
+            });
+        }).start();
     }
 
     @FXML public void showAll()     { setActiveTab(tabAll);     renderBids(myBids); }
