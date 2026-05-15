@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,10 @@ public class AuctionsController {
     private final AuctionService auctionService = new AuctionService();
     private User currentUser;
     private List<Auction> allAuctions;
+    private List<Auction> currentFilteredList = new ArrayList<>();
+    private int visibleCount = 0;
+    private final int LOAD_STEP = 10; // Số lượng hiển thị thêm mỗi lần cuộn
+    private boolean isRendering = false;
 
     @FXML
     public void initialize() {
@@ -46,27 +51,38 @@ public class AuctionsController {
 
     public void initData(User user) {
         this.currentUser = user;
-
-        // Tùy chọn: Hiện chữ Loading để UI thân thiện hơn trong lúc chờ
         resultCount.setText("Loading auctions...");
         auctionListContainer.getChildren().clear();
 
-        // 1. Mở luồng phụ để tải dữ liệu danh sách đấu giá
         new Thread(() -> {
-            List<Auction> fetchedAuctions = auctionService.getAllAuctions();
+            // Lấy toàn bộ dữ liệu 1 lần chạy ngầm
+            List<Auction> fetched = auctionService.getAllAuctions();
 
-            // 2. Tải xong thì đưa lại cho luồng UI để vẽ danh sách
             javafx.application.Platform.runLater(() -> {
-                this.allAuctions = fetchedAuctions;
-
-                // Nếu chưa có file nào, khởi tạo list rỗng tránh lỗi NullPointer ở bộ lọc
-                if (this.allAuctions == null) {
-                    this.allAuctions = new java.util.ArrayList<>();
-                }
-
-                renderAuctions(this.allAuctions);
+                this.allAuctions = fetched != null ? fetched : new ArrayList<>();
+                setupScrollListener(); // Kích hoạt bắt sự kiện cuộn
+                applyFilters();        // Lọc và vẽ lứa dữ liệu đầu tiên
             });
         }).start();
+    }
+
+    private void setupScrollListener() {
+        // Tự động tìm ScrollPane bọc bên ngoài VBox auctionListContainer
+        javafx.scene.Node node = auctionListContainer.getParent();
+        while (node != null && !(node instanceof javafx.scene.control.ScrollPane)) {
+            node = node.getParent();
+        }
+
+        if (node instanceof javafx.scene.control.ScrollPane) {
+            javafx.scene.control.ScrollPane scrollPane = (javafx.scene.control.ScrollPane) node;
+            // Bắt sự kiện khi thanh cuộn thay đổi
+            scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
+                // Nếu cuộn xuống đạt 90% trang -> Tự động tải thêm
+                if (newVal.doubleValue() >= 0.90) {
+                    loadMoreUI();
+                }
+            });
+        }
     }
 
     /** Gọi từ MainController khi search từ topbar */
@@ -95,7 +111,8 @@ public class AuctionsController {
         searchField.clear();
         categoryFilter.getSelectionModel().selectFirst();
         sortBox.getSelectionModel().selectFirst();
-        renderAuctions(allAuctions);
+
+        applyFilters();
     }
 
     @FXML public void switchToGrid() {
@@ -136,32 +153,48 @@ public class AuctionsController {
             filtered.sort((a, b) -> Long.compare(a.getRemainingSeconds(), b.getRemainingSeconds()));
         }
 
-        renderAuctions(filtered);
+        this.currentFilteredList = filtered;
+        auctionListContainer.getChildren().clear();
+        visibleCount = 0;
+        resultCount.setText("Showing " + currentFilteredList.size() + " auction" + (currentFilteredList.size() != 1 ? "s" : ""));
+
+        // Kiểm tra trống ngay tại đây thay vì để trong loadMoreUI
+        if (currentFilteredList.isEmpty()) {
+            Label empty = new Label("No auctions found. Try adjusting your filters.");
+            empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px; -fx-padding:40 0;");
+            auctionListContainer.getChildren().add(empty);
+            return;
+        }
+
+        // Nếu có dữ liệu mới bắt đầu vẽ lứa đầu tiên
+        loadMoreUI();
     }
 
-    /** Render danh sách auction cards */
-    private void renderAuctions(List<Auction> list) {
-        auctionListContainer.getChildren().clear();
-        resultCount.setText("Showing " + list.size() + " auction" + (list.size() != 1 ? "s" : ""));
+    /** Lazy Rendering - Vẽ thêm thẻ auction card khi cuộn */
+    private void loadMoreUI() {
+        if (isRendering || visibleCount >= currentFilteredList.size()) return;
+        isRendering = true;
 
-        for (int i = 0; i < list.size(); i++) {
-            Auction a = list.get(i);
+        int end = Math.min(visibleCount + LOAD_STEP, currentFilteredList.size());
+        List<Auction> nextBatch = currentFilteredList.subList(visibleCount, end);
+
+        for (int i = 0; i < nextBatch.size(); i++) {
+            Auction a = nextBatch.get(i);
             HBox card = buildCard(a);
             auctionListContainer.getChildren().add(card);
 
-            // Staggered animation
             int delayMs = Math.min(i * 40, 300);
-            javafx.animation.PauseTransition p =
-                    new javafx.animation.PauseTransition(javafx.util.Duration.millis(delayMs));
+            javafx.animation.PauseTransition p = new javafx.animation.PauseTransition(javafx.util.Duration.millis(delayMs));
             p.setOnFinished(e -> AnimationUtil.slideUp(card, 14, 240));
             p.play();
         }
 
-        if (list.isEmpty()) {
-            Label empty = new Label("No auctions found. Try adjusting your filters.");
-            empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px; -fx-padding:40 0;");
-            auctionListContainer.getChildren().add(empty);
-        }
+        visibleCount = end;
+
+        // Cooldown để tránh spam scroll
+        javafx.animation.PauseTransition cooldown = new javafx.animation.PauseTransition(javafx.util.Duration.millis(250));
+        cooldown.setOnFinished(e -> isRendering = false);
+        cooldown.play();
     }
 
     /** Tạo auction card hoàn chỉnh */
