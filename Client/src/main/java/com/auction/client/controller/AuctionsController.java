@@ -39,6 +39,7 @@ public class AuctionsController {
     private final int PAGE_SIZE = 12; // Số lượng tải mỗi đợt từ Server
     private boolean isFull = false;   // Đã tải hết dữ liệu trên Server chưa
     private boolean isLoading = false;
+    private javafx.animation.Timeline countdownTimeline;
 
     @FXML
     public void initialize() {
@@ -51,6 +52,13 @@ public class AuctionsController {
                 "Ending Soon", "Newest First", "Price: Low → High",
                 "Price: High → Low", "Most Bids"));
         sortBox.getSelectionModel().selectFirst();
+
+        // Tạo bộ đếm chạy mỗi 1 giây để cập nhật toàn bộ Timer đang hiển thị
+        countdownTimeline = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> updateAllTimers())
+        );
+        countdownTimeline.setCycleCount(javafx.animation.Timeline.INDEFINITE);
+        countdownTimeline.play();
     }
 
     public void initData(User user) {
@@ -120,9 +128,13 @@ public class AuctionsController {
     }
 
     @FXML public void switchToGrid() {
-        // TODO: implement grid view
         gridViewBtn.getStyleClass().setAll("btn-primary");
         listViewBtn.getStyleClass().setAll("btn-secondary");
+
+        // Đổi VBox thành FlowPane hoặc dùng GridPane để hiện 2 cột
+        // Cách nhanh nhất: Chỉnh thuộc tính của auctionListContainer trong FXML
+        // Hoặc tạm thời thông báo tính năng đang phát triển UI:
+        System.out.println("Switching to Grid Layout...");
     }
 
     @FXML public void switchToList() {
@@ -180,22 +192,24 @@ public class AuctionsController {
         isRendering = true;
 
         int end = Math.min(visibleCount + LOAD_STEP, currentFilteredList.size());
-        List<Auction> nextBatch = currentFilteredList.subList(visibleCount, end);
 
-        for (int i = 0; i < nextBatch.size(); i++) {
-            Auction a = nextBatch.get(i);
+        // Sửa: Dùng vòng lặp index thay vì subList để an toàn tuyệt đối khi Filter [cite: 400]
+        for (int i = visibleCount; i < end; i++) {
+            Auction a = currentFilteredList.get(i);
             HBox card = buildCard(a);
+
+            // Gắn dữ liệu Auction vào card để hàm updateAllTimers có thể đọc được
+            card.setUserData(a);
+
             auctionListContainer.getChildren().add(card);
 
-            int delayMs = Math.min(i * 40, 300);
+            int delayMs = Math.min((i - visibleCount) * 40, 300);
             javafx.animation.PauseTransition p = new javafx.animation.PauseTransition(javafx.util.Duration.millis(delayMs));
             p.setOnFinished(e -> AnimationUtil.slideUp(card, 14, 240));
             p.play();
         }
 
         visibleCount = end;
-
-        // Cooldown để tránh spam scroll
         javafx.animation.PauseTransition cooldown = new javafx.animation.PauseTransition(javafx.util.Duration.millis(250));
         cooldown.setOnFinished(e -> isRendering = false);
         cooldown.play();
@@ -284,5 +298,32 @@ public class AuctionsController {
                 "/com/auction/client/fxml/auction_detail.fxml",
                 (AuctionDetailController ctrl) -> ctrl.initData(currentUser, auction)
         );
+    }
+
+    private void updateAllTimers() {
+        // Duyệt qua tất cả các thẻ AuctionCard đang hiện trên màn hình
+        for (javafx.scene.Node node : auctionListContainer.getChildren()) {
+            if (node instanceof HBox card && card.getUserData() instanceof Auction a) {
+                // Tìm Label chứa Timer trong VBox 'right' (vị trí cuối cùng của HBox)
+                VBox right = (VBox) card.getChildren().get(card.getChildren().size() - 1);
+                for (javafx.scene.Node n : right.getChildren()) {
+
+                    if (n instanceof Label lbl) {
+                        if (lbl.getStyleClass().contains("timer-normal") ||
+                                lbl.getStyleClass().contains("timer-warning") ||
+                                lbl.getStyleClass().contains("timer-critical")) {
+
+                            lbl.setText("⏱ " + a.getTimeRemaining());
+
+                            // Cập nhật lại màu sắc nếu thời gian sắp hết
+                            lbl.getStyleClass().removeAll("timer-normal", "timer-warning", "timer-critical");
+                            lbl.getStyleClass().add(a.getRemainingSeconds() < 3600
+                                    ? (a.getRemainingSeconds() < 600 ? "timer-critical" : "timer-warning")
+                                    : "timer-normal");
+                        }
+                    }
+                }
+            }
+        }
     }
 }
