@@ -3,6 +3,9 @@ package com.auction.client.controller;
 import com.auction.client.service.AuctionService;
 import com.auction.common.model.Auction;
 import com.auction.common.model.User;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -14,43 +17,50 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static javafx.util.Duration.millis;
+
 /**
  * AuctionsController — Danh sách live auctions.
- * Hỗ trợ search, filter theo category, sort, và navigate to detail.
+ *
+ * FIX:
+ *  - categoryFilter dùng đúng 3 loại từ CreateAuctionController.CATEGORIES
+ *  - filter dùng equalsIgnoreCase để tránh mismatch
+ *  - Network call chạy trên background thread (đã có), giữ nguyên
+ *  - Lazy rendering với đa luồng load đầu tiên
  */
 public class AuctionsController {
 
-    @FXML private TextField  searchField;
+    @FXML private TextField       searchField;
     @FXML private ComboBox<String> categoryFilter;
     @FXML private ComboBox<String> sortBox;
-    @FXML private Label      resultCount;
-    @FXML private VBox       auctionListContainer;
-    @FXML private Button     gridViewBtn;
-    @FXML private Button     listViewBtn;
+    @FXML private Label            resultCount;
+    @FXML private VBox             auctionListContainer;
+    @FXML private Button           gridViewBtn;
+    @FXML private Button           listViewBtn;
 
     private final AuctionService auctionService = new AuctionService();
-    private User currentUser;
-    private List<Auction> allAuctions;
-    private List<Auction> currentFilteredList = new ArrayList<>();
-    private int visibleCount = 0;
-    private final int LOAD_STEP = 10; // Số lượng hiển thị thêm mỗi lần cuộn
-    private boolean isRendering = false;
-    private int currentPage = 1;
-    private final int PAGE_SIZE = 12; // Số lượng tải mỗi đợt từ Server
-    private boolean isFull = false;   // Đã tải hết dữ liệu trên Server chưa
-    private boolean isLoading = false;
+    private User          currentUser;
+    private List<Auction> allAuctions          = new ArrayList<>();
+    private List<Auction> currentFilteredList  = new ArrayList<>();
+    private int     visibleCount  = 0;
+    private boolean isRendering   = false;
+    private static final int LOAD_STEP = 10;
+
 
     @FXML
     public void initialize() {
-        categoryFilter.setItems(FXCollections.observableArrayList(
-                "All Categories", "Electronics", "Art", "Jewelry",
-                "Vehicles", "Real Estate", "Fashion", "Collectibles"));
+        // "All Categories" + 3 loại chuẩn từ CreateAuctionController
+        List<String> cats = new ArrayList<>();
+        cats.add("All Categories");
+        cats.addAll(CreateAuctionController.CATEGORIES);
+        categoryFilter.setItems(FXCollections.observableArrayList(cats));
         categoryFilter.getSelectionModel().selectFirst();
 
         sortBox.setItems(FXCollections.observableArrayList(
-                "Ending Soon", "Newest First", "Price: Low → High",
-                "Price: High → Low", "Most Bids"));
+                "Ending Soon", "Newest First",
+                "Price: Low → High", "Price: High → Low", "Most Bids"));
         sortBox.getSelectionModel().selectFirst();
+
     }
 
     public void initData(User user) {
@@ -58,33 +68,29 @@ public class AuctionsController {
         resultCount.setText("Loading auctions...");
         auctionListContainer.getChildren().clear();
 
-        new Thread(() -> {
-            // Lấy toàn bộ dữ liệu 1 lần chạy ngầm
+        // Network call trên background thread
+        Thread loader = new Thread(() -> {
             List<Auction> fetched = auctionService.getAllAuctions();
 
-            javafx.application.Platform.runLater(() -> {
+            Platform.runLater(() -> {
                 this.allAuctions = fetched != null ? fetched : new ArrayList<>();
-                setupScrollListener(); // Kích hoạt bắt sự kiện cuộn
-                applyFilters();        // Lọc và vẽ lứa dữ liệu đầu tiên
+                setupScrollListener();
+                applyFilters();
             });
-        }).start();
+        });
+        loader.setDaemon(true);
+        loader.start();
+
     }
 
     private void setupScrollListener() {
-        // Tự động tìm ScrollPane bọc bên ngoài VBox auctionListContainer
         javafx.scene.Node node = auctionListContainer.getParent();
-        while (node != null && !(node instanceof javafx.scene.control.ScrollPane)) {
+        while (node != null && !(node instanceof ScrollPane)) {
             node = node.getParent();
         }
-
-        if (node instanceof javafx.scene.control.ScrollPane) {
-            javafx.scene.control.ScrollPane scrollPane = (javafx.scene.control.ScrollPane) node;
-            // Bắt sự kiện khi thanh cuộn thay đổi
-            scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
-                // Nếu cuộn xuống đạt 90% trang -> Tự động tải thêm
-                if (newVal.doubleValue() >= 0.90) {
-                    loadMoreUI();
-                }
+        if (node instanceof ScrollPane sp) {
+            sp.vvalueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal.doubleValue() >= 0.90) loadMoreUI();
             });
         }
     }
@@ -92,35 +98,22 @@ public class AuctionsController {
     /** Gọi từ MainController khi search từ topbar */
     public void applySearch(String keyword) {
         searchField.setText(keyword);
-        handleSearch();
-    }
-
-    @FXML
-    public void handleSearch() {
         applyFilters();
     }
 
-    @FXML
-    public void handleFilter() {
-        applyFilters();
-    }
-
-    @FXML
-    public void handleSort() {
-        applyFilters();
-    }
+    @FXML public void handleSearch() { applyFilters(); }
+    @FXML public void handleFilter() { applyFilters(); }
+    @FXML public void handleSort()   { applyFilters(); }
 
     @FXML
     public void clearFilters() {
         searchField.clear();
         categoryFilter.getSelectionModel().selectFirst();
         sortBox.getSelectionModel().selectFirst();
-
         applyFilters();
     }
 
     @FXML public void switchToGrid() {
-        // TODO: implement grid view
         gridViewBtn.getStyleClass().setAll("btn-primary");
         listViewBtn.getStyleClass().setAll("btn-secondary");
     }
@@ -130,107 +123,106 @@ public class AuctionsController {
         gridViewBtn.getStyleClass().setAll("btn-secondary");
     }
 
-    /** Lọc và sắp xếp danh sách */
     private void applyFilters() {
-        String kw  = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
-        String cat = categoryFilter.getValue();
+        String kw   = searchField.getText() == null ? ""
+                : searchField.getText().trim().toLowerCase();
+        String cat  = categoryFilter.getValue();
         String sort = sortBox.getValue();
 
         List<Auction> filtered = allAuctions.stream()
+                .filter(a -> a.getRemainingSeconds() > 0)
                 .filter(a -> kw.isEmpty()
                         || a.getTitle().toLowerCase().contains(kw)
                         || a.getCategory().toLowerCase().contains(kw))
-                .filter(a -> cat == null || cat.equals("All Categories")
-                        || a.getCategory().equals(cat))
+                // FIX: dùng equalsIgnoreCase để tránh mismatch
+                .filter(a -> cat == null || "All Categories".equals(cat)
+                        || a.getCategory().equalsIgnoreCase(cat))
                 .collect(Collectors.toList());
 
         // Sort
-        if ("Price: Low → High".equals(sort)) {
-            filtered.sort((a, b) -> Double.compare(a.getCurrentPrice(), b.getCurrentPrice()));
-        } else if ("Price: High → Low".equals(sort)) {
-            filtered.sort((a, b) -> Double.compare(b.getCurrentPrice(), a.getCurrentPrice()));
-        } else if ("Most Bids".equals(sort)) {
-            filtered.sort((a, b) -> b.getBidCount() - a.getBidCount());
-        } else if ("Newest First".equals(sort)) {
-            filtered.sort((a, b) -> Long.compare(b.getId(), a.getId()));
-        } else { // Ending Soon
-            filtered.sort((a, b) -> Long.compare(a.getRemainingSeconds(), b.getRemainingSeconds()));
+        switch (sort == null ? "" : sort) {
+            case "Price: Low → High"  ->
+                    filtered.sort((a, b) -> Double.compare(a.getCurrentPrice(), b.getCurrentPrice()));
+            case "Price: High → Low"  ->
+                    filtered.sort((a, b) -> Double.compare(b.getCurrentPrice(), a.getCurrentPrice()));
+            case "Most Bids"          ->
+                    filtered.sort((a, b) -> b.getBidCount() - a.getBidCount());
+            case "Newest First"       ->
+                    filtered.sort((a, b) -> Long.compare(b.getId(), a.getId()));
+            default                   -> // Ending Soon
+                    filtered.sort((a, b) -> Long.compare(a.getRemainingSeconds(), b.getRemainingSeconds()));
         }
 
         this.currentFilteredList = filtered;
         auctionListContainer.getChildren().clear();
         visibleCount = 0;
-        resultCount.setText("Showing " + currentFilteredList.size() + " auction" + (currentFilteredList.size() != 1 ? "s" : ""));
 
-        // Kiểm tra trống ngay tại đây thay vì để trong loadMoreUI
-        if (currentFilteredList.isEmpty()) {
+        resultCount.setText("Showing " + filtered.size()
+                + " auction" + (filtered.size() != 1 ? "s" : ""));
+
+        if (filtered.isEmpty()) {
             Label empty = new Label("No auctions found. Try adjusting your filters.");
             empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px; -fx-padding:40 0;");
             auctionListContainer.getChildren().add(empty);
             return;
         }
 
-        // Nếu có dữ liệu mới bắt đầu vẽ lứa đầu tiên
         loadMoreUI();
     }
 
-    /** Lazy Rendering - Vẽ thêm thẻ auction card khi cuộn */
+    /** Lazy Rendering — vẽ thêm cards khi cuộn */
     private void loadMoreUI() {
         if (isRendering || visibleCount >= currentFilteredList.size()) return;
         isRendering = true;
 
         int end = Math.min(visibleCount + LOAD_STEP, currentFilteredList.size());
-        List<Auction> nextBatch = currentFilteredList.subList(visibleCount, end);
+        List<Auction> batch = currentFilteredList.subList(visibleCount, end);
 
-        for (int i = 0; i < nextBatch.size(); i++) {
-            Auction a = nextBatch.get(i);
+        for (int i = 0; i < batch.size(); i++) {
+            Auction a = batch.get(i);
             HBox card = buildCard(a);
             auctionListContainer.getChildren().add(card);
-
             int delayMs = Math.min(i * 40, 300);
-            javafx.animation.PauseTransition p = new javafx.animation.PauseTransition(javafx.util.Duration.millis(delayMs));
+            javafx.animation.PauseTransition p =
+                    new javafx.animation.PauseTransition(millis(delayMs));
             p.setOnFinished(e -> AnimationUtil.slideUp(card, 14, 240));
             p.play();
         }
 
         visibleCount = end;
 
-        // Cooldown để tránh spam scroll
-        javafx.animation.PauseTransition cooldown = new javafx.animation.PauseTransition(javafx.util.Duration.millis(250));
+        // Cooldown tránh spam scroll
+        PauseTransition cooldown =
+                new PauseTransition(millis(250));
         cooldown.setOnFinished(e -> isRendering = false);
         cooldown.play();
     }
 
-    /** Tạo auction card hoàn chỉnh */
     private HBox buildCard(Auction a) {
         HBox card = new HBox(16);
         card.setAlignment(Pos.CENTER_LEFT);
         card.getStyleClass().add("auction-card");
         card.setPadding(new Insets(14, 18, 14, 18));
 
-        // ── Thumbnail ──
+        // Thumbnail
         Label thumb = new Label(a.getCategoryIcon());
-        thumb.setStyle(
-                "-fx-font-size:28px; -fx-alignment:CENTER;" +
-                        "-fx-min-width:80px; -fx-max-width:80px;" +
-                        "-fx-min-height:80px; -fx-max-height:80px;" +
-                        "-fx-background-color:#f1f5f9; -fx-background-radius:10;");
+        thumb.setStyle("-fx-font-size:28px; -fx-alignment:CENTER;"
+                + "-fx-min-width:80px; -fx-max-width:80px;"
+                + "-fx-min-height:80px; -fx-max-height:80px;"
+                + "-fx-background-color:#f1f5f9; -fx-background-radius:10;");
 
-        // ── Info ──
+        // Info
         VBox info = new VBox(5);
         HBox.setHgrow(info, Priority.ALWAYS);
 
-        // Title + badge row
         HBox titleRow = new HBox(10);
         titleRow.setAlignment(Pos.CENTER_LEFT);
         Label title = new Label(a.getTitle());
         title.getStyleClass().add("auction-card-title");
 
-        // Status badge
         Label statusBadge = new Label(a.getStatusLabel());
         statusBadge.getStyleClass().add(a.getStatusStyleClass());
 
-        // Category badge
         Label catBadge = new Label(a.getCategory());
         catBadge.getStyleClass().addAll("badge", "badge-blue");
 
@@ -240,12 +232,13 @@ public class AuctionsController {
         desc.getStyleClass().add("auction-card-sub");
         desc.setWrapText(false);
 
-        Label meta = new Label("👤 " + a.getSeller().getUsername() + "   ·   🔨 " + a.getBidCount() + " bids");
+        Label meta = new Label("👤 " + a.getSeller().getUsername()
+                + "   ·   🔨 " + a.getBidCount() + " bids");
         meta.getStyleClass().add("auction-card-sub");
 
         info.getChildren().addAll(titleRow, desc, meta);
 
-        // ── Right: Price + Timer + Bid Btn ──
+        // Right: Price + Timer + Button
         VBox right = new VBox(6);
         right.setAlignment(Pos.CENTER_RIGHT);
         right.setMinWidth(160);
@@ -253,7 +246,7 @@ public class AuctionsController {
         Label priceLabel = new Label("CURRENT BID");
         priceLabel.getStyleClass().add("auction-card-price-label");
 
-        Label price = new Label( String.format("%,.0f", a.getCurrentPrice()));
+        Label price = new Label(String.format("%,.0f", a.getCurrentPrice()));
         price.getStyleClass().add("auction-card-price");
 
         Label timerLbl = new Label("⏱ " + a.getTimeRemaining());
@@ -262,27 +255,41 @@ public class AuctionsController {
                 : "timer-normal";
         timerLbl.getStyleClass().add(timerStyle);
 
-        Button bidBtn = new Button("Place Bid →");
+        Button bidBtn = new Button("Place Bid");
         bidBtn.getStyleClass().add("btn-primary");
-        bidBtn.setOnAction(e -> openDetail(a));
-
+        bidBtn.setOnAction(e -> {
+            Auction freshAuction = currentFilteredList.stream()
+                    .filter(auc -> auc.getId() == a.getId())
+                    .findFirst()
+                    .orElse(a);
+            openDetail(freshAuction);
+        });
         right.getChildren().addAll(priceLabel, price, timerLbl, bidBtn);
 
         card.getChildren().addAll(thumb, info, right);
         card.setOnMouseClicked(e -> {
-            if (!(e.getTarget() instanceof Button)) openDetail(a);
+            if (!(e.getTarget() instanceof Button)) {
+                Auction freshAuction = currentFilteredList.stream()
+                        .filter(auc -> auc.getId() == a.getId())
+                        .findFirst()
+                        .orElse(a);
+                openDetail(freshAuction);
+            }
         });
-
         return card;
     }
 
-    /** Mở chi tiết auction — load AuctionDetailController vào contentPane */
     private void openDetail(Auction auction) {
-        MainController main = (MainController) auctionListContainer
-                .getScene().lookup("#mainRoot").getUserData();
-        main.loadContent(
-                "/com/auction/client/fxml/auction_detail.fxml",
-                (AuctionDetailController ctrl) -> ctrl.initData(currentUser, auction)
-        );
+        try {
+            javafx.scene.Node mainRootNode = auctionListContainer.getScene().lookup("#mainRoot");
+            MainController main = (MainController) mainRootNode.getUserData();
+
+            // Ép JavaFX lấy đúng file fxml theo biến BASE gốc của hệ thống
+            main.loadContent( "/com/auction/client/auction_detail.fxml",
+                    (AuctionDetailController ctrl) -> ctrl.initData(currentUser, auction));
+        } catch (Exception e) {
+            System.out.println("Lỗi mở chi tiết ở AuctionsController: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

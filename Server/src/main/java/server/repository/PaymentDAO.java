@@ -1,6 +1,5 @@
 package server.repository;
 
-
 import com.auction.common.dto.PaymentDTO;
 import server.database.DBConnection;
 import java.sql.*;
@@ -28,7 +27,7 @@ public class PaymentDAO {
 
     public List<PaymentDTO> getAll() {
         List<PaymentDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM payment";
+        String sql = "SELECT id, auction_id, buyer_id, seller_id, amount, status, created_at FROM payment";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -40,7 +39,7 @@ public class PaymentDAO {
     }
 
     public PaymentDTO getByAuctionId(Long auctionId) {
-        String sql = "SELECT * FROM payment WHERE auction_id = ?";
+        String sql = "SELECT id, auction_id, buyer_id, seller_id, amount, status, created_at FROM payment WHERE auction_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, auctionId);
@@ -61,7 +60,9 @@ public class PaymentDAO {
         p.setSellerId(rs.getLong("seller_id"));
         p.setAmount(rs.getDouble("amount"));
         p.setStatus(rs.getString("status"));
-        p.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+
+        Timestamp ts = rs.getTimestamp("created_at");
+        if (ts != null) p.setCreatedAt(ts.toLocalDateTime());
         return p;
     }
 }

@@ -4,6 +4,7 @@ import com.auction.client.service.AuctionService;
 import com.auction.common.model.Auction;
 import com.auction.common.model.BidTransaction;
 import com.auction.common.model.User;
+import com.auction.common.enums.AuctionStatus;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
@@ -14,18 +15,18 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * AuctionDetailController — Chi tiết 1 phiên đấu giá.
- * - Countdown timer live (cập nhật mỗi giây)
- * - Đặt bid với validation
- * - Quick bid buttons
- * - Bid history timeline
+ * AuctionDetailController — Displays details of a single auction.
+ * Fully synchronized with your existing Auction and MainController structures.
  */
 public class AuctionDetailController {
 
-    @FXML private Label    detailImageIcon, detailTitle, detailSeller, detailDesc;
+    @FXML private javafx.scene.image.ImageView detailImageView;
+    @FXML private Label    detailTitle, detailSeller, detailDesc;
+
     @FXML private Label    detailCatBadge, detailCondBadge, detailStatusPill;
     @FXML private Label    detailCurrentPrice, detailTimer;
     @FXML private Label    detailBidCount, detailStartPrice;
@@ -39,287 +40,300 @@ public class AuctionDetailController {
     private final AuctionService auctionService = new AuctionService();
     private User    currentUser;
     private Auction auction;
+    private double  minBid;
     private Timeline countdownTimeline;
-    private double minBid;
-    private String SellerName;
+    private long    remainingSeconds = 0;
 
     public void initData(User user, Auction auction) {
+
         this.currentUser = user;
         this.auction     = auction;
-        this.SellerName  = auction.getSeller().getUsername();
-
-        // Basic info
-        detailImageIcon.setText(auction.getCategoryIcon());
-        detailTitle.setText(auction.getTitle());
-        detailDesc.setText(auction.getDescription());
-        detailSeller.setText("Listed by " + SellerName
-                + "  ·  " + auction.getBidCount() + " bids so far");
-
-        detailCatBadge.setText(auction.getItem().getCategory());
-        detailCondBadge.setText(auction.getCondition());
-
-        // Status pill
-        detailStatusPill.setText(auction.getStatusLabel());
-
-
-        // Prices
-        updatePriceDisplay();
-        detailStartPrice.setText(String.format("%,.0f", auction.getItem().getStartingPrice()));
-
-        // Seller info
-        String sellerInitials = SellerName.length() >= 2
-                ? SellerName.substring(0, 2).toUpperCase()
-                : SellerName.toUpperCase();
-        sellerAvatar.setText(sellerInitials);
-        sellerName.setText(SellerName);
-        sellerSince.setText("Member since 2023");
-
-        // Quick bid increments based on current price
-        double cur = auction.getCurrentPrice();
-        double inc = auction.getMinIncrement();
-        quickBid1.setText("+" + inc);
-        quickBid2.setText("+" + inc * 5);
-        quickBid3.setText("+" + inc * 10);
-
-        minBid = cur + inc;
-        minBidHint.setText("Minimum bid:"+ String.format("%,.0f", minBid));
-
-        // Disable bid if not live or is own auction
-        boolean canBid = auction.isLive()
-                && auction.getSeller().getId() != user.getId();
-        placeBidBtn.setDisable(!canBid);
-        bidAmountField.setDisable(!canBid);
-        if (!canBid) {
-            bidMsg.setText(auction.isLive()
-                    ? "You cannot bid on your own auction."
-                    : "This auction has ended.");
-            bidMsg.setTextFill(Color.web("#718096"));
+        if (placeBidBtn != null) {
+            placeBidBtn.setDisable(false);      // Mở khóa nút bấm mặc định
+            placeBidBtn.setText("Place Bid");   // Trả lại chữ đặt cược mặc định
+        }
+        if (bidAmountField != null) {
+            bidAmountField.setDisable(false);
+            bidAmountField.clear();// Mở khóa ô nhập tiền mặc định
+        }
+        if (bidMsg != null) {
+            bidMsg.setVisible(false); // Ẩn thông báo lỗi phòng cũ
+        }
+        if (auction.getSeller() != null && auction.getSeller().getId().equals(currentUser.getId())) {
+            if (placeBidBtn != null) {
+                placeBidBtn.setDisable(true);          // Vô hiệu hóa nút đặt cược
+                placeBidBtn.setText("Your Product");   // Đổi chữ hiển thị để thông báo
+            }
         }
 
-        // Bid history
-        loadBidHistory();
+        if (auction == null || user == null) return;
+        String sellerNameStr = auction.getSeller() != null ? auction.getSeller().getUsername() : "Unknown";
 
-        // Start live countdown
+        if (detailImageView != null) {
+            setDefaultImage();
+        }
+
+        if (detailTitle != null) {
+            detailTitle.setText(auction.getItem() != null ? auction.getItem().getName() : "No Title");
+        }
+        if (detailDesc != null) {
+            detailDesc.setText(auction.getItem() != null ? auction.getItem().getDescription() : "");
+        }
+
+        if (detailSeller != null) {
+            detailSeller.setText("Listed by " + sellerNameStr + "  ·  " + auction.getBidCount() + " bids so far");
+        }
+
+        double startPrice = 0;
+        if (auction.getItem() != null) {
+            startPrice = auction.getItem().getStartingPrice();
+            if (detailCatBadge != null) detailCatBadge.setText(auction.getItem().getCategory());
+        } else {
+            if (detailCatBadge != null) detailCatBadge.setText("General");
+        }
+
+        if (detailStartPrice != null) {
+            detailStartPrice.setText(String.format("%,.0f", startPrice));
+        }
+
+        if (detailCondBadge != null) {
+            detailCondBadge.setText("Standard");
+        }
+
+        if (detailStatusPill != null) {
+            detailStatusPill.setText(auction.getStatus() != null ? auction.getStatus().name() : "UNKNOWN");
+        }
+
+        if (sellerAvatar != null) {
+            String init = sellerNameStr.length() >= 2 ? sellerNameStr.substring(0, 2).toUpperCase() : sellerNameStr.toUpperCase();
+            sellerAvatar.setText(init);
+        }
+        if (sellerName != null) sellerName.setText(sellerNameStr);
+        if (sellerSince != null) sellerSince.setText("Member since 2023");
+
+        updatePriceDisplay();
+
+        double cur = auction.getCurrentPrice();
+        double increment = auction.getMinIncrement();
+
+        if (quickBid1 != null) quickBid1.setText("+" + String.format("%.0f", increment));
+        if (quickBid2 != null) quickBid2.setText("+" + String.format("%.0f", increment * 5));
+        if (quickBid3 != null) quickBid3.setText("+" + String.format("%.0f", increment * 10));
+
+        minBid = cur + increment;
+        if (minBidHint != null) {
+            minBidHint.setText("Minimum bid: " + String.format("%,.0f", minBid));
+        }
+
+        if (auction.getEndTime() != null) {
+            java.time.Duration duration = java.time.Duration.between(LocalDateTime.now(), auction.getEndTime());
+            remainingSeconds = duration.isNegative() ? 0 : duration.getSeconds();
+        } else {
+            remainingSeconds = 0;
+        }
+
+        boolean isOwnAuction = auction.getSeller() != null && java.util.Objects.equals(auction.getSeller().getId(), user.getId());
+        boolean isLiveAuction = remainingSeconds > 0 && auction.getStatus() == AuctionStatus.RUNNING;
+        boolean canBid = isLiveAuction && !isOwnAuction;
+
+        if (placeBidBtn != null) placeBidBtn.setDisable(!canBid);
+        if (bidAmountField != null) bidAmountField.setDisable(!canBid);
+
+        if (bidMsg != null && !canBid) {
+            bidMsg.setText(isOwnAuction ? "You cannot bid on your own auction." : "This auction has ended.");
+            bidMsg.setTextFill(Color.web("#718096"));
+            bidMsg.setVisible(true);
+        }
+
+        loadBidHistory();
         startCountdown();
     }
 
-    // ── Countdown timer ───────────────────────────────────────
-    private void startCountdown() {
-        if (countdownTimeline != null) countdownTimeline.stop();
-
-        countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            // Lấy số giây thực tế còn lại từ Model (Model tự trừ dựa trên giờ hệ thống)
-            long secs = auction.getRemainingSeconds();
-
-            if (secs <= 0) {
-                detailTimer.setText("00:00:00");
-                // ... (các phần set style giữ nguyên)
-                countdownTimeline.stop();
-                placeBidBtn.setDisable(true);
-                detailStatusPill.setText("Ended");
-                return;
-            }
-
-            // Cập nhật text hiển thị HH:mm:ss
-            detailTimer.setText(formatCountdown(secs));
-
-            // Logic đổi màu sắc theo thời gian còn lại
-            if (secs < 600) { // Dưới 10 phút: Đỏ
-                detailTimer.setStyle("-fx-text-fill:#dc2626; -fx-font-weight:bold;");
-            } else if (secs < 3600) { // Dưới 1 tiếng: Cam
-                detailTimer.setStyle("-fx-text-fill:#d97706; -fx-font-weight:bold;");
-            }
-        }));
-
-        countdownTimeline.setCycleCount(Timeline.INDEFINITE);
-        countdownTimeline.play();
+    private void setDefaultImage() {
+        try {
+            // Sửa đường dẫn nạp ảnh placeholder tương thích với cây thư mục của bạn
+            detailImageView.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/com/auction/client/images/default-placeholder.png")));
+        } catch (Exception e) {
+            System.out.println("Could not load default placeholder image.");
+        }
     }
 
-    // ── Place bid ─────────────────────────────────────────────
-    @FXML public void handlePlaceBid() {
-        String txt = bidAmountField.getText().trim();
-        if (txt.isEmpty()) {
-            showBidError("Please enter a bid amount.");
-            AnimationUtil.shake(bidAmountField);
+    @FXML
+    public void handlePlaceBid() {
+        if (bidMsg != null) {
+            bidMsg.setVisible(false);
+            bidMsg.setTextFill(Color.web("#dc2626"));
+        }
+
+        String amountText = bidAmountField.getText().trim();
+        if (amountText.isEmpty()) {
+            showBidError("Please enter an amount.");
             return;
         }
 
         double amount;
-        try { amount = Double.parseDouble(txt); }
-        catch (NumberFormatException e) {
+        try {
+            amount = Double.parseDouble(amountText);
+        } catch (NumberFormatException e) {
             showBidError("Enter a valid number.");
-            AnimationUtil.shake(bidAmountField);
             return;
         }
 
         if (amount < minBid) {
-            showBidError("Minimum bid is " + String.format("%,.0f", minBid));
-            AnimationUtil.shake(bidAmountField);
+            showBidError("Bid must be at least " + String.format("%,.0f", minBid));
             return;
         }
 
-        // Confirm
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Confirm Bid");
-        confirm.setHeaderText("Place bid of " + String.format("%,.2f", amount) + "?");
-        confirm.setContentText("On: " + auction.getTitle());
-        confirm.showAndWait().ifPresent(result -> {
-            if (result == ButtonType.OK) {
-                // Tạm khóa nút và hiện thông báo chờ để tránh click 2 lần
-                placeBidBtn.setDisable(true);
-                bidMsg.setText("Processing bid...");
-                bidMsg.setTextFill(Color.web("#d97706")); // Màu cam
+        placeBidBtn.setDisable(true);
+        if (bidMsg != null) {
+            bidMsg.setText("Submitting your bid...");
+            bidMsg.setTextFill(Color.web("#d97706"));
+            bidMsg.setVisible(true);
+        }
 
-                // 1. Đẩy lệnh Bid lên Server thông qua luồng chạy ngầm
-                new Thread(() -> {
-                    auctionService.placeBid(auction.getId(), currentUser, amount);
-                    BidTransaction newBid = new BidTransaction(currentUser, amount, false);
-                    boolean success = auction.addBid(newBid);
+        Thread t = new Thread(() -> {
+            com.auction.common.network.Response res = auctionService.placeBid(auction.getId(), currentUser, amount);
+            javafx.application.Platform.runLater(() -> {
+                placeBidBtn.setDisable(false);
+                if (res != null && res.isSuccess()) {
+                    if (bidMsg != null) {
+                        bidMsg.setText("Bid placed successfully!");
+                        bidMsg.setTextFill(Color.web("#16a34a"));
+                    }
+                    bidAmountField.clear();
 
-                    // 2. Nhận kết quả xong thì mở khóa UI và cập nhật màn hình
-                    javafx.application.Platform.runLater(() -> {
-                        if (success) {
-                            // Giá tự động tăng bên trong đối tượng auction rồi
-                            renderUI();
-                        }
-
-                        minBid = amount + auction.getMinIncrement();
-                        minBidHint.setText("Minimum bid:" + String.format("%,.0f", minBid));
-                        bidAmountField.clear();
+                    if (res.getData() instanceof Auction) {
+                        this.auction = (Auction) res.getData();
                         updatePriceDisplay();
-                        loadBidHistory();
-                        showBidSuccess("🎉 Bid placed successfully!");
-                        AnimationUtil.pulse(placeBidBtn);
-
-                        placeBidBtn.setDisable(false); // Mở khóa nút
-                    });
-                }).start();
-            }
+                        minBid = auction.getCurrentPrice() + auction.getMinIncrement();
+                        if (minBidHint != null) {
+                            minBidHint.setText("Minimum bid: " + String.format("%,.0f", minBid));
+                        }
+                    }
+                    loadBidHistory();
+                } else {
+                    showBidError(res != null ? res.getMessage() : "Server communication error.");
+                }
+            });
         });
-    }
-    private void renderUI() {
-        // 1. Cập nhật con số giá hiện tại
-        detailCurrentPrice.setText(String.format("%,.0f", auction.getCurrentPrice()));
-
-        // 2. Cập nhật số lượt đấu giá
-        detailBidCount.setText(String.valueOf(auction.getBidCount()));
-
-        // 3. Cập nhật lại gợi ý mức giá tối thiểu tiếp theo
-        double minNextBid = auction.getCurrentPrice() + auction.getMinIncrement();
-        minBidHint.setText("Minimum bid: " + String.format("%,.0f", minNextBid));
-
-        // 4. Load lại danh sách lịch sử đấu giá (để hiện tên người vừa bid lên đầu)
-        loadBidHistory();
+        t.setDaemon(true);
+        t.start();
     }
 
-    // ── Quick bid handlers ────────────────────────────────────
-    @FXML public void quickBid1() { setQuickBid(auction.getMinIncrement()); }
-    @FXML public void quickBid2() { setQuickBid(auction.getMinIncrement() * 5); }
-    @FXML public void quickBid3() { setQuickBid(auction.getMinIncrement() * 10); }
+    @FXML public void handleQuickBid1() { fillQuickBid(1); }
+    @FXML public void handleQuickBid2() { fillQuickBid(5); }
+    @FXML public void handleQuickBid3() { fillQuickBid(10); }
 
-    private void setQuickBid(double add) {
-        double val = auction.getCurrentPrice() + (add > 0 ? add : 10);
-        bidAmountField.setText(String.format("%.0f", val));
+    private void fillQuickBid(int multiplier) {
+        double amount = auction.getCurrentPrice() + (auction.getMinIncrement() * multiplier);
+        bidAmountField.setText(String.format("%.0f", amount));
+        if (bidMsg != null) bidMsg.setVisible(false);
     }
 
-    @FXML public void goBack() {
+    @FXML
+    public void goBack() {
         if (countdownTimeline != null) countdownTimeline.stop();
-        MainController main = (MainController) bidAmountField
-                .getScene().lookup("#mainRoot").getUserData();
-        main.navAuctions();
+        // Gọi hàm navAuctions() điều hướng chuẩn xác tới com/auction/client/auctions.fxml
+        MainController main = (MainController) placeBidBtn.getScene().lookup("#mainRoot").getUserData();
+        if (main != null) {
+            main.navAuctions();
+        }
     }
 
-    // ── Bid history ───────────────────────────────────────────
-    private void loadBidHistory() {
-        // 1. Mở luồng phụ đi lấy dữ liệu mạng
-        new Thread(() -> {
-            List<BidTransaction> history = auctionService.getBidHistory(auction.getId());
+    private void startCountdown() {
+        if (countdownTimeline != null) countdownTimeline.stop();
 
-            // 2. Có dữ liệu rồi thì nhờ luồng UI vẽ lên giao diện
+        countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            if (remainingSeconds <= 0) {
+                if (detailTimer != null) {
+                    detailTimer.setText("ENDED");
+                    detailTimer.setStyle("-fx-text-fill: #718096;");
+                }
+                if (placeBidBtn != null) placeBidBtn.setDisable(true);
+                if (bidAmountField != null) bidAmountField.setDisable(true);
+                countdownTimeline.stop();
+            } else {
+                remainingSeconds--;
+                if (detailTimer != null) detailTimer.setText(formatCountdown(remainingSeconds));
+            }
+        }));
+        countdownTimeline.setCycleCount(Timeline.INDEFINITE);
+        countdownTimeline.play();
+    }
+
+    private void loadBidHistory() {
+        if (bidHistoryList == null) return;
+
+        Thread worker = new Thread(() -> {
+            List<BidTransaction> list = auctionService.getBidHistory(auction.getId());
             javafx.application.Platform.runLater(() -> {
                 bidHistoryList.getChildren().clear();
-                bidHistoryCount.setText(history.size() + " bids");
+                if (bidHistoryCount != null) bidHistoryCount.setText(list.size() + " bids");
 
-                if (history.isEmpty()) {
-                    Label empty = new Label("No bids yet. Be the first!");
-                    empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px;");
-                    bidHistoryList.getChildren().add(empty);
+                if (list.isEmpty()) {
+                    Label emptyLabel = new Label("No bids yet. Be the first to place a bid!");
+                    emptyLabel.setStyle("-fx-text-fill: #a0aec0; -fx-font-style: italic; -fx-padding: 10;");
+                    bidHistoryList.getChildren().add(emptyLabel);
                     return;
                 }
 
-                for (int i = 0; i < history.size(); i++) {
-                    BidTransaction bid = history.get(i);
-                    boolean isTop = i == 0;
-                    HBox row = buildBidHistoryRow(bid, isTop);
-                    bidHistoryList.getChildren().add(row);
+                for (int i = 0; i < list.size(); i++) {
+                    bidHistoryList.getChildren().add(createBidRow(list.get(i), i == 0));
                 }
             });
-        }).start();
+        });
+        worker.setDaemon(true);
+        worker.start();
     }
 
-    private HBox buildBidHistoryRow(BidTransaction bid, boolean isTop) {
-        HBox row = new HBox(0);
+    private HBox createBidRow(BidTransaction bid, boolean isTop) {
+        HBox row = new HBox();
         row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(10, 12, 10, 12));
+        row.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0; " +
+                (isTop ? "-fx-background-color: #f0fdf4;" : "-fx-background-color: transparent;"));
 
-        // Left: timeline dot + line
         VBox timeline = new VBox();
-        timeline.setAlignment(Pos.TOP_CENTER);
+        timeline.setAlignment(Pos.CENTER);
         timeline.setPrefWidth(24);
-        Label dot = new Label();
-        dot.getStyleClass().add(isTop ? "bid-dot-lead" : "bid-dot");
-        dot.setStyle("-fx-min-width:10px; -fx-max-width:10px;" +
-                "-fx-min-height:10px; -fx-max-height:10px;" +
-                (isTop ? "-fx-background-color:#16a34a;" : "-fx-background-color:#e2e8f0;") +
-                "-fx-background-radius:50;");
-        Region line = new Region();
-        line.setStyle("-fx-background-color:#e2e8f0; -fx-pref-width:2px; -fx-min-width:2px;");
-        VBox.setVgrow(line, Priority.ALWAYS);
-        timeline.getChildren().addAll(dot, line);
+        Label dot = new Label(isTop ? "👑" : "•");
+        dot.setStyle("-fx-font-size: " + (isTop ? "14px" : "18px") + "; -fx-text-fill: " + (isTop ? "#16a34a" : "#cbd5e1") + ";");
+        timeline.getChildren().add(dot);
 
-        // Right: bid info
-        HBox content = new HBox(14);
-        content.setPadding(new Insets(0, 0, 14, 10));
+        HBox content = new HBox(12);
         content.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(content, Priority.ALWAYS);
-        String bidderName = bid.getBidder().getUsername();
-        // Bidder avatar
-        String init = bidderName.length() >= 2
-                ? bidderName.substring(0, 2).toUpperCase()
-                : bidderName.toUpperCase();
-        Label avatar = new Label(init);
-        avatar.setStyle("-fx-background-color:" + (isTop ? "#f0fdf4" : "#f1f5f9") + ";" +
-                "-fx-text-fill:" + (isTop ? "#16a34a" : "#718096") + ";" +
-                "-fx-font-weight:bold; -fx-font-size:11px; -fx-alignment:CENTER;" +
-                "-fx-background-radius:50; -fx-min-width:32px; -fx-max-width:32px;" +
-                "-fx-min-height:32px; -fx-max-height:32px;");
 
-        // Bid text
+        String name = bid.getBidder() != null ? bid.getBidder().getUsername() : "User";
+        Label avatar = new Label(name.substring(0, Math.min(name.length(), 2)).toUpperCase());
+        avatar.setStyle("-fx-background-color: " + (isTop ? "#dcfce7;" : "#f1f5f9;") +
+                "-fx-text-fill: " + (isTop ? "#15803d;" : "#475569;") +
+                "-fx-alignment: center; -fx-background-radius: 50; -fx-font-weight: bold; -fx-font-size: 11px; " +
+                "-fx-min-width: 28px; -fx-max-width: 28px; -fx-min-height: 28px; -fx-max-height: 28px;");
+
         VBox info = new VBox(2);
         HBox.setHgrow(info, Priority.ALWAYS);
-        String bidderDisplay = bid.getBidder().getId() == currentUser.getId()
-                ? "You" : bidderName;
-        Label nameLabel = new Label(
-                (isTop ? "🏆 " : "") + bidderDisplay + (isTop ? " (Leading)" : ""));
-        nameLabel.setStyle("-fx-font-size:13px; -fx-font-weight:" + (isTop ? "bold" : "normal")
-                + "; -fx-text-fill:" + (isTop ? "#15803d" : "#374151") + ";");
-        Label timeLabel = new Label(bid.getFormattedTime());
-        timeLabel.setStyle("-fx-font-size:11px; -fx-text-fill:#a0aec0;");
+        Label nameLabel = new Label(name + (isTop ? " (Highest Bidder)" : ""));
+        nameLabel.setStyle("-fx-font-weight: " + (isTop ? "bold" : "normal") + "; -fx-text-fill: #1e293b; -fx-font-size: 13px;");
+
+        String timeStr = bid.getFormattedTime() != null ? bid.getFormattedTime() : "Just now";
+        Label timeLabel = new Label(timeStr);
+        timeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #94a3b8;");
         info.getChildren().addAll(nameLabel, timeLabel);
 
-        // Amount
-        Label amountLabel = new Label( String.format("%,.0f", bid.getAmount()));
-        amountLabel.setStyle("-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:"
-                + (isTop ? "#16a34a" : "#2563eb") + ";");
+        Label amountLabel = new Label(String.format("%,.0f", bid.getAmount()));
+        amountLabel.setStyle("-fx-font-size: 16px; -fx-font-weight:bold; -fx-text-fill: " + (isTop ? "#16a34a" : "#2563eb") + ";");
 
         content.getChildren().addAll(avatar, info, amountLabel);
         row.getChildren().addAll(timeline, content);
         return row;
     }
 
-    // ── Helpers ───────────────────────────────────────────────
     private void updatePriceDisplay() {
-        detailCurrentPrice.setText( String.format("%,.0f", auction.getCurrentPrice()));
-        detailBidCount.setText(String.valueOf(auction.getBidCount()));
+        if (auction != null) {
+            if (detailCurrentPrice != null) detailCurrentPrice.setText(String.format("%,.0f", auction.getCurrentPrice()));
+            if (detailBidCount != null) detailBidCount.setText(String.valueOf(auction.getBidCount()));
+        }
     }
 
     private String formatCountdown(long totalSecs) {
@@ -329,14 +343,11 @@ public class AuctionDetailController {
         return String.format("%02d:%02d:%02d", h, m, s);
     }
 
-
     private void showBidError(String msg) {
-        bidMsg.setText("✕  " + msg);
-        bidMsg.setTextFill(Color.web("#dc2626"));
-    }
-
-    private void showBidSuccess(String msg) {
-        bidMsg.setText(msg);
-        bidMsg.setTextFill(Color.web("#16a34a"));
+        if (bidMsg != null) {
+            bidMsg.setText("✕  " + msg);
+            bidMsg.setTextFill(Color.web("#dc2626"));
+            bidMsg.setVisible(true);
+        }
     }
 }

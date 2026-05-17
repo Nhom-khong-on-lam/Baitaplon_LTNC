@@ -16,57 +16,94 @@ import java.util.stream.Collectors;
 
 /**
  * MyProductsController — Quản lý sản phẩm đấu giá của người bán.
- * Dùng TableView với các cột đầy đủ, filter theo trạng thái.
+ *
+ * FIX:
+ *  - Thread daemon(true) trên loader
+ *  - Error handling khi load thất bại
  */
 public class MyProductsController {
 
     @FXML private Button tabAll, tabLive, tabPending, tabFinished;
     @FXML private Label  productCount;
 
-    @FXML private TableView<Auction>         productTable;
+    @FXML private TableView<Auction>          productTable;
     @FXML private TableColumn<Auction,String> colThumb, colTitle, colCategory,
             colStart, colCurrent, colBids, colStatus, colEnds, colAction;
 
     private final AuctionService auctionService = new AuctionService();
-    private User currentUser;
+    private User          currentUser;
     private List<Auction> myProducts;
 
     @FXML
     public void initialize() {
         setupColumns();
+        productTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null && currentUser != null) initData(currentUser);
+        });
     }
 
     public void initData(User user) {
         this.currentUser = user;
+        productCount.setText("Loading...");
 
-        // 1. Mở luồng phụ để tải danh sách sản phẩm của mình
-        new Thread(() -> {
-            List<Auction> fetchedProducts = auctionService.getAuctionsBySeller(user.getId());
+        // ── BỔ SUNG 1: Xóa sạch dữ liệu cũ trên bảng hiển thị để tránh bị đơ UI ──
+        productTable.setItems(FXCollections.observableArrayList());
+        // ──────────────────────────────────────────────────────────────────────
 
-            // 2. Tải xong thì đưa về luồng UI để nạp vào Bảng (TableView)
-            javafx.application.Platform.runLater(() -> {
-                this.myProducts = fetchedProducts;
+        Thread loader = new Thread(() -> {
+            List<Auction> fetched;
+            try {
+                // Đợi 250ms cho Server ổn định Transaction commit
+                Thread.sleep(250);
+                fetched = auctionService.getAuctionsBySeller(user.getId()); //
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                javafx.application.Platform.runLater(() -> //
+                        productCount.setText("⚠ Failed to load")); //
+                return;
+            }
 
-                // Tránh lỗi NullPointerException
-                if (this.myProducts == null) {
-                    this.myProducts = new java.util.ArrayList<>();
-                }
+            javafx.application.Platform.runLater(() -> { //
+                this.myProducts = fetched != null ? fetched //
+                        : new java.util.ArrayList<>(); //
+                productCount.setText(myProducts.size() + " products"); //
+                setActiveTab(tabAll); //
 
-                productCount.setText(this.myProducts.size() + " products");
-                setActiveTab(tabAll);
-                loadTable(this.myProducts);
+                // Nạp dữ liệu mới vào bảng
+                loadTable(myProducts); //
+
+                // ── BỔ SUNG 2: Ép JavaFX phải vẽ lại (Redraw) toàn bộ các dòng trên giao diện ──
+                productTable.refresh();
+                // ─────────────────────────────────────────────────────────────────────────────
             });
-        }).start();
+        });
+        loader.setDaemon(true); //
+        loader.start(); //
     }
 
-    // ── Tab handlers ──────────────────────────────────────────
-    @FXML public void showAll()      { setActiveTab(tabAll);      loadTable(myProducts); }
-    @FXML public void showLive()     { setActiveTab(tabLive);
-        loadTable(myProducts.stream().filter(Auction::isLive).collect(Collectors.toList())); }
-    @FXML public void showPending()  { setActiveTab(tabPending);
-        loadTable(myProducts.stream().filter(a -> "Pending".equals(a.getStatus())).collect(Collectors.toList())); }
-    @FXML public void showFinished() { setActiveTab(tabFinished);
-        loadTable(myProducts.stream().filter(a -> !a.isLive()).collect(Collectors.toList())); }
+    @FXML public void showAll() {
+        setActiveTab(tabAll);
+        loadTable(myProducts);
+    }
+
+    @FXML public void showLive() {
+        setActiveTab(tabLive);
+        loadTable(myProducts.stream().filter(Auction::isLive)
+                .collect(Collectors.toList()));
+    }
+
+    @FXML public void showPending() {
+        setActiveTab(tabPending);
+        loadTable(myProducts.stream()
+                .filter(a -> "Pending".equals(a.getStatus()))
+                .collect(Collectors.toList()));
+    }
+
+    @FXML public void showFinished() {
+        setActiveTab(tabFinished);
+        loadTable(myProducts.stream().filter(a -> !a.isLive())
+                .collect(Collectors.toList()));
+    }
 
     @FXML public void goToCreate() {
         MainController main = (MainController) productTable
@@ -74,10 +111,9 @@ public class MyProductsController {
         main.navCreate();
     }
 
-    // ── Setup columns ─────────────────────────────────────────
     private void setupColumns() {
-        // Thumbnail icon
-        colThumb.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCategoryIcon()));
+        colThumb.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getCategoryIcon()));
         colThumb.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String icon, boolean empty) {
                 super.updateItem(icon, empty);
@@ -89,8 +125,8 @@ public class MyProductsController {
             }
         });
 
-        // Title column
-        colTitle.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTitle()));
+        colTitle.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getTitle()));
         colTitle.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String title, boolean empty) {
                 super.updateItem(title, empty);
@@ -100,8 +136,8 @@ public class MyProductsController {
             }
         });
 
-        // Category
-        colCategory.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCategory()));
+        colCategory.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getCategory()));
         colCategory.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String cat, boolean empty) {
                 super.updateItem(cat, empty);
@@ -113,13 +149,13 @@ public class MyProductsController {
             }
         });
 
-        // Start price
         colStart.setCellValueFactory(c ->
-                new SimpleStringProperty("$" + String.format("%,.0f", c.getValue().getItem().getStartingPrice())));
+                new SimpleStringProperty(
+                        String.format("%,.0f", c.getValue().getItem().getStartingPrice())));
 
-        // Current bid
         colCurrent.setCellValueFactory(c ->
-                new SimpleStringProperty("$" + String.format("%,.0f", c.getValue().getCurrentPrice())));
+                new SimpleStringProperty(
+                        String.format("%,.0f", c.getValue().getCurrentPrice())));
         colCurrent.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String price, boolean empty) {
                 super.updateItem(price, empty);
@@ -129,36 +165,32 @@ public class MyProductsController {
             }
         });
 
-        // Bids count
         colBids.setCellValueFactory(c ->
                 new SimpleStringProperty(String.valueOf(c.getValue().getBidCount())));
 
-        // Status badge
-        colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatusLabel()));
+        colStatus.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getStatusLabel()));
         colStatus.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String status, boolean empty) {
                 super.updateItem(status, empty);
                 if (empty || status == null) { setGraphic(null); return; }
                 Label pill = new Label(status);
-                String styleClass = switch (status) {
+                String cls = switch (status) {
                     case "Live"     -> "pill-running";
                     case "Pending"  -> "pill-pending";
-                    case "Finished" -> "pill-finished";
-                    case "Ending"   -> "pill-ending";
+                    case "Finishing"-> "pill-ending";
                     default         -> "pill-finished";
                 };
-                pill.getStyleClass().add(styleClass);
+                pill.getStyleClass().add(cls);
                 setGraphic(pill);
                 setAlignment(Pos.CENTER);
             }
         });
 
-        // End time
         colEnds.setCellValueFactory(c ->
                 new SimpleStringProperty(c.getValue().getEndTimeFormatted()));
 
-        // Action buttons
-        colAction.setCellFactory(col -> new TableCell<Auction,String>() {
+        colAction.setCellFactory(col -> new TableCell<Auction, String>() {
             private final Button viewBtn = new Button("View");
             private final Button editBtn = new Button("Edit");
             private final HBox   box     = new HBox(6, viewBtn, editBtn);
@@ -170,27 +202,17 @@ public class MyProductsController {
                 editBtn.setStyle("-fx-padding:4 10; -fx-font-size:11px;");
                 box.setAlignment(Pos.CENTER);
 
-                viewBtn.setOnAction(e -> {
-                    Auction a = getTableView().getItems().get(getIndex());
-                    openDetail(a);
-                });
-                editBtn.setOnAction(e -> {
-                    Auction a = getTableView().getItems().get(getIndex());
-                    openEdit(a);
-                });
+                viewBtn.setOnAction(e -> openDetail(
+                        getTableView().getItems().get(getIndex())));
+                editBtn.setOnAction(e -> openEdit(
+                        getTableView().getItems().get(getIndex())));
             }
 
-            @Override
-            public void updateItem(String o, boolean empty) { // Đổi Auction thành String
-                super.updateItem(o, empty); // Bây giờ super sẽ hết đỏ vì String khớp với String
-
-                if (empty) {
-                    setGraphic(null);
-                    setText(null);
-                } else {
-                    setAlignment(Pos.CENTER);
-                    setGraphic(box);
-                }
+            @Override public void updateItem(String o, boolean empty) {
+                super.updateItem(o, empty);
+                if (empty) { setGraphic(null); setText(null); return; }
+                setAlignment(Pos.CENTER);
+                setGraphic(box);
             }
         });
     }
@@ -210,14 +232,14 @@ public class MyProductsController {
     private void openDetail(Auction a) {
         MainController main = (MainController) productTable
                 .getScene().lookup("#mainRoot").getUserData();
-        main.loadContent("/com/auction/client/fxml/auction_detail.fxml",
+        main.loadContent("/com/auction/client/auction_detail.fxml",
                 (AuctionDetailController ctrl) -> ctrl.initData(currentUser, a));
     }
 
     private void openEdit(Auction a) {
         MainController main = (MainController) productTable
                 .getScene().lookup("#mainRoot").getUserData();
-        main.loadContent("/com/auction/client/fxml/create_auction.fxml",
+        main.loadContent("/com/auction/client/create_auction.fxml",
                 (CreateAuctionController ctrl) -> ctrl.initEdit(currentUser, a));
     }
 }

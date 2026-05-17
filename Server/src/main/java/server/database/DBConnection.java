@@ -1,54 +1,56 @@
 package server.database;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class DBConnection {
-    private static final Properties props = new Properties();
-    private static Connection instance;
+    private static HikariDataSource dataSource;
 
-    // Load config từ db.properties 1 lần duy nhất
     static {
         try (InputStream is = DBConnection.class.getClassLoader().getResourceAsStream("db.properties")) {
+            Properties props = new Properties();
             if (is == null) {
                 System.err.println("LỖI: Không tìm thấy file 'db.properties'!");
             } else {
                 props.load(is);
-                Class.forName(props.getProperty("db.driver"));
-                System.out.println("Tải cấu hình Database thành công.");
+
+                HikariConfig config = new HikariConfig();
+                config.setJdbcUrl(props.getProperty("db.url"));
+                config.setUsername(props.getProperty("db.user"));
+                config.setPassword(props.getProperty("db.password"));
+                config.setDriverClassName(props.getProperty("db.driver"));
+
+                // Cấu hình tối ưu tốc độ và chống nghẽn
+                config.setMaximumPoolSize(20); // Tối đa 20 kết nối chạy song song
+                config.setMinimumIdle(5);
+                config.setIdleTimeout(30000);
+                config.setConnectionTimeout(20000); // Không lo bị đứng luồng quá lâu
+
+                dataSource = new HikariDataSource(config);
+                System.out.println("Khởi tạo HikariCP Connection Pool thành công.");
             }
         } catch (Exception e) {
-            System.err.println("LỖI: Không thể đọc file db.properties!");
+            System.err.println("LỖI: Không thể khởi tạo Connection Pool!");
             e.printStackTrace();
         }
     }
 
-    // Singleton — chỉ tạo 1 connection duy nhất
+    // Mỗi lần DAO gọi getConnection(), HikariCP sẽ cấp 1 kết nối có sẵn từ Pool
     public static Connection getConnection() throws SQLException {
-        if (instance == null || instance.isClosed()) {
-            instance = DriverManager.getConnection(
-                    props.getProperty("db.url"),
-                    props.getProperty("db.user"),
-                    props.getProperty("db.password")
-            );
-            System.out.println("Kết nối Database thành công.");
+        if (dataSource == null) {
+            throw new SQLException("DataSource chưa được khởi tạo!");
         }
-        return instance;
+        return dataSource.getConnection();
     }
 
-    // Đóng connection khi tắt server
     public static void closeConnection() {
-        if (instance != null) {
-            try {
-                instance.close();
-                System.out.println("Đã đóng kết nối Database.");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+            System.out.println("Đã đóng Connection Pool.");
         }
     }
-
 }
