@@ -42,6 +42,14 @@ public class Auction extends BaseEntity {
         this.highestBidder = bid.getBidder();
         bidHistory.add(bid);
 
+        //  TÍNH NĂNG ANTI-SNIPING 
+        // Ví dụ luật: Nếu có bid trong 3 phút (180 giây) cuối, tự động cộng thêm 3 phút (180 giây)
+        long remaining = getRemainingSeconds();
+        if (remaining > 0 && remaining <= 180) {
+            extendEndTime(180);
+            // Hàm extendEndTime() sẽ cập nhật lại this.endTime và gọi notifyObservers()
+        }
+
         // CHỈ gọi auto bid nếu đây là lượt đặt giá thủ công (không phải từ auto bid khác)
         if (!bid.isAutoBid()) {
             processAutoBids();
