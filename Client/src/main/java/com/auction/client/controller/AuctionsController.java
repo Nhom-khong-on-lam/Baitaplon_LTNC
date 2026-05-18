@@ -43,9 +43,7 @@ public class AuctionsController {
 
     @FXML
     public void initialize() {
-        categoryFilter.setItems(FXCollections.observableArrayList(
-                "All Categories", "Electronics", "Art", "Jewelry",
-                "Vehicles", "Real Estate", "Fashion", "Collectibles"));
+        categoryFilter.setItems(FXCollections.observableArrayList("All Categories", "Electronics", "Art", "Vehicles"));
         categoryFilter.getSelectionModel().selectFirst();
 
         sortBox.setItems(FXCollections.observableArrayList(

@@ -3,6 +3,7 @@ package com.auction.client.service;
 
 
 import com.auction.client.controller.SessionManager;
+import com.auction.common.dto.AutoBidDTO;
 import com.auction.common.model.Auction;
 import com.auction.common.model.BidTransaction;
 import com.auction.common.model.DashboardData;
@@ -192,10 +193,13 @@ public class AuctionService {
         return send(new Request(Request.GET_AUTO_BID, auctionId));
     }
 
-    public Response setAutoBid(Object autoBidDTO) {
-        return send(new Request(Request.SET_AUTO_BID, autoBidDTO));
-    }
+    public Response setAutoBid(AutoBidDTO dto) {
+        // 1. Đóng gói gói hàng mang từ khóa lệnh SET_AUTO_BID kèm dữ liệu cấu hình DTO
+        Request req = new Request(Request.SET_AUTO_BID, dto);
 
+        // 2. Sử dụng chính hàm send(request) nội bộ của Class này để đẩy qua Socket lên Server
+        return send(req);
+    }
     // ── EXTEND / END EARLY ───────────────────────────────────────────────────
     public boolean extendAuction(Long auctionId, int hours) {
         Object[] data = {auctionId, hours};
@@ -206,7 +210,6 @@ public class AuctionService {
     public void endAuctionEarly(Long auctionId) {
         send(new Request(Request.END_AUCTION_EARLY, auctionId));
     }
-
     // ── Helper ───────────────────────────────────────────────────────────────
     private Response send(Request request) {
         try {

@@ -111,6 +111,85 @@ public class ClientHandler extends Thread {
                 boolean exists   = userDAO.isExisted("username", username);
                 return new Response(exists, exists ? "Username already taken." : "Username is available.", null);
             }
+            case Request.SET_AUTO_BID: {
+                // 1. Ép kiểu dữ liệu nhận từ Client
+                AutoBidDTO autoBidDto = (AutoBidDTO) req.getData();
+                AutoBidDAO autoBidDAO = new AutoBidDAO();
+
+                Response responseToClient;
+
+                // 2. Kiểm tra xem người dùng này đã từng có cấu hình nào trong phòng này chưa
+                boolean isExisted = false;
+                long existingId = -1;
+
+                String sqlCheck = "SELECT id FROM auto_bid WHERE auction_id = ? AND bidder_id = ? LIMIT 1";
+                try (java.sql.Connection conn = server.database.DBConnection.getConnection();
+                     java.sql.PreparedStatement ps = conn.prepareStatement(sqlCheck)) {
+                    ps.setLong(1, autoBidDto.getAuctionId());
+                    ps.setLong(2, autoBidDto.getBidderId());
+                    try (java.sql.ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            isExisted = true;
+                            existingId = rs.getLong("id"); // Lấy được ID thực tế dưới DB
+                        }
+                    }
+                } catch (java.sql.SQLException e) {
+                    System.out.println("Lỗi kiểm tra cấu hình tồn tại: " + e.getMessage());
+                }
+
+                // 3. 🚀 ĐỔI CHIẾN THUẬT: Nhận diện luồng bằng maxPrice để chống lỗi biến Boolean active
+                if (autoBidDto.getMaxPrice() <= 0) {
+
+                    // ── [LUỒNG HỦY AUTOBID] ──────────────────────────────────
+                    if (isExisted && existingId != -1) {
+                        // Gọi hàm updateActiveStatus(id, active) có sẵn trong DAO của bạn để tắt đi
+                        boolean isUpdated = autoBidDAO.updateActiveStatus(existingId, false);
+                        if (isUpdated) {
+                            responseToClient = new Response(true, "Đã hủy chế độ tự động và lưu lịch sử thành công!", null);
+                        } else {
+                            responseToClient = new Response(false, "Lỗi: Không thể cập nhật trạng thái hủy vào CSDL!", null);
+                        }
+                    } else {
+                        responseToClient = new Response(false, "Không tìm thấy cấu hình Auto Bid hoạt động để hủy!", null);
+                    }
+
+                } else {
+
+                    // ── [LUỒNG KÍCH HOẠT MỚI HOẶC BẬT LẠI] ────────────────────
+                    if (isExisted) {
+                        // Nếu đã tồn tại dữ liệu cũ, chỉ việc UPDATE đè lên và bật active = 1 (true)
+                        // Giúp giải quyết triệt để lỗi trùng lặp khóa ngoại khi INSERT
+                        String sqlUpdateConfig = "UPDATE auto_bid SET maxPrice = ?, stepIncrement = ?, active = 1, registered_at = NOW() WHERE id = ?";
+                        try (java.sql.Connection conn = server.database.DBConnection.getConnection();
+                             java.sql.PreparedStatement ps = conn.prepareStatement(sqlUpdateConfig)) {
+                            ps.setDouble(1, autoBidDto.getMaxPrice());
+                            ps.setDouble(2, autoBidDto.getStepIncrement());
+                            ps.setLong(3, existingId);
+
+                            int rows = ps.executeUpdate();
+                            if (rows > 0) {
+                                responseToClient = new Response(true, "Cập nhật và kích hoạt Auto Bid thành công!", existingId);
+                            } else {
+                                responseToClient = new Response(false, "Lỗi khi cập nhật cấu hình Auto Bid!", null);
+                            }
+                        } catch (java.sql.SQLException e) {
+                            responseToClient = new Response(false, "Lỗi SQL: " + e.getMessage(), null);
+                        }
+                    } else {
+                        // Nếu hoàn toàn chưa có bản ghi nào, tiến hành INSERT mới từ đầu
+                        autoBidDto.setActive(true); // Ép cứng trạng thái hoạt động trước khi lưu
+                        long newId = autoBidDAO.insert(autoBidDto);
+                        if (newId != -1) {
+                            responseToClient = new Response(true, "Kích hoạt tự động đấu giá thành công!", newId);
+                        } else {
+                            responseToClient = new Response(false, "Lỗi hệ thống: Không thể lưu cấu hình mới!", null);
+                        }
+                    }
+                }
+
+                // 4. Trả kết quả đồng bộ về cho Client qua Socket
+                return responseToClient;
+            }
 
             case "CHECK_EMAIL_EXISTS": {
                 String  email  = (String) req.getData();

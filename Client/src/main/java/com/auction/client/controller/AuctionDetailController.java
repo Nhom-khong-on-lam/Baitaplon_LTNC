@@ -1,9 +1,12 @@
 package com.auction.client.controller;
 
 import com.auction.client.service.AuctionService;
+import com.auction.common.dto.AutoBidDTO;
 import com.auction.common.model.Auction;
 import com.auction.common.model.BidTransaction;
 import com.auction.common.model.User;
+import com.auction.common.network.Request;
+import com.auction.common.network.Response;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
@@ -32,7 +35,7 @@ public class AuctionDetailController {
     @FXML private Label    bidMsg;
     @FXML private TextField bidAmountField;
     @FXML private Button   placeBidBtn, quickBid1, quickBid2, quickBid3;
-    @FXML private Label    sellerAvatar, sellerName, sellerSince;
+    @FXML private Label    sellerAvatar, sellerName;
     @FXML private VBox     bidHistoryList;
     @FXML private Label    bidHistoryCount;
 
@@ -41,6 +44,10 @@ public class AuctionDetailController {
     private Auction auction;
     private Timeline countdownTimeline;
     private String SellerName;
+    private boolean isAutoBidActive = false;
+    @FXML private TextField autoBidLimitField; // Thay cho autoBidMaxPriceField cũ
+    @FXML private TextField autoBidStepField;  // Biến này giữ nguyên vì FXML đã đặt đúng
+    @FXML private Button autoBidBtn;
 
     public void initData(User user, Auction auction) {
         this.currentUser = user;
@@ -83,13 +90,12 @@ public class AuctionDetailController {
                 : SellerName.toUpperCase();
         sellerAvatar.setText(sellerInitials);
         sellerName.setText(SellerName);
-        sellerSince.setText("Member since 2023");
 
         // Quick bid increments based on current price
         double cur = auction.getCurrentPrice();
         quickBid1.setText("+10");
         quickBid2.setText("+50");
-        quickBid3.setText("+" );
+        quickBid3.setText("+100" );
 
         // Disable bid if not live or is own auction
         boolean canBid = auction.isLive()
@@ -141,7 +147,124 @@ public class AuctionDetailController {
         countdownTimeline.setCycleCount(Timeline.INDEFINITE);
         countdownTimeline.play();
     }
+    @FXML
+    private void handleSetAutoBid() {
+        if (autoBidLimitField == null || autoBidStepField == null || autoBidBtn == null) {
+            System.err.println("Lỗi: Các thành phần AutoBid chưa được ánh xạ đúng từ FXML!");
+            return;
+        }
 
+        // ── TRƯỜNG HỢP 1: NGƯỜI DÙNG MUỐN HỦY AUTOBID ĐANG CHẠY ──────────────────
+        if (isAutoBidActive) {
+            com.auction.common.dto.AutoBidDTO dto = new com.auction.common.dto.AutoBidDTO();
+            dto.setAuctionId(this.auction.getId());
+            dto.setBidderId(SessionManager.get().getUser().getId());
+
+            // 🚀 BÍ QUYẾT: Đặt maxPrice = 0 để Server nhận diện 100% đây là lệnh HỦY
+            dto.setMaxPrice(0.0);
+            dto.setActive(false);
+
+            new Thread(() -> {
+                try {
+                    com.auction.common.network.Response res = auctionService.setAutoBid(dto);
+
+                    javafx.application.Platform.runLater(() -> {
+                        // Kiểm tra chống sập nếu res bị null
+                        if (res != null && res.isSuccess()) {
+                            isAutoBidActive = false;
+
+                            autoBidBtn.setText("Kích hoạt Auto Bid");
+                            autoBidBtn.setStyle("-fx-background-color: #ebf8ff; -fx-text-fill: #2b6cb0; -fx-border-color: #4299e1; -fx-font-weight: bold;");
+                            autoBidLimitField.setDisable(false);
+                            autoBidStepField.setDisable(false);
+
+                            if (bidMsg != null) {
+                                bidMsg.setText("Đã hủy chế độ Đấu giá tự động!");
+                                bidMsg.setStyle("-fx-text-fill: #eab308;");
+                            }
+                        } else {
+                            if (bidMsg != null) {
+                                bidMsg.setText(res != null ? res.getMessage() : "Lỗi: Server phản hồi trống hoặc mất kết nối!");
+                                bidMsg.setStyle("-fx-text-fill: #dc2626;");
+                            }
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
+            return;
+        }
+
+        // ── TRƯỜNG HỢP 2: NGƯỜI DÙNG KÍCH HOẠT MỚI ─────────────────────────────
+        String maxTxt = autoBidLimitField.getText().trim();
+        String stepTxt = autoBidStepField.getText().trim();
+
+        if (maxTxt.isEmpty() || stepTxt.isEmpty()) {
+            if (bidMsg != null) {
+                bidMsg.setText("Vui lòng nhập đầy đủ thông tin AutoBid!");
+                bidMsg.setStyle("-fx-text-fill: #dc2626;");
+            }
+            return;
+        }
+
+        try {
+            double maxPrice = Double.parseDouble(maxTxt);
+            double stepIncrement = Double.parseDouble(stepTxt);
+
+            if (maxPrice <= auction.getCurrentPrice()) {
+                if (bidMsg != null) bidMsg.setText("Giá tối đa phải lớn hơn giá hiện tại!");
+                return;
+            }
+            if (stepIncrement <= 0) {
+                if (bidMsg != null) bidMsg.setText("Bước nhảy phải lớn hơn 0!");
+                return;
+            }
+
+            com.auction.common.dto.AutoBidDTO dto = new com.auction.common.dto.AutoBidDTO();
+            dto.setAuctionId(this.auction.getId());
+            dto.setBidderId(SessionManager.get().getUser().getId());
+            dto.setMaxPrice(maxPrice); // Gửi số tiền thật > 0 lên để Server biết đây là lệnh BẬT
+            dto.setStepIncrement(stepIncrement);
+            dto.setActive(true);
+
+            new Thread(() -> {
+                try {
+                    com.auction.common.network.Response res = auctionService.setAutoBid(dto);
+
+                    javafx.application.Platform.runLater(() -> {
+                        if (res != null && res.isSuccess()) {
+                            isAutoBidActive = true;
+
+                            autoBidBtn.setText("Hủy Auto Bid");
+                            autoBidBtn.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-border-color: #f87171; -fx-font-weight: bold;");
+
+                            autoBidLimitField.setDisable(true);
+                            autoBidStepField.setDisable(true);
+
+                            if (bidMsg != null) {
+                                bidMsg.setText("Đã kích hoạt tự động đấu giá thành công!");
+                                bidMsg.setStyle("-fx-text-fill: #16a34a;");
+                            }
+                        } else {
+                            if (bidMsg != null) {
+                                bidMsg.setText(res != null ? res.getMessage() : "Server từ chối yêu cầu kích hoạt!");
+                                bidMsg.setStyle("-fx-text-fill: #dc2626;");
+                            }
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
+
+        } catch (NumberFormatException e) {
+            if (bidMsg != null) {
+                bidMsg.setText("Vui lòng chỉ nhập số hợp lệ!");
+                bidMsg.setStyle("-fx-text-fill: #dc2626;");
+            }
+        }
+    }
     // ── Place bid ─────────────────────────────────────────────
     @FXML public void handlePlaceBid() {
         if (auction.getSeller().getId().equals(currentUser.getId())) {

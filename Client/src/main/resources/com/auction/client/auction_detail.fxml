@@ -102,15 +102,15 @@
                                style="-fx-font-size:16px; -fx-pref-height:50px;"/>
 
                     <HBox spacing="6">
-                        <Button fx:id="quickBid1" text="+$10"
+                        <Button fx:id="quickBid1" text="+10"
                                 styleClass="btn-secondary"
                                 style="-fx-font-size:12px; -fx-padding: 8 0;" HBox.hgrow="ALWAYS"
                                 maxWidth="Infinity" minWidth="-Infinity" prefWidth="100" onAction="#quickBid1"/>
-                        <Button fx:id="quickBid2" text="+$50"
+                        <Button fx:id="quickBid2" text="+50"
                                 styleClass="btn-secondary"
                                 style="-fx-font-size:12px; -fx-padding: 8 0;" HBox.hgrow="ALWAYS"
                                 maxWidth="Infinity" minWidth="-Infinity" prefWidth="100" onAction="#quickBid2"/>
-                        <Button fx:id="quickBid3" text="+$100"
+                        <Button fx:id="quickBid3" text="+100"
                                 styleClass="btn-secondary"
                                 style="-fx-font-size:12px; -fx-padding: 8 0;" HBox.hgrow="ALWAYS"
                                 maxWidth="Infinity" minWidth="-Infinity" prefWidth="100" onAction="#quickBid3"/>
@@ -118,10 +118,32 @@
 
                     <Label fx:id="bidMsg" styleClass="form-error" wrapText="true"/>
 
-                    <Button fx:id="placeBidBtn" text="🔨 Place Bid"
+                    <Button fx:id="placeBidBtn" text="Place Bid"
                             styleClass="btn-primary" maxWidth="Infinity"
                             style="-fx-pref-height:48px; -fx-font-size:14px;"
                             onAction="#handlePlaceBid"/>
+                </VBox>
+                <VBox styleClass="section-card" spacing="12" style="-fx-border-color: #cbd5e0; -fx-border-radius: 8;">
+                    <Label text="AUTOMATIC BIDDING" styleClass="section-title" style="-fx-text-fill: #2b6cb0;"/>
+
+                    <Label text="Hệ thống sẽ tự động đặt giá cho bạn cho đến khi chạm mức giới hạn."
+                           style="-fx-font-size: 11px; -fx-text-fill: #718096;" wrapText="true"/>
+
+                    <HBox spacing="10">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Giới hạn tối đa ($)" styleClass="stat-label"/>
+                            <TextField fx:id="autoBidLimitField" promptText="Vd: 5000" styleClass="form-input"/>
+                        </VBox>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Bước nhảy ($)" styleClass="stat-label"/>
+                            <TextField fx:id="autoBidStepField" promptText="Vd: 50" styleClass="form-input"/>
+                        </VBox>
+                    </HBox>
+
+                    <Button fx:id="autoBidBtn" text="Kích hoạt Auto Bid"
+                            styleClass="btn-secondary" maxWidth="Infinity"
+                            style="-fx-background-color: #ebf8ff; -fx-text-fill: #2b6cb0; -fx-border-color: #4299e1; -fx-font-weight: bold; -fx-pref-height: 40px;"
+                            onAction="#handleSetAutoBid"/>
                 </VBox>
 
                 <!-- Seller info -->
@@ -138,8 +160,6 @@
                         <VBox spacing="2">
                             <Label fx:id="sellerName"
                                    style="-fx-font-weight:bold; -fx-text-fill:#1a202c; -fx-font-size:13px;"/>
-                            <Label fx:id="sellerSince"
-                                   style="-fx-font-size:11px; -fx-text-fill:#a0aec0;"/>
                         </VBox>
                     </HBox>
                 </VBox>
