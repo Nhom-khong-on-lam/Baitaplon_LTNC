@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 public class BidDAO {
     private static final Logger LOGGER = Logger.getLogger(BidDAO.class.getName());
 
-    // ── INSERT ────────────────────────────────────────────────────────────────
     public long insert(BidDTO bid) {
         String sql = "INSERT INTO bid (auction_id, bidder_id, amount, bid_time, auto_bid) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
@@ -31,27 +30,20 @@ public class BidDAO {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         long id = rs.getLong(1);
-                        LOGGER.info("INSERT SUCCESS: Đã tạo lượt bid mới với ID=" + id);
+                        LOGGER.info("INSERT SUCCESS: Đã lưu Bid mới ID=" + id + " cho Auction=" + bid.getAuctionId());
                         return id;
                     }
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "INSERT ERROR: Lỗi khi thêm lượt đấu giá mới", e);
+            LOGGER.log(Level.SEVERE, "INSERT ERROR: Lỗi khi lưu BidDTO của Auction=" + bid.getAuctionId(), e);
         }
         return -1;
     }
 
-    // ── GET BIDS BY AUCTION ID (ĐÃ FIX LỖI COLUMN 'USERNAME' NOT FOUND) ───────
     public List<BidDTO> getBidsByAuctionId(long auctionId) {
         List<BidDTO> bidHistory = new ArrayList<>();
-
-        // SỬA LỖI: Thực hiện JOIN chính xác với bảng 'user' để lấy ra cột 'username' của người đặt giá
-        String sql = "SELECT b.id, b.auction_id, b.bidder_id, b.amount, b.bid_time, b.auto_bid, u.username " +
-                "FROM bid b " +
-                "LEFT JOIN user u ON b.bidder_id = u.id " +
-                "WHERE b.auction_id = ? " +
-                "ORDER BY b.amount DESC, b.bid_time DESC";
+        String sql = "SELECT b.*, u.username FROM bid b LEFT JOIN user u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -64,17 +56,11 @@ public class BidDAO {
                     bid.setAuctionId(rs.getLong("auction_id"));
                     bid.setBidderId(rs.getLong("bidder_id"));
                     bid.setAmount(rs.getDouble("amount"));
-
-                    Timestamp ts = rs.getTimestamp("bid_time");
-                    if (ts != null) {
-                        bid.setBidTime(ts.toLocalDateTime());
-                    }
-
+                    bid.setBidTime(rs.getTimestamp("bid_time").toLocalDateTime());
                     bid.setAutoBid(rs.getBoolean("auto_bid"));
 
-                    // Lấy username an toàn từ bảng user thông qua lệnh JOIN ở trên
                     String username = rs.getString("username");
-                    bid.setBidderName(username != null ? username : "Người dùng ẩn danh");
+                    bid.setBidderName(username != null ? username : "Unknown User");
 
                     bidHistory.add(bid);
                 }

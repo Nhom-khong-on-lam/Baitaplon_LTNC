@@ -1,5 +1,6 @@
 package com.auction.client.controller;
 
+
 import com.auction.client.service.AuctionService;
 import com.auction.client.service.AuthService;
 import com.auction.common.enums.AccountStatus;
@@ -18,11 +19,6 @@ import java.util.List;
 
 /**
  * AdminDashboardController — Tổng quan thống kê hệ thống.
- *
- * FIX:
- *  - Thread đánh daemon(true) — tránh block JVM shutdown
- *  - Error handling khi network thất bại
- *  - Category icon hiển thị từ getCategoryIcon() thay vì getCategory()
  */
 public class AdminDashboardController {
 
@@ -32,98 +28,81 @@ public class AdminDashboardController {
     @FXML private Label statUserDelta;
     @FXML private VBox  recentUsersList, recentAuctionsList;
 
-    private AuthService    authService    = new AuthService();
+    private AuthService authService    = new AuthService();
     private AuctionService auctionService = new AuctionService();
 
     public void initData(User admin) {
-        // Header — cập nhật ngay trên UI thread
-        welcomeLabel.setText("Welcome back, " + admin.getUsername());
+        // Header: Cập nhật các text tĩnh ngay lập tức trên luồng UI
+        welcomeLabel.setText("Welcome back, " + admin.getUsername() );
         dateLabel.setText(LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy")));
-        if (systemStatusBadge != null) systemStatusBadge.setText("● Online");
 
-        // Background thread — tải dữ liệu nặng
-        Thread loader = new Thread(() -> {
-            List<User>    allUsers;
-            List<Auction> allAuctions;
-            List<Auction> liveAuctions;
-
-            try {
-                allUsers     = authService.getAllUsers();
-                allAuctions  = new ArrayList<>(auctionService.getAllAuctions());
-                liveAuctions = new ArrayList<>(auctionService.getActiveAuctions());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                javafx.application.Platform.runLater(() -> {
-                    welcomeLabel.setText("Welcome back, " + admin.getUsername()
-                            + "  ⚠ Could not load stats");
-                });
-                return;
-            }
+        // 1. Mở một luồng phụ để đi lấy 3 cục dữ liệu nặng từ Server
+        new Thread(() -> {
+            List<User>    allUsers    = authService.getAllUsers();
+            List<Auction> allAuctions = new ArrayList<>(auctionService.getAllAuctions());
+            List<Auction> liveAuctions= new ArrayList<>(auctionService.getActiveAuctions());
 
             long bannedCount = allUsers.stream()
                     .filter(u -> u.getAccountStatus() == AccountStatus.BANNED)
                     .count();
 
-            final List<User>    finalUsers     = allUsers;
-            final List<Auction> finalAuctions  = allAuctions;
-            final List<Auction> finalLive      = liveAuctions;
-            final long          finalBanned    = bannedCount;
-
+            // 2. Lấy xong thì nhờ luồng giao diện chính (Platform.runLater) vẽ lên màn hình
             javafx.application.Platform.runLater(() -> {
                 // Count-up animations
-                AnimationUtil.countUp(statTotalUsers,    0, finalUsers.size(),    800, "", "");
-                AnimationUtil.countUp(statTotalAuctions, 0, finalAuctions.size(), 800, "", "");
-                AnimationUtil.countUp(statLiveAuctions,  0, finalLive.size(),     800, "", "");
-                AnimationUtil.countUp(statBanned,        0, finalBanned,          800, "", "");
-                statUserDelta.setText("↑ " + finalUsers.size() + " total registered");
+                AnimationUtil.countUp(statTotalUsers,    0, allUsers.size(),     800, "", "");
+                AnimationUtil.countUp(statTotalAuctions, 0, allAuctions.size(),  800, "", "");
+                AnimationUtil.countUp(statLiveAuctions,  0, liveAuctions.size(), 800, "", "");
+                AnimationUtil.countUp(statBanned,        0, bannedCount,         800, "", "");
+                statUserDelta.setText("↑ " + allUsers.size() + " total registered");
 
-                // Recent users (last 5, mới nhất lên đầu)
+                // Recent users (last 5)
                 recentUsersList.getChildren().clear();
-                int uStart = Math.max(0, finalUsers.size() - 5);
-                List<User> recentUsers = finalUsers.subList(uStart, finalUsers.size());
-                for (int i = recentUsers.size() - 1; i >= 0; i--) {
-                    recentUsersList.getChildren().add(buildUserRow(recentUsers.get(i)));
+                List<User> recent = allUsers.subList(
+                        Math.max(0, allUsers.size() - 5), allUsers.size());
+                for (int i = recent.size() - 1; i >= 0; i--) {
+                    recentUsersList.getChildren().add(buildUserRow(recent.get(i)));
                 }
 
-                // Recent auctions (last 5, mới nhất lên đầu)
+                // Recent auctions (last 5)
                 recentAuctionsList.getChildren().clear();
-                int aStart = Math.max(0, finalAuctions.size() - 5);
-                List<Auction> recentAuc = finalAuctions.subList(aStart, finalAuctions.size());
+                List<Auction> recentAuc = allAuctions.subList(
+                        Math.max(0, allAuctions.size() - 5), allAuctions.size());
                 for (int i = recentAuc.size() - 1; i >= 0; i--) {
                     recentAuctionsList.getChildren().add(buildAuctionRow(recentAuc.get(i)));
                 }
             });
-        });
-        loader.setDaemon(true);
-        loader.start();
+        }).start();
     }
 
     private HBox buildUserRow(User user) {
         HBox row = new HBox(12);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(8, 10, 8, 10));
-        row.setStyle("-fx-background-color:#f8fafc; -fx-background-radius:8;"
-                + "-fx-border-color:#e2e8f0; -fx-border-radius:8; -fx-border-width:1;"
-                + "-fx-cursor:hand;");
+        row.setStyle("-fx-background-color:#f8fafc; -fx-background-radius:8;" +
+                "-fx-border-color:#e2e8f0; -fx-border-radius:8; -fx-border-width:1;" +
+                "-fx-cursor:hand;");
 
+        // Avatar
         String name = user.getUsername();
         String init = name.length() >= 2 ? name.substring(0, 2).toUpperCase()
                 : name.toUpperCase();
         Label avatar = new Label(init);
-        avatar.setStyle("-fx-background-color:#eff6ff; -fx-text-fill:#2563eb;"
-                + "-fx-font-weight:bold; -fx-font-size:11px; -fx-alignment:CENTER;"
-                + "-fx-background-radius:50; -fx-min-width:34px; -fx-max-width:34px;"
-                + "-fx-min-height:34px; -fx-max-height:34px;");
+        avatar.setStyle("-fx-background-color:#eff6ff; -fx-text-fill:#2563eb;" +
+                "-fx-font-weight:bold; -fx-font-size:11px; -fx-alignment:CENTER;" +
+                "-fx-background-radius:50; -fx-min-width:34px; -fx-max-width:34px;" +
+                "-fx-min-height:34px; -fx-max-height:34px;");
 
+        // Info
         VBox info = new VBox(2);
         HBox.setHgrow(info, Priority.ALWAYS);
-        Label nameLabel  = new Label(user.getUsername());
+        Label nameLabel = new Label(user.getUsername());
         nameLabel.setStyle("-fx-font-weight:bold; -fx-font-size:13px; -fx-text-fill:#1a202c;");
         Label emailLabel = new Label(user.getEmail());
         emailLabel.setStyle("-fx-font-size:11px; -fx-text-fill:#718096;");
         info.getChildren().addAll(nameLabel, emailLabel);
 
+        // Status badge
         boolean active = user.getAccountStatus() == AccountStatus.ACTIVE;
         Label badge = new Label(active ? "Active" : "Banned");
         badge.getStyleClass().add(active ? "pill-running" : "pill-ending");
@@ -136,14 +115,15 @@ public class AdminDashboardController {
         HBox row = new HBox(12);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(8, 10, 8, 10));
-        row.setStyle("-fx-background-color:#f8fafc; -fx-background-radius:8;"
-                + "-fx-border-color:#e2e8f0; -fx-border-radius:8; -fx-border-width:1;"
-                + "-fx-cursor:hand;");
+        row.setStyle("-fx-background-color:#f8fafc; -fx-background-radius:8;" +
+                "-fx-border-color:#e2e8f0; -fx-border-radius:8; -fx-border-width:1;" +
+                "-fx-cursor:hand;");
 
-        // FIX: dùng getCategoryIcon() thay vì getCategory() — tránh hiện tên thay vì icon
-        Label icon = new Label(auction.getCategoryIcon());
+        // Icon
+        Label icon = new Label(auction.getItem().getCategory());
         icon.setStyle("-fx-font-size:20px; -fx-min-width:36px;");
 
+        // Info
         VBox info = new VBox(2);
         HBox.setHgrow(info, Priority.ALWAYS);
         Label title = new Label(auction.getItem().getName());
@@ -153,33 +133,49 @@ public class AdminDashboardController {
         seller.setStyle("-fx-font-size:11px; -fx-text-fill:#718096;");
         info.getChildren().addAll(title, seller);
 
-        Label price = new Label(String.format("%,.0f", auction.getCurrentPrice()));
+        // Price
+        Label price = new Label( String.format("%,.0f", auction.getCurrentPrice()));
         price.setStyle("-fx-font-weight:bold; -fx-text-fill:#2563eb; -fx-font-size:13px;");
 
         row.getChildren().addAll(icon, info, price);
         return row;
     }
 
-    @FXML public void goToUsers()    { getShell().navUsers(); }
-    @FXML public void goToAuctions() { getShell().navAuctions(); }
+    @FXML public void goToUsers() {
+        getShell().navUsers();
+    }
+
+    @FXML public void goToAuctions() {
+        getShell().navAuctions();
+    }
 
     private AdminMainController getShell() {
         return (AdminMainController) recentUsersList
                 .getScene().getRoot().getUserData();
     }
+    public void setAuthService(AuthService authService) {
+        this.authService = authService;
+    }
 
-    // ── Setters (cho unit test) ───────────────────────────────
-    public void setAuthService(AuthService s)       { this.authService = s; }
-    public void setAuctionService(AuctionService s) { this.auctionService = s; }
-    public void setWelcomeLabel(Label l)            { this.welcomeLabel = l; }
-    public void setDateLabel(Label l)               { this.dateLabel = l; }
-    public void setStatTotalUsers(Label l)          { this.statTotalUsers = l; }
-    public void setStatTotalAuctions(Label l)       { this.statTotalAuctions = l; }
-    public void setStatLiveAuctions(Label l)        { this.statLiveAuctions = l; }
-    public void setStatBanned(Label l)              { this.statBanned = l; }
-    public void setStatUserDelta(Label l)           { this.statUserDelta = l; }
-    public void setRecentUsersList(VBox v)          { this.recentUsersList = v; }
-    public void setRecentAuctionsList(VBox v)       { this.recentAuctionsList = v; }
-    public VBox getRecentUsersList()                { return recentUsersList; }
-    public VBox getRecentAuctionsList()             { return recentAuctionsList; }
+    public void setAuctionService(AuctionService auctionService) {
+        this.auctionService = auctionService;
+    }
+    public void setWelcomeLabel(Label welcomeLabel) { this.welcomeLabel = welcomeLabel; }
+    public void setDateLabel(Label dateLabel) { this.dateLabel = dateLabel; }
+    public void setStatTotalUsers(Label statTotalUsers) { this.statTotalUsers = statTotalUsers; }
+    public void setStatTotalAuctions(Label statTotalAuctions) { this.statTotalAuctions = statTotalAuctions; }
+    public void setStatLiveAuctions(Label statLiveAuctions) { this.statLiveAuctions = statLiveAuctions; }
+    public void setStatBanned(Label statBanned) { this.statBanned = statBanned; }
+    public void setStatUserDelta(Label statUserDelta) { this.statUserDelta = statUserDelta; }
+    public void setRecentUsersList(VBox recentUsersList) { this.recentUsersList = recentUsersList; }
+    public void setRecentAuctionsList(VBox recentAuctionsList) { this.recentAuctionsList = recentAuctionsList; }
+
+
+    public VBox getRecentUsersList() {
+        return recentUsersList;
+    }
+
+    public VBox getRecentAuctionsList() {
+        return recentAuctionsList;
+    }
 }

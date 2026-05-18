@@ -12,8 +12,6 @@ import javafx.scene.layout.*;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -43,8 +41,7 @@ public class MainController {
     private User currentUser;
 
     private static final String BASE = "/com/auction/client/";
-    private final Map<String, Parent> screenCache = new HashMap<>();
-    private final Map<String, Object> controllerCache = new HashMap<>();
+
     // ── Init ──────────────────────────────────────────────────
 
     @FXML
@@ -110,8 +107,6 @@ public class MainController {
     public void navMyProducts() {
         setActive(navMyProducts);
         setTopbar("My Products", "Home / My Products");
-
-        // Gọi hàm 2 tham số ban đầu, ngắn gọn và sạch sẽ
         loadContent(BASE + "my_products.fxml",
                 (MyProductsController ctrl) -> ctrl.initData(currentUser));
     }
@@ -180,37 +175,23 @@ public class MainController {
 
     // ── Core: load content với fade + slide animation ─────────
 
-
-    public <T> void loadContent(String fxmlPath, Consumer<T> callback) {
+    /**
+     * Load một FXML vào contentPane với animation.
+     * Nếu pane đang có nội dung, fade out trước rồi swap.
+     *
+     * @param fxmlPath đường dẫn resource tới file FXML
+     * @param setup    Consumer nhận controller của panel vừa load (có thể null)
+     * @param <T>      kiểu controller
+     */
+    public <T> void loadContent(String fxmlPath, Consumer<T> setup) {
         try {
-            Parent panel;
-            Object controller;
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent panel = loader.load();
 
-            // Nếu màn hình này CHƯA từng được mở bao giờ -> Load mới rồi cất vào tủ (Cache)
-            if (!screenCache.containsKey(fxmlPath)) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-                panel = loader.load();
-                controller = loader.getController();
+            if (setup != null) setup.accept(loader.getController());
 
-                // Cất vào bộ nhớ tạm
-                screenCache.put(fxmlPath, panel);
-                controllerCache.put(fxmlPath, controller);
-
-                // Chỉ chạy callback nạp dữ liệu lần đầu tiên từ DB
-                if (callback != null) {
-                    callback.accept((T) controller);
-                }
-            } else {
-                panel = screenCache.get(fxmlPath);
-                controller = controllerCache.get(fxmlPath);
-                if (callback != null) {
-                    callback.accept((T) controller);
-                }
-            }
-
-            // Thực hiện hiệu ứng chuyển màn hình mượt mà như cũ
-            Node old = contentPane.getChildren().isEmpty() ? null : contentPane.getChildren().get(0);
-            if (old != null && old != panel) {
+            if (!contentPane.getChildren().isEmpty()) {
+                Node old = contentPane.getChildren().get(0);
                 FadeTransition out = new FadeTransition(Duration.millis(120), old);
                 out.setToValue(0);
                 out.setOnFinished(ev -> swapContent(panel));

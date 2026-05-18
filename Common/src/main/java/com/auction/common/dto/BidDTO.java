@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class BidDTO implements Serializable {
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private Long auctionId;
     private Long bidderId;
-    private String bidderName; 
+    private String bidderName;
     private double amount;
     private LocalDateTime bidTime;
     private boolean autoBid;

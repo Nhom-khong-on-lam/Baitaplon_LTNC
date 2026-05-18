@@ -29,17 +29,12 @@ public class Request implements Serializable {
     public static final String ADMIN_DELETE_USER = "ADMIN_DELETE_USER";
     public static final String GET_BID_HISTORY = "GET_BID_HISTORY";
     public static final String CHECK_USER_EXISTS = "CHECK_USER_EXISTS";
-    public static final String CHECK_EMAIL_EXISTS = "CHECK_EMAIL_EXISTS";
-    public static final String CHECK_PASSWORD = "CHECK_PASSWORD";
 
     // Bid
     public static final String PLACE_BID       = "PLACE_BID";
     public static final String GET_MY_BIDS     = "GET_MY_BIDS";
     public static final String GET_AUTO_BID    = "GET_AUTO_BID";
     public static final String SET_AUTO_BID    = "SET_AUTO_BID";
-    public static final String GET_ACTIVE_AUCTIONS = "GET_ACTIVE_AUCTIONS";
-    public static final String GET_AUCTIONS_BY_SELLER = "GET_AUCTIONS_BY_SELLER";
-    public static final String GET_WINNING_BIDS = "GET_WINNING_BIDS";
 
     // Item / Product
     public static final String GET_MY_PRODUCTS = "GET_MY_PRODUCTS";
@@ -50,8 +45,7 @@ public class Request implements Serializable {
     // User / Profile
     public static final String GET_PROFILE     = "GET_PROFILE";
     public static final String UPDATE_PROFILE  = "UPDATE_PROFILE";
-    public static final String UPDATE_PASSWORD = "UPDATE_PASSWORD";
-    public static final String UPDATE_USER = "UPDATE_USER";
+
     // Admin
     public static final String ADMIN_GET_USERS    = "ADMIN_GET_USERS";
     public static final String ADMIN_UPDATE_USER  = "ADMIN_UPDATE_USER";

@@ -1,17 +1,19 @@
 package server.repository;
 
+
 import com.auction.common.dto.ItemDTO;
 import server.database.DBConnection;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemDAO {
 
+    // 1. Lấy tất cả sản phẩm
     public List<ItemDTO> getAll() {
         List<ItemDTO> list = new ArrayList<>();
-        // Tối ưu: Liệt kê rõ các cột, tránh dùng SELECT * để an toàn khi DB thay đổi
-        String sql = "SELECT id, name, description, starting_price, category, brand_make, model, artist, production_year, created_at FROM item ORDER BY created_at DESC";
+        String sql = "SELECT * FROM item ORDER BY created_at DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -21,12 +23,12 @@ public class ItemDAO {
                 list.add(mapResultSetToDTO(rs));
             }
         } catch (SQLException e) {
-            System.err.println("LỖI trong ItemDAO.getAll(): " + e.getMessage());
             e.printStackTrace();
         }
         return list;
     }
 
+    // 2. Thêm sản phẩm mới (Theo đúng các trường trong ERD)
     public long insert(ItemDTO item) {
         String sql = "INSERT INTO item (name, description, starting_price, category, brand_make, model, artist, production_year) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
@@ -49,19 +51,20 @@ public class ItemDAO {
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
-                        return rs.getLong(1);
+                        return rs.getLong(1); // Trả về ID vừa được MySQL tạo ra
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("LỖI nghiêm trọng trong ItemDAO.insert(): " + e.getMessage());
+            System.err.println("LỖI trong ItemDAO.insert(): " + e.getMessage());
             e.printStackTrace();
         }
         return -1;
     }
 
+    // 3. Tìm kiếm sản phẩm theo ID
     public ItemDTO getById(long id) {
-        String sql = "SELECT id, name, description, starting_price, category, brand_make, model, artist, production_year, created_at FROM item WHERE id = ?";
+        String sql = "SELECT * FROM item WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -72,12 +75,12 @@ public class ItemDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("LỖI trong ItemDAO.getById(): " + e.getMessage());
             e.printStackTrace();
         }
         return null;
     }
 
+    // Helper map dữ liệu
     private ItemDTO mapResultSetToDTO(ResultSet rs) throws SQLException {
         ItemDTO item = new ItemDTO();
         item.setId(rs.getLong("id"));
@@ -90,13 +93,8 @@ public class ItemDAO {
         item.setArtist(rs.getString("artist"));
         item.setProductionYear(rs.getInt("production_year"));
 
-        // Xử lý an toàn tránh lỗi cột null hoặc sai kiểu dữ liệu thời gian
-        try {
-            Timestamp ts = rs.getTimestamp("created_at");
-            if (ts != null) item.setCreatedAt(ts.toLocalDateTime());
-        } catch (Exception e) {
-            System.err.println("Cảnh báo: Không thể parse trường created_at trong item");
-        }
+        Timestamp ts = rs.getTimestamp("created_at");
+        if (ts != null) item.setCreatedAt(ts.toLocalDateTime());
 
         return item;
     }

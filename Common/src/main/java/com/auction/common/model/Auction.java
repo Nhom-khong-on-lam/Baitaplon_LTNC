@@ -118,9 +118,6 @@ public class Auction extends BaseEntity {
     public void setCurrentPrice(double price) {
         this.currentPrice =price;
     }
-    public void setHighestBidder(User bidder){
-        this.highestBidder = bidder;
-    }
 
     public void setItem(Item item) {
         this.item = item;
@@ -136,13 +133,13 @@ public class Auction extends BaseEntity {
     }
     public String getCategoryIcon() {
         String category = item.getCategory();
-        if (category == null) return "📦";
+        if (category == null) return "CATEGORY_DEFAULT";
 
         return switch (category.toLowerCase()) {
-            case "electronics" -> "💻";
-            case "vehicle"     -> "🚗";
-            case "art"         -> "🎨";
-            default            -> "📦";
+            case "electronics" -> "CATEGORY_ELECTRONICS";
+            case "vehicle"     -> "CATEGORY_VEHICLE";
+            case "art"         -> "CATEGORY_ART";
+            default            -> "CATEGORY_DEFAULT";
         };
     }
     public String getCondition() {
@@ -216,10 +213,9 @@ public class Auction extends BaseEntity {
         if (this.endTime == null) return 0;
 
         // Tính khoảng cách từ "bây giờ" đến "lúc kết thúc"
-        java.time.ZonedDateTime nowZoned = java.time.ZonedDateTime.now(java.time.ZoneId.systemDefault());
-        java.time.ZonedDateTime endZoned = endTime.atZone(java.time.ZoneId.systemDefault());
+        java.time.Duration duration = java.time.Duration.between(LocalDateTime.now(), this.endTime);
 
-        java.time.Duration duration = java.time.Duration.between(nowZoned, endZoned);
+        // Nếu thời gian đã trôi qua (âm) thì trả về 0, ngược lại trả về số giây
         return duration.isNegative() ? 0 : duration.getSeconds();
     }
     public String getTimeRemaining() {

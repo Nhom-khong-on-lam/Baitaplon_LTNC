@@ -50,6 +50,7 @@ public class NotificationDAO {
         String sql = "SELECT id, user_id, title, message, type, is_read, related_auction_id, related_bid_id, expires_at, created_at FROM notification WHERE user_id = ? AND is_read = false ORDER BY created_at DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             ps.setLong(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

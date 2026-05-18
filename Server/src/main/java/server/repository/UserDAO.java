@@ -146,4 +146,34 @@ public class UserDAO {
         }
         return false;
     }
+    // Thêm vào UserDAO.java — dùng cho toClientAuctions, không cần bid_count
+    public UserDTO findByIdLight(long id) {
+        String sql = "SELECT id, username, password, email, systemRole, accountStatus, created_at FROM user WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    UserDTO user = new UserDTO();
+                    user.setId(rs.getLong("id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setPassword(rs.getString("password"));
+                    user.setEmail(rs.getString("email"));
+                    user.setSystemRole(rs.getString("systemRole"));
+                    user.setAccountStatus(rs.getString("accountStatus"));
+
+                    Timestamp ts = rs.getTimestamp("created_at");
+                    if (ts != null) {
+                        user.setCreatedAt(ts.toLocalDateTime());
+                    }
+                    user.setBidCount(0); // Mặc định là 0 để tránh mapRow lỗi cột
+                    return user;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("LỖI trong UserDAO.findByIdLight(): " + e.getMessage());
+        }
+        return null;
+    }
 }

@@ -42,6 +42,7 @@ public class PaymentDAO {
         String sql = "SELECT id, auction_id, buyer_id, seller_id, amount, status, created_at FROM payment WHERE auction_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             ps.setLong(1, auctionId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

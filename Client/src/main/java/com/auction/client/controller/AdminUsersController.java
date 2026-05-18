@@ -10,19 +10,15 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * AdminUsersController — Quản lý toàn bộ tài khoản người dùng.
- *
- * FIX:
- *  - Thread.setDaemon(true) trên tất cả background thread
- *  - Error handling khi network thất bại
- *  - Ban/Unban và Delete dùng background thread đúng cách
+ * Chức năng: xem, tìm kiếm, filter, ban/unban, delete.
  */
 public class AdminUsersController {
 
@@ -35,7 +31,7 @@ public class AdminUsersController {
             colEmail, colRole, colStatus,
             colBids, colActions;
 
-    private final AuthService    authService    = new AuthService();
+    private final AuthService authService    = new AuthService();
     private final AuctionService auctionService = new AuctionService();
 
     private User       currentAdmin;
@@ -50,28 +46,21 @@ public class AdminUsersController {
         this.currentAdmin = admin;
         totalLabel.setText("Loading users...");
 
-        Thread loader = new Thread(() -> {
-            List<User> fetched;
-            try {
-                fetched = authService.getAllUsers();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                javafx.application.Platform.runLater(() ->
-                        totalLabel.setText("⚠ Failed to load users"));
-                return;
-            }
+        // Tách việc gọi mạng ra luồng phụ
+        new Thread(() -> {
+            List<User> fetchedUsers = authService.getAllUsers();
 
+            // Tải xong đưa về luồng UI để vẽ
             javafx.application.Platform.runLater(() -> {
-                this.allUsers = fetched != null ? fetched : new java.util.ArrayList<>();
-                totalLabel.setText(allUsers.size() + " users total");
+                this.allUsers = fetchedUsers != null ? fetchedUsers : new java.util.ArrayList<>();
+                totalLabel.setText(this.allUsers.size() + " users total");
                 setActiveTab(tabAll);
-                loadTable(allUsers);
+                loadTable(this.allUsers);
             });
-        });
-        loader.setDaemon(true);
-        loader.start();
+        }).start();
     }
 
+    /** Gọi từ AdminMainController khi search từ topbar */
     public void applySearch(String keyword) {
         searchField.setText(keyword);
         handleSearch();
@@ -105,7 +94,6 @@ public class AdminUsersController {
     }
 
     @FXML public void handleSearch() {
-        if (allUsers == null) return;
         String kw = searchField.getText() == null ? ""
                 : searchField.getText().trim().toLowerCase();
         if (kw.isEmpty()) {
@@ -121,11 +109,10 @@ public class AdminUsersController {
     // ── Table setup ───────────────────────────────────────────
     private void setupColumns() {
         usersTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        if (colId       != null) colId.setMinWidth(70);
-        if (colUsername != null) colUsername.setMinWidth(150);
-        if (colEmail    != null) colEmail.setMinWidth(120);
-        if (colActions  != null) colActions.setMinWidth(160);
-
+        colId.setMinWidth(70);
+        colUsername.setMinWidth(150);
+        colEmail.setMinWidth(120);
+        colActions.setMinWidth(150);
         colId.setCellValueFactory(c ->
                 new SimpleStringProperty(String.valueOf(c.getValue().getId())));
 
@@ -140,12 +127,11 @@ public class AdminUsersController {
                 super.updateItem(init, empty);
                 if (empty || init == null) { setGraphic(null); return; }
                 Label av = new Label(init);
-                av.setStyle("-fx-background-color:#eff6ff; -fx-text-fill:#2563eb;"
-                        + "-fx-font-weight:bold; -fx-font-size:11px; -fx-alignment:CENTER;"
-                        + "-fx-background-radius:50; -fx-min-width:32px; -fx-max-width:32px;"
-                        + "-fx-min-height:32px; -fx-max-height:32px;");
-                setGraphic(av);
-                setAlignment(Pos.CENTER);
+                av.setStyle("-fx-background-color:#eff6ff; -fx-text-fill:#2563eb;" +
+                        "-fx-font-weight:bold; -fx-font-size:11px; -fx-alignment:CENTER;" +
+                        "-fx-background-radius:50; -fx-min-width:32px; -fx-max-width:32px;" +
+                        "-fx-min-height:32px; -fx-max-height:32px;");
+                setGraphic(av); setAlignment(Pos.CENTER);
             }
         });
 
@@ -174,8 +160,7 @@ public class AdminUsersController {
                 Label badge = new Label(role);
                 badge.getStyleClass().addAll("badge",
                         "Admin".equals(role) ? "badge-amber" : "badge-blue");
-                setGraphic(badge);
-                setAlignment(Pos.CENTER);
+                setGraphic(badge); setAlignment(Pos.CENTER);
             }
         });
 
@@ -189,14 +174,15 @@ public class AdminUsersController {
                 Label pill = new Label(status);
                 pill.getStyleClass().add(
                         "ACTIVE".equals(status) ? "pill-running" : "pill-ending");
-                setGraphic(pill);
-                setAlignment(Pos.CENTER);
+                setGraphic(pill); setAlignment(Pos.CENTER);
             }
         });
 
         // Bids count
-        colBids.setCellValueFactory(c ->
-                new SimpleStringProperty(String.valueOf(c.getValue().getBidCount())));
+        colBids.setCellValueFactory(c -> {
+            int count = c.getValue().getBidCount();
+            return new SimpleStringProperty(String.valueOf(count));
+        });
 
         // Actions: Ban/Unban + Delete
         colActions.setCellFactory(col -> new TableCell<>() {
@@ -224,9 +210,11 @@ public class AdminUsersController {
                 super.updateItem(o, empty);
                 if (empty) { setGraphic(null); return; }
                 User u = getTableView().getItems().get(getIndex());
-                boolean isSelf = Objects.equals(u.getId(), currentAdmin.getId());
+                // Sửa dòng 199 thành:
+                boolean isSelf = java.util.Objects.equals(u.getId(), currentAdmin.getId());
                 boolean banned = u.getAccountStatus() == AccountStatus.BANNED;
 
+                // Điều chỉnh label và style nút Ban/Unban
                 banBtn.setText(banned ? "Unban" : "Ban");
                 banBtn.getStyleClass().setAll(banned ? "btn-secondary" : "btn-primary");
                 banBtn.setDisable(isSelf);
@@ -252,73 +240,55 @@ public class AdminUsersController {
     // ── Actions ───────────────────────────────────────────────
     private void handleToggleBan(User user) {
         boolean isBanned = user.getAccountStatus() == AccountStatus.BANNED;
-        String action = isBanned ? "Unban" : "Ban";
-        String msg    = isBanned
+        String action    = isBanned ? "Unban" : "Ban";
+        String msg       = isBanned
                 ? "Restore access for " + user.getUsername() + "?"
                 : "Suspend " + user.getUsername() + "'s account?";
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert confirm = new Alert(AlertType.CONFIRMATION);
         confirm.setTitle(action + " User");
         confirm.setHeaderText(action + " — " + user.getUsername());
         confirm.setContentText(msg);
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                AccountStatus newStatus = isBanned
-                        ? AccountStatus.ACTIVE : AccountStatus.BANNED;
+                AccountStatus newStatus = isBanned ? AccountStatus.ACTIVE : AccountStatus.BANNED;
 
-                Thread worker = new Thread(() -> {
-                    try {
-                        authService.updateUserStatus(user.getId(), newStatus);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        javafx.application.Platform.runLater(() ->
-                                showInfo("⚠ Failed to update status."));
-                        return;
-                    }
+                new Thread(() -> {
+                    authService.updateUserStatus(user.getId(), newStatus);
+
                     javafx.application.Platform.runLater(() -> {
                         user.setAccountStatus(newStatus);
                         usersTable.refresh();
-                        showInfo(user.getUsername() + " has been "
-                                + action.toLowerCase() + "ned.");
+                        showInfo(user.getUsername() + " has been " + action.toLowerCase() + "ned.");
                     });
-                });
-                worker.setDaemon(true);
-                worker.start();
+                }).start();
             }
         });
     }
 
     private void handleDelete(User user) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert confirm = new Alert(AlertType.CONFIRMATION);
         confirm.setTitle("Delete User");
         confirm.setHeaderText("Delete " + user.getUsername() + "?");
         confirm.setContentText("⚠️ This action cannot be undone. All data will be removed.");
 
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                Thread worker = new Thread(() -> {
-                    try {
-                        authService.deleteUser(user.getId());
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        javafx.application.Platform.runLater(() ->
-                                showInfo("⚠ Failed to delete user."));
-                        return;
-                    }
+                new Thread(() -> {
+                    authService.deleteUser(user.getId());
+
                     javafx.application.Platform.runLater(() -> {
                         allUsers.removeIf(u -> u.getId().equals(user.getId()));
                         loadTable(allUsers);
                         showInfo("User \"" + user.getUsername() + "\" deleted.");
                     });
-                });
-                worker.setDaemon(true);
-                worker.start();
+                }).start();
             }
         });
     }
 
     private void showInfo(String msg) {
-        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        Alert info = new Alert(AlertType.INFORMATION);
         info.setTitle("Admin Action");
         info.setHeaderText(null);
         info.setContentText(msg);
