@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserDAO {
-    // Khởi tạo Logger cho class
     private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
 
     // Helper: Map data từ SQL sang Object UserDTO
@@ -28,12 +27,9 @@ public class UserDAO {
             user.setCreatedAt(ts.toLocalDateTime());
         }
 
-        // [TỐI ƯU MỚI] Đọc cột bid_count đã được tính toán từ SQL
         try {
             user.setBidCount(rs.getInt("bid_count"));
-        } catch (SQLException ignore) {
-            // An toàn: Bỏ qua nếu có câu truy vấn nào đó vô tình không select cột này
-        }
+        } catch (SQLException ignore) {}
 
         return user;
     }
@@ -49,7 +45,7 @@ public class UserDAO {
             ps.setString(4, user.getSystemRole() != null ? user.getSystemRole() : "USER");
             ps.setString(5, user.getAccountStatus() != null ? user.getAccountStatus() : "ACTIVE");
             LocalDateTime createdAt = (user.getCreatedAt() != null) ? user.getCreatedAt() : LocalDateTime.now();
-            ps.setObject(6, createdAt);
+            ps.setTimestamp(6, Timestamp.valueOf(createdAt));
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -65,9 +61,8 @@ public class UserDAO {
         return -1;
     }
 
-    // --- READ (Dùng chung field name để tối ưu) ---
+    // --- CÓ ĐỦ CẢ HÀM FIND_BY_FIELD CHO ĐOẠN "UPDATE_PASSWORD" CỦA BẠN ---
     public UserDTO findByField(String fieldName, Object value) {
-        // [TỐI ƯU MỚI] Gắn thêm Sub-query đếm số lượng phiên đấu giá (distinct auction_id) từ bảng bid
         String sql = "SELECT u.*, (SELECT COUNT(DISTINCT auction_id) FROM bid b WHERE b.bidder_id = u.id) AS bid_count " +
                 "FROM user u WHERE u." + fieldName + " = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -77,19 +72,27 @@ public class UserDAO {
                 if (rs.next()) return mapRow(rs);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi truy vấn field " + fieldName + " với giá trị " + value, e);
+            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi tìm user theo field " + fieldName, e);
         }
         return null;
     }
 
-    public UserDTO findById(long id) { return findByField("id", id); }
-    public UserDTO findByUsername(String username) { return findByField("username", username); }
+    // --- GIỮ NGUYÊN TẤT CẢ CÁC HÀM GỐC KHÁC KHÔNG THAY ĐỔI TÊN ---
+    public UserDTO findById(long id) {
+        return findByField("id", id);
+    }
+
+    public UserDTO findByUsername(String username) {
+        return findByField("username", username);
+    }
+
+    public UserDTO findByEmail(String email) {
+        return findByField("email", email);
+    }
 
     public List<UserDTO> findAll() {
         List<UserDTO> users = new ArrayList<>();
-        // [TỐI ƯU MỚI] Sub-query chạy 1 lần duy nhất cho toàn bộ danh sách User
-        String sql = "SELECT u.*, (SELECT COUNT(DISTINCT auction_id) FROM bid b WHERE b.bidder_id = u.id) AS bid_count " +
-                "FROM user u";
+        String sql = "SELECT u.*, (SELECT COUNT(DISTINCT auction_id) FROM bid b WHERE b.bidder_id = u.id) AS bid_count FROM user u";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -98,6 +101,16 @@ public class UserDAO {
             LOGGER.log(Level.SEVERE, "READ ALL ERROR: Lỗi lấy danh sách user", e);
         }
         return users;
+    }
+
+    // --- HÀM KIỂM TRA TỒN TẠI (isExisted) GIỮ NGUYÊN ---
+    public boolean isExisted(String fieldName, String value) {
+        if ("username".equalsIgnoreCase(fieldName)) {
+            return findByUsername(value) != null;
+        } else if ("email".equalsIgnoreCase(fieldName)) {
+            return findByEmail(value) != null;
+        }
+        return false;
     }
 
     // --- UPDATE ---
@@ -133,9 +146,34 @@ public class UserDAO {
         }
         return false;
     }
+    // Thêm vào UserDAO.java — dùng cho toClientAuctions, không cần bid_count
+    public UserDTO findByIdLight(long id) {
+        String sql = "SELECT id, username, password, email, systemRole, accountStatus, created_at FROM user WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    UserDTO user = new UserDTO();
+                    user.setId(rs.getLong("id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setPassword(rs.getString("password"));
+                    user.setEmail(rs.getString("email"));
+                    user.setSystemRole(rs.getString("systemRole"));
+                    user.setAccountStatus(rs.getString("accountStatus"));
 
-    // --- UTILITY ---
-    public boolean isExisted(String fieldName, String value) {
-        return findByField(fieldName, value) != null;
+                    Timestamp ts = rs.getTimestamp("created_at");
+                    if (ts != null) {
+                        user.setCreatedAt(ts.toLocalDateTime());
+                    }
+                    user.setBidCount(0); // Mặc định là 0 để tránh mapRow lỗi cột
+                    return user;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("LỖI trong UserDAO.findByIdLight(): " + e.getMessage());
+        }
+        return null;
     }
 }

@@ -41,7 +41,7 @@ public class ItemDAO {
             ps.setString(5, item.getBrandMake());
             ps.setString(6, item.getModel());
             ps.setString(7, item.getArtist());
-            
+
             if (item.getProductionYear() != null) {
                 ps.setInt(8, item.getProductionYear());
             } else {
@@ -59,7 +59,7 @@ public class ItemDAO {
             System.err.println("LỖI trong ItemDAO.insert(): " + e.getMessage());
             e.printStackTrace();
         }
-        return -1; 
+        return -1;
     }
 
     // 3. Tìm kiếm sản phẩm theo ID

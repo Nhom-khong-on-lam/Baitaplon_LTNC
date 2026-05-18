@@ -5,6 +5,7 @@ package com.auction.client.service;
 import com.auction.client.controller.SessionManager;
 import com.auction.common.model.Auction;
 import com.auction.common.model.BidTransaction;
+import com.auction.common.model.DashboardData;
 import com.auction.common.model.User;
 import com.auction.common.network.Request;
 import com.auction.common.network.Response;
@@ -20,7 +21,9 @@ import java.util.List;
 public class AuctionService {
 
     private final ServerConnection connection = ServerConnection.getInstance();
-
+    private static List<Auction> cachedActiveAuctions = new ArrayList<>();
+    private static boolean isFirstLoadDone = false;
+    private static DashboardData cachedDashboardData = null;
     // ── GET ALL AUCTIONS ─────────────────────────────────────────────────────
     public List<Auction> getAllAuctions() {
         Response res = send(new Request(Request.GET_AUCTIONS));
@@ -28,6 +31,34 @@ public class AuctionService {
             return (List<Auction>) res.getData();
         }
         return new ArrayList<>();
+    }
+    public List<Auction> getActiveAuctionsCached() {
+        return cachedActiveAuctions; // Bốc trực tiếp từ RAM trả về ngay lập tức (0ms)
+    }
+    public DashboardData getDashboardDataCached() {
+        return cachedDashboardData;
+    }
+
+
+    public void refreshActiveAuctionsFromServer() {
+        try {
+            // 🚀 SỬA: Đổi từ "GET_ACTIVE_AUCTIONS" thành Request.GET_AUCTIONS (hoặc "GET_AUCTIONS")
+            // Để luồng chạy ngầm đồng bộ lấy toàn bộ sản phẩm giống hệt như lúc bạn gõ Tìm kiếm
+            Request req = new Request(Request.GET_AUCTIONS, null);
+            Response res = send(req);
+
+            if (res != null && res.isSuccess() && res.getData() != null) {
+                synchronized (cachedActiveAuctions) {
+                    cachedActiveAuctions = (List<Auction>) res.getData();
+                    isFirstLoadDone = true;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi tải ngầm danh sách đấu giá: " + e.getMessage());
+        }
+    }
+    public boolean isFirstLoadDone() {
+        return isFirstLoadDone;
     }
 
     // ── GET ACTIVE AUCTIONS ──────────────────────────────────────────────────
@@ -190,5 +221,16 @@ public class AuctionService {
     private void attachToken(Request request) {
         String token = SessionManager.get().getToken();
         if (token != null) request.setToken(token);
+    }
+    public com.auction.common.model.DashboardData getDashboardData(long userId) throws Exception {
+        Request req = new Request("GET_DASHBOARD_DATA", userId);
+        Response res = send(req); // Hàm gửi socket của bạn
+
+        if (res != null && res.isSuccess() && res.getData() != null) {
+            // Cất vào kho RAM trước khi trả về
+            cachedDashboardData = (com.auction.common.model.DashboardData) res.getData();
+            return cachedDashboardData;
+        }
+        return null;
     }
 }

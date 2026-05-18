@@ -210,14 +210,14 @@ public class MyProductsController {
     private void openDetail(Auction a) {
         MainController main = (MainController) productTable
                 .getScene().lookup("#mainRoot").getUserData();
-        main.loadContent("/com/auction/client/fxml/auction_detail.fxml",
+        main.loadContent("/com/auction/client/auction_detail.fxml",
                 (AuctionDetailController ctrl) -> ctrl.initData(currentUser, a));
     }
 
     private void openEdit(Auction a) {
         MainController main = (MainController) productTable
                 .getScene().lookup("#mainRoot").getUserData();
-        main.loadContent("/com/auction/client/fxml/create_auction.fxml",
+        main.loadContent("/com/auction/client/create_auction.fxml",
                 (CreateAuctionController ctrl) -> ctrl.initEdit(currentUser, a));
     }
 }

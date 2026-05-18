@@ -66,4 +66,25 @@ public class ItemImageDAO {
         }
         return false;
     }
+    public List<ItemImageDTO> getAll() {
+        List<ItemImageDTO> images = new ArrayList<>();
+        String sql = "SELECT * FROM item_image";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                ItemImageDTO img = new ItemImageDTO();
+                img.setId(rs.getLong("id"));
+                img.setItemId(rs.getLong("item_id"));
+                img.setImageUrl(rs.getString("image_url"));
+                images.add(img);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi getAll ItemImage: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return images;
+    }
 }

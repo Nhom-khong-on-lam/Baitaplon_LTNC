@@ -51,7 +51,7 @@ public class AutoBidDAO {
         String sql = "UPDATE auto_bid SET active = ? WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setBoolean(1, isActive);
             ps.setLong(2, configId);

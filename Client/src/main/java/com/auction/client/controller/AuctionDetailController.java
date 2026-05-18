@@ -137,6 +137,11 @@ public class AuctionDetailController {
 
     // ── Place bid ─────────────────────────────────────────────
     @FXML public void handlePlaceBid() {
+        if (auction.getSeller().getId().equals(currentUser.getId())) {
+            // Hiển thị thông báo cảnh báo lỗi bằng Alert hoặc Label thông báo
+            showAlert(Alert.AlertType.WARNING, "Lỗi đặt giá", "Bạn không thể tự đặt giá cho sản phẩm của chính mình!");
+            return; // Dừng xử lý luôn, không gửi request lên Server nữa
+        }
         String txt = bidAmountField.getText().trim();
         if (txt.isEmpty()) {
             showBidError("Please enter a bid amount.");
@@ -196,6 +201,13 @@ public class AuctionDetailController {
                 }).start();
             }
         });
+    }
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
     private void renderUI() {
         // 1. Cập nhật con số giá hiện tại

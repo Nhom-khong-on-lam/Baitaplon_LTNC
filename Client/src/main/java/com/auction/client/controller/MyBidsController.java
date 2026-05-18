@@ -206,7 +206,7 @@ public class MyBidsController {
         MainController main = (MainController) bidListContainer
                 .getScene().lookup("#mainRoot").getUserData();
         main.loadContent(
-                "/com/auction/client/fxml/auction_detail.fxml",
+                "/com/auction/client/auction_detail.fxml",
                 (AuctionDetailController ctrl) -> ctrl.initData(currentUser, auction)
         );
     }

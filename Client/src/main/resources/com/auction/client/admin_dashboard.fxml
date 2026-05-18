@@ -11,9 +11,9 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.auction.client.controller.AdminDashboardController"
             fitToWidth="true" styleClass="scroll-pane">
-            <stylesheets>
-                <URL value="@global.css"/>
-            </stylesheets>
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
 
     <VBox spacing="20" styleClass="content-area">
 

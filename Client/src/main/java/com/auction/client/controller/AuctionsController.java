@@ -63,17 +63,32 @@ public class AuctionsController {
 
     public void initData(User user) {
         this.currentUser = user;
-        resultCount.setText("Loading auctions...");
         auctionListContainer.getChildren().clear();
 
+        // ⚡ BƯỚC 1: ĐỔ NGAY DỮ LIỆU TỪ RAM CACHE RA MÀN HÌNH (0ms)
+        // Lấy danh sách đã được gom ngầm từ Dashboard đem ra xài luôn
+        List<Auction> cached = auctionService.getActiveAuctionsCached();
+        if (cached != null && !cached.isEmpty()) {
+            this.allAuctions = cached;
+            setupScrollListener(); // Bật bộ bắt cuộn màn hình
+            applyFilters();        // Lọc và vẽ lứa 10 sản phẩm đầu tiên ngay lập tức!
+        } else {
+            resultCount.setText("Loading auctions...");
+        }
+
+        // 🔄 BƯỚC 2: CHẠY LUỒNG NGẦM ĐỒNG BỘ DỮ LIỆU MỚI NHẤT TỪ SERVER (CHỐNG ĐƠ UI)
         new Thread(() -> {
-            // Lấy toàn bộ dữ liệu 1 lần chạy ngầm
-            List<Auction> fetched = auctionService.getAllAuctions();
+            // Âm thầm gửi Socket lên Server đồng bộ dữ liệu mới về RAM Client
+            auctionService.refreshActiveAuctionsFromServer();
+            List<Auction> freshData = auctionService.getActiveAuctionsCached();
 
             javafx.application.Platform.runLater(() -> {
-                this.allAuctions = fetched != null ? fetched : new ArrayList<>();
-                setupScrollListener(); // Kích hoạt bắt sự kiện cuộn
-                applyFilters();        // Lọc và vẽ lứa dữ liệu đầu tiên
+                // Chỉ render lại giao diện nếu dữ liệu thực tế trên Server có sự thay đổi
+                if (freshData != null && (this.allAuctions == null || this.allAuctions.size() != freshData.size())) {
+                    this.allAuctions = freshData;
+                    setupScrollListener();
+                    applyFilters(); // Cập nhật lại danh sách phòng live mới nhất lên màn hình
+                }
             });
         }).start();
     }
@@ -149,6 +164,8 @@ public class AuctionsController {
         String sort = sortBox.getValue();
 
         List<Auction> filtered = allAuctions.stream()
+                .filter(a -> a.getRemainingSeconds() > 0)
+
                 .filter(a -> kw.isEmpty()
                         || a.getTitle().toLowerCase().contains(kw)
                         || a.getCategory().toLowerCase().contains(kw))
@@ -188,31 +205,44 @@ public class AuctionsController {
 
     /** Lazy Rendering - Vẽ thêm thẻ auction card khi cuộn */
     private void loadMoreUI() {
-        if (isRendering || visibleCount >= currentFilteredList.size()) return;
-        isRendering = true;
-
-        int end = Math.min(visibleCount + LOAD_STEP, currentFilteredList.size());
-
-        // Sửa: Dùng vòng lặp index thay vì subList để an toàn tuyệt đối khi Filter [cite: 400]
-        for (int i = visibleCount; i < end; i++) {
-            Auction a = currentFilteredList.get(i);
-            HBox card = buildCard(a);
-
-            // Gắn dữ liệu Auction vào card để hàm updateAllTimers có thể đọc được
-            card.setUserData(a);
-
-            auctionListContainer.getChildren().add(card);
-
-            int delayMs = Math.min((i - visibleCount) * 40, 300);
-            javafx.animation.PauseTransition p = new javafx.animation.PauseTransition(javafx.util.Duration.millis(delayMs));
-            p.setOnFinished(e -> AnimationUtil.slideUp(card, 14, 240));
-            p.play();
+        // 1. Chốt chặn bảo vệ: Nếu đang render hoặc đã vẽ hết danh sách thì dừng
+        if (isRendering || currentFilteredList == null || visibleCount >= currentFilteredList.size()) {
+            return;
         }
 
-        visibleCount = end;
-        javafx.animation.PauseTransition cooldown = new javafx.animation.PauseTransition(javafx.util.Duration.millis(250));
-        cooldown.setOnFinished(e -> isRendering = false);
-        cooldown.play();
+        isRendering = true; // Khóa đầu vào để tránh trùng lặp khi cuộn chuột nhanh
+
+        try {
+            int end = Math.min(visibleCount + LOAD_STEP, currentFilteredList.size());
+
+            // Kiểm tra an toàn chỉ số index trước khi lặp
+            if (visibleCount < 0) visibleCount = 0;
+
+            for (int i = visibleCount; i < end; i++) {
+                Auction a = currentFilteredList.get(i);
+                HBox card = buildCard(a);
+
+                // Gắn dữ liệu Auction vào card để hàm updateAllTimers có thể đọc được
+                card.setUserData(a);
+
+                auctionListContainer.getChildren().add(card);
+
+                // Hiệu ứng trượt mượt mà khi xuất hiện
+                int delayMs = Math.min((i - visibleCount) * 40, 300);
+                javafx.animation.PauseTransition p = new javafx.animation.PauseTransition(javafx.util.Duration.millis(delayMs));
+                p.setOnFinished(e -> AnimationUtil.slideUp(card, 14, 240));
+                p.play();
+            }
+
+            visibleCount = end; // Cập nhật lại mốc sản phẩm đã vẽ thành công
+
+        } catch (Exception e) {
+            System.err.println("Lỗi render thẻ đấu giá: " + e.getMessage());
+        } finally {
+            // 🚀 CHÌA KHÓA VÀNG: Đảm bảo cờ hiệu luôn được trả về false NGAY LẬP TỨC
+            // sau khi vòng lặp chạy xong, phá bỏ hoàn toàn việc bị kẹt luồng do hoán đổi trang!
+            isRendering = false;
+        }
     }
 
     /** Tạo auction card hoàn chỉnh */
@@ -295,7 +325,7 @@ public class AuctionsController {
         MainController main = (MainController) auctionListContainer
                 .getScene().lookup("#mainRoot").getUserData();
         main.loadContent(
-                "/com/auction/client/fxml/auction_detail.fxml",
+                "/com/auction/client/auction_detail.fxml",
                 (AuctionDetailController ctrl) -> ctrl.initData(currentUser, auction)
         );
     }

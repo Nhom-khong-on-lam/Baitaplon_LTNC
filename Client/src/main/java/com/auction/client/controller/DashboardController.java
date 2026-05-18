@@ -45,67 +45,93 @@ public class DashboardController {
         // Welcome greeting (chạy trên UI thread — an toàn)
         String hour = java.time.LocalTime.now().getHour() < 12 ? "morning"
                 : java.time.LocalTime.now().getHour() < 18 ? "afternoon" : "evening";
-        welcomeGreeting.setText("Good " + hour + ", " + user.getUsername() + " 👋");
-        welcomeDate.setText(LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("EEEE, MMM dd")));
+        welcomeGreeting.setText("Good " + hour + ", " + user.getUsername());
+        welcomeDate.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMM dd")));
 
-        // Chạy tất cả network call trên background thread để tránh đơ UI
-        Task<Void> loadTask = new Task<>() {
-            List<Auction> allAuctions, myBids, myWinning, myProducts, live;
+        // ⚡ BƯỚC 1: HIỂN THỊ NGAY TỨC THÌ DỮ LIỆU TỪ RAM CACHE (0ms - KHÔNG ĐỢI MẠNG)
+        com.auction.common.model.DashboardData cachedData = auctionService.getDashboardDataCached();
+        if (cachedData != null) {
+            System.out.println("Dashboard bốc từ RAM Cache: Mở phát lên luôn!");
+            renderDashboardUI(cachedData);
+        } else {
+            welcomeSub.setText("Loading dashboard data...");
+        }
 
+        // 🔄 BƯỚC 2: CHẠY NGẦM 1 REQUEST DUY NHẤT ĐỂ ĐỒNG BỘ SỐ LIỆU MỚI TỪ SERVER
+        Task<com.auction.common.model.DashboardData> loadTask = new Task<>() {
             @Override
-            protected Void call() {
-                allAuctions = auctionService.getAllAuctions();
-                myBids      = auctionService.getMyBids(user.getId());
-                myWinning   = auctionService.getWinningBids(user.getId());
-                myProducts  = auctionService.getAuctionsBySeller(user.getId());
-                live        = auctionService.getActiveAuctions();
-                return null;
+            protected com.auction.common.model.DashboardData call() throws Exception {
+                // Gọi Server lấy cục dữ liệu Dashboard tổng hợp (Hàm này tự động ghi đè vào RAM Cache luôn)
+                return auctionService.getDashboardData(user.getId());
             }
 
             @Override
             protected void succeeded() {
-                // Cập nhật UI — phải chạy trên JavaFX thread (succeeded() tự động chạy trên UI thread)
-                AnimationUtil.countUp(statActiveAuctions, 0, allAuctions.size(), 800, "", "");
-                AnimationUtil.countUp(statMyBids,         0, myBids.size(),       800, "", "");
-                AnimationUtil.countUp(statWinning,        0, myWinning.size(),    800, "", "");
-                AnimationUtil.countUp(statMyProducts,     0, myProducts.size(),   800, "", "");
-
-                long previousCount = allAuctions.stream()
-                        .filter(a -> a.getEndTime().getMonthValue() == LocalDateTime.now().minusMonths(1).getMonthValue())
-                        .count();
-
-                welcomeBadge.setText("🟢  LIVE NOW — " + live.size() + " Auctions");
-                statAuctionDelta.setText("↑ " + (allAuctions.size() - previousCount));
-                statBidDelta.setText("↑ 1");
-                welcomeSub.setText("There are " + live.size() + " live auctions right now. Good luck!");
-
-                // Build live auction rows
-                liveAuctionList.getChildren().clear();
-                List<Auction> preview = live.subList(0, Math.min(live.size(), 5));
-                for (int i = 0; i < preview.size(); i++) {
-                    Auction a = preview.get(i);
-                    HBox row = buildAuctionRow(a);
-                    liveAuctionList.getChildren().add(row);
-                    int delay = i * 60;
-                    javafx.animation.PauseTransition pause =
-                            new javafx.animation.PauseTransition(javafx.util.Duration.millis(delay));
-                    pause.setOnFinished(e -> AnimationUtil.slideUp(row, 12, 220));
-                    pause.play();
+                com.auction.common.model.DashboardData freshData = getValue();
+                if (freshData != null) {
+                    // Đổ số liệu mới tinh từ Server lên giao diện
+                    renderDashboardUI(freshData);
                 }
-
-                // Build activity list
-                activityList.getChildren().clear();
-                buildActivity(allAuctions);
             }
 
             @Override
             protected void failed() {
-                System.err.println("Dashboard load failed: " + getException().getMessage());
+                System.err.println("Dashboard background refresh failed: " + getException().getMessage());
+                if (auctionService.getDashboardDataCached() == null) {
+                    welcomeSub.setText("Mất kết nối hoặc không thể đồng bộ dữ liệu Dashboard.");
+                }
             }
         };
 
+        // Kích hoạt tiến trình chạy ngầm
         new Thread(loadTask).start();
+
+        // Vẫn giữ lại luồng ngầm này của bạn để gom sẵn củi đuốc cho trang Live Auctions nhé!
+        new Thread(() -> {
+            auctionService.refreshActiveAuctionsFromServer();
+        }).start();
+    }
+
+    /**
+     * 🛠️ HÀM PHỤ TÁCH RIÊNG LOGIC VẼ UI - Giúp tái sử dụng code cho cả dữ liệu Cache và Server
+     */
+    private void renderDashboardUI(com.auction.common.model.DashboardData data) {
+        List<Auction> allAuctions = data.getAllAuctions() != null ? data.getAllAuctions() : java.util.Collections.emptyList();
+        List<Auction> myBids      = data.getMyBids() != null ? data.getMyBids() : java.util.Collections.emptyList();
+        List<Auction> myWinning   = data.getMyWinning() != null ? data.getMyWinning() : java.util.Collections.emptyList();
+        List<Auction> myProducts  = data.getMyProducts() != null ? data.getMyProducts() : java.util.Collections.emptyList();
+        List<Auction> live        = data.getLiveAuctions() != null ? data.getLiveAuctions() : java.util.Collections.emptyList();
+
+        // Hiển thị số liệu kèm hiệu ứng countUp mượt mà
+        AnimationUtil.countUp(statActiveAuctions, 0, allAuctions.size(), 400, "", "");
+        AnimationUtil.countUp(statMyBids,         0, myBids.size(),       400, "", "");
+        AnimationUtil.countUp(statWinning,        0, myWinning.size(),    400, "", "");
+        AnimationUtil.countUp(statMyProducts,     0, myProducts.size(),   400, "", "");
+
+        long previousCount = allAuctions.stream()
+                .filter(a -> a.getEndTime().getMonthValue() == LocalDateTime.now().minusMonths(1).getMonthValue())
+                .count();
+
+        welcomeBadge.setText("LIVE NOW — " + live.size() + " Auctions");
+        statAuctionDelta.setText("↑ " + (allAuctions.size() - previousCount));
+        statBidDelta.setText("↑ " + myBids.size());
+        welcomeSub.setText("There are " + live.size() + " live auctions right now. Good luck!");
+
+        // Build các dòng live auction (Tối đa 5 phòng)
+        liveAuctionList.getChildren().clear();
+        List<Auction> preview = live.subList(0, Math.min(live.size(), 5));
+        for (int i = 0; i < preview.size(); i++) {
+            Auction a = preview.get(i);
+            HBox row = buildAuctionRow(a);
+            liveAuctionList.getChildren().add(row);
+
+            final HBox finalRow = row;
+            javafx.application.Platform.runLater(() -> AnimationUtil.slideUp(finalRow, 8, 150));
+        }
+
+        // Build danh sách hoạt động
+        activityList.getChildren().clear();
+        buildActivity(allAuctions);
     }
 
     /** Tạo 1 hàng auction nhỏ trong live section */
@@ -134,7 +160,7 @@ public class DashboardController {
         // Right side
         VBox right = new VBox(4);
         right.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
-        Label price = new Label("$" + String.format("%,.0f", a.getCurrentPrice()));
+        Label price = new Label(String.format("%,.0f", a.getCurrentPrice()));
         price.getStyleClass().add("auction-card-price");
         Label timerLbl = new Label(a.getTimeRemaining());
         timerLbl.getStyleClass().add(a.isEndingSoon() ? "timer-critical" : "timer-normal");
@@ -150,19 +176,21 @@ public class DashboardController {
     /** Xây dựng recent activity giả */
     // HÀM CHÍNH: Duyệt dữ liệu thật
     // Truyền danh sách vào qua tham số
+    /** Lọc và dựng tối đa 5 hoạt động mới nhất để tránh quá tải Render giao diện */
     private void buildActivity(List<Auction> auctions) {
         activityList.getChildren().clear(); // Xóa sạch giao diện cũ
 
-        Long curId = currentUser.getId();
+        if (auctions == null || auctions.isEmpty()) return;
 
-        // XÓA DÒNG NÀY ĐỂ TRÁNH GỌI MẠNG LÀM ĐƠ UI:
-        // List<Auction> auctions = auctionService.getAllAuctions();
+        Long curId = currentUser.getId();
+        int count = 0; // Biến đếm kiểm soát số lượng phần tử render
 
         for (Auction a : auctions) {
-            // Kiểm tra nếu mình là người đặt giá cao nhất
+            if (count >= 5) break; // 🚀 ĐẠT GIỚI HẠN 5 HOẠT ĐỘNG THÌ DỪNG LẠI, KHÔNG RENDER RÁC!
+
             boolean isWinning = (a.getHighestBidder() != null && a.getHighestBidder().getId().equals(curId));
-            // Kiểm tra nếu mình có tham gia đấu giá phiên này
             boolean hasBid = a.getBidCountByUser(curId) > 0;
+            boolean isAdded = false;
 
             if (hasBid) {
                 if (isWinning) {
@@ -170,11 +198,17 @@ public class DashboardController {
                 } else {
                     addActivityItem("⚠️", "Outbid on '" + a.getTitle() + "'", "Action needed", "#dc2626");
                 }
+                isAdded = true;
             }
 
             // Nếu mình là người bán
-            if (a.getSeller().getId().equals(curId)) {
+            if (a.getSeller() != null && a.getSeller().getId().equals(curId)) {
                 addActivityItem("📦", "Your auction '" + a.getTitle() + "' is " + a.getStatus(), "Owner", "#7c3aed");
+                isAdded = true;
+            }
+
+            if (isAdded) {
+                count++; // Chỉ tăng biến đếm khi có item thực sự được thêm vào giao diện
             }
         }
     }
