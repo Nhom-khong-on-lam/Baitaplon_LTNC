@@ -236,6 +236,7 @@ public class ClientHandler extends Thread {
                 for (UserDTO dto : dtos) users.add(toClientUser(dto));
                 return Response.ok(users);
             }
+
             case Request.PLACE_BID: { // Hoặc thay bằng Request.PLACE_BID nếu bạn có định nghĩa hằng số
                 Object[] data = (Object[]) req.getData();
                 Long auctionId = (Long) data[0];
@@ -264,6 +265,22 @@ public class ClientHandler extends Thread {
                 auctionDto.setCurrentPrice(bidAmount);
                 // Nếu DB của bạn có trường lưu ID người giữ giá cao nhất, gán thêm tại đây:
                 // auctionDto.setHighestBidderId(bidder.getId());
+
+                //  THÊM LOGIC ANTI-SNIPING Ở ĐÂY ĐỂ LƯU XUỐNG DATABASE 
+                java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                java.time.LocalDateTime endTime = auctionDto.getEndTime();
+
+                if (endTime != null && now.isBefore(endTime)) {
+                    // Tính số giây còn lại thực tế trên Server
+                    long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
+
+                    // Luật: Nếu lượt đặt giá diễn ra trong 3 phút cuối cùng (180 giây)
+                    if (secondsRemaining <= 180) {
+                        // Cộng thêm 3 phút (180 giây) vào thời gian kết thúc
+                        auctionDto.setEndTime(endTime.plusSeconds(180));
+                        System.out.println("Anti-sniping kích hoạt: Phiên " + auctionId + " được gia hạn thêm 3 phút.");
+                    }
+                }
 
                 boolean updateSuccess = auctionDAO.update(auctionDto);
                 if (!updateSuccess) {
