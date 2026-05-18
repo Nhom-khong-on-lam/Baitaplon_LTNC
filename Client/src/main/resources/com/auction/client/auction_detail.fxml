@@ -60,7 +60,7 @@
             </VBox>
 
             <!-- ── Right: Bid panel ───────────────────────── -->
-            <VBox spacing="14" minWidth="310" maxWidth="340">
+            <VBox spacing="14" minWidth="310" maxWidth="380">
 
                 <!-- Current Bid + Timer -->
                 <VBox styleClass="section-card" spacing="14">
@@ -96,27 +96,24 @@
                 <!-- Place Bid form -->
                 <VBox styleClass="section-card" spacing="12">
                     <Label text="PLACE YOUR BID" styleClass="section-title"/>
-                    <Label fx:id="minBidHint"
-                           style="-fx-font-size:12px; -fx-text-fill:#718096;"
-                           text="Minimum bid: $0"/>
 
                     <TextField fx:id="bidAmountField" styleClass="form-input"
                                promptText="Enter bid amount ($)"
                                style="-fx-font-size:16px; -fx-pref-height:50px;"/>
 
-                    <HBox spacing="8">
+                    <HBox spacing="6">
                         <Button fx:id="quickBid1" text="+$10"
                                 styleClass="btn-secondary"
-                                style="-fx-font-size:11px;" HBox.hgrow="ALWAYS"
-                                maxWidth="Infinity" onAction="#quickBid1"/>
+                                style="-fx-font-size:12px; -fx-padding: 8 0;" HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity" minWidth="-Infinity" prefWidth="100" onAction="#quickBid1"/>
                         <Button fx:id="quickBid2" text="+$50"
                                 styleClass="btn-secondary"
-                                style="-fx-font-size:11px;" HBox.hgrow="ALWAYS"
-                                maxWidth="Infinity" onAction="#quickBid2"/>
+                                style="-fx-font-size:12px; -fx-padding: 8 0;" HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity" minWidth="-Infinity" prefWidth="100" onAction="#quickBid2"/>
                         <Button fx:id="quickBid3" text="+$100"
                                 styleClass="btn-secondary"
-                                style="-fx-font-size:11px;" HBox.hgrow="ALWAYS"
-                                maxWidth="Infinity" onAction="#quickBid3"/>
+                                style="-fx-font-size:12px; -fx-padding: 8 0;" HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity" minWidth="-Infinity" prefWidth="100" onAction="#quickBid3"/>
                     </HBox>
 
                     <Label fx:id="bidMsg" styleClass="form-error" wrapText="true"/>

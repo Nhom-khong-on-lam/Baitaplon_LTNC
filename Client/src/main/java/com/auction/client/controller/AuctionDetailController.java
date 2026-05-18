@@ -29,7 +29,7 @@ public class AuctionDetailController {
     @FXML private Label    detailCatBadge, detailCondBadge, detailStatusPill;
     @FXML private Label    detailCurrentPrice, detailTimer;
     @FXML private Label    detailBidCount, detailStartPrice;
-    @FXML private Label    minBidHint, bidMsg;
+    @FXML private Label    bidMsg;
     @FXML private TextField bidAmountField;
     @FXML private Button   placeBidBtn, quickBid1, quickBid2, quickBid3;
     @FXML private Label    sellerAvatar, sellerName, sellerSince;
@@ -40,7 +40,6 @@ public class AuctionDetailController {
     private User    currentUser;
     private Auction auction;
     private Timeline countdownTimeline;
-    private double minBid;
     private String SellerName;
 
     public void initData(User user, Auction auction) {
@@ -49,14 +48,26 @@ public class AuctionDetailController {
         this.SellerName  = auction.getSeller().getUsername();
 
         // Basic info
-        detailImageIcon.setText(auction.getCategoryIcon());
-        detailTitle.setText(auction.getTitle());
-        detailDesc.setText(auction.getDescription());
-        detailSeller.setText("Listed by " + SellerName
-                + "  ·  " + auction.getBidCount() + " bids so far");
+        String imgUrl = auction.getItem() != null ? auction.getItem().getImageUrl() : null;
+        if (imgUrl != null && !imgUrl.isEmpty()) {
+            detailImageIcon.setText(""); // Xóa chữ Icon đi
 
-        detailCatBadge.setText(auction.getItem().getCategory());
-        detailCondBadge.setText(auction.getCondition());
+            // FIX LỖI HIỂN THỊ: Ép khung vuông 200x200 và dùng 'contain' để giữ nguyên vẹn ảnh
+            detailImageIcon.setStyle(
+                    "-fx-min-width: 300px; -fx-max-width: 300px;" +
+                            "-fx-min-height: 300px; -fx-max-height: 300px;" +
+                            "-fx-background-image: url('" + imgUrl + "');" +
+                            "-fx-background-size: contain;" +    // Giữ nguyên vẹn tỷ lệ, không cắt xén góc ảnh
+                            "-fx-background-repeat: no-repeat;" + // Không lặp lại ảnh nếu khung thừa không gian
+                            "-fx-background-position: center;"    // Căn ảnh nằm chính giữa khung hình vuông
+            );
+        } else {
+            // Khôi phục lại giao diện icon mặc định nếu sản phẩm không có ảnh up lên
+            detailImageIcon.setText(auction.getCategoryIcon());
+            detailImageIcon.setStyle("-fx-font-size:100px; -fx-padding:20;");
+        }
+
+        detailTitle.setText(auction.getTitle());
 
         // Status pill
         detailStatusPill.setText(auction.getStatusLabel());
@@ -76,13 +87,9 @@ public class AuctionDetailController {
 
         // Quick bid increments based on current price
         double cur = auction.getCurrentPrice();
-        double inc = auction.getMinIncrement();
-        quickBid1.setText("+" + inc);
-        quickBid2.setText("+" + inc * 5);
-        quickBid3.setText("+" + inc * 10);
-
-        minBid = cur + inc;
-        minBidHint.setText("Minimum bid:"+ String.format("%,.0f", minBid));
+        quickBid1.setText("+10");
+        quickBid2.setText("+50");
+        quickBid3.setText("+" );
 
         // Disable bid if not live or is own auction
         boolean canBid = auction.isLive()
@@ -157,8 +164,8 @@ public class AuctionDetailController {
             return;
         }
 
-        if (amount < minBid) {
-            showBidError("Minimum bid is " + String.format("%,.0f", minBid));
+        if (amount <= auction.getCurrentPrice()) {
+            showBidError("Bid must be > " + String.format("%,.0f", auction.getCurrentPrice()));
             AnimationUtil.shake(bidAmountField);
             return;
         }
@@ -188,8 +195,6 @@ public class AuctionDetailController {
                             renderUI();
                         }
 
-                        minBid = amount + auction.getMinIncrement();
-                        minBidHint.setText("Minimum bid:" + String.format("%,.0f", minBid));
                         bidAmountField.clear();
                         updatePriceDisplay();
                         loadBidHistory();
@@ -216,18 +221,14 @@ public class AuctionDetailController {
         // 2. Cập nhật số lượt đấu giá
         detailBidCount.setText(String.valueOf(auction.getBidCount()));
 
-        // 3. Cập nhật lại gợi ý mức giá tối thiểu tiếp theo
-        double minNextBid = auction.getCurrentPrice() + auction.getMinIncrement();
-        minBidHint.setText("Minimum bid: " + String.format("%,.0f", minNextBid));
-
-        // 4. Load lại danh sách lịch sử đấu giá (để hiện tên người vừa bid lên đầu)
+        // 3. Load lại danh sách lịch sử đấu giá (để hiện tên người vừa bid lên đầu)
         loadBidHistory();
     }
 
     // ── Quick bid handlers ────────────────────────────────────
-    @FXML public void quickBid1() { setQuickBid(auction.getMinIncrement()); }
-    @FXML public void quickBid2() { setQuickBid(auction.getMinIncrement() * 5); }
-    @FXML public void quickBid3() { setQuickBid(auction.getMinIncrement() * 10); }
+    @FXML public void quickBid1() { setQuickBid(10); }
+    @FXML public void quickBid2() { setQuickBid(50); }
+    @FXML public void quickBid3() { setQuickBid(100); }
 
     private void setQuickBid(double add) {
         double val = auction.getCurrentPrice() + (add > 0 ? add : 10);

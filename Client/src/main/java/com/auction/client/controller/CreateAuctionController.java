@@ -22,7 +22,7 @@ public class CreateAuctionController {
 
     @FXML private Label    pageTitle;
     @FXML private TextField fieldTitle, fieldStartPrice, fieldReservePrice,
-            fieldBidIncrement, fieldStartTime, fieldEndTime;
+             fieldStartTime, fieldEndTime;
     @FXML private TextArea  fieldDesc;
     @FXML private ComboBox<String> fieldCategory, fieldCondition;
     @FXML private Label    msgTitle, msgDesc, msgCategory, msgPrice,
@@ -102,7 +102,9 @@ public class CreateAuctionController {
                 new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
         File file = fc.showOpenDialog(imagePreviewBox.getScene().getWindow());
         if (file != null) {
-            selectedImagePath = file.getAbsolutePath();
+            // Chuyển đổi File thành chuẩn URI (file:///) trước khi gán
+            selectedImagePath = file.toURI().toString();
+
             imageIcon.setText("🖼");
             imageHint.setText(file.getName());
             imagePreviewBox.setStyle(imagePreviewBox.getStyle()
@@ -131,7 +133,7 @@ public class CreateAuctionController {
         String condition   = fieldCondition.getValue() == null ? "Good" : fieldCondition.getValue();
         double startPrice  = Double.parseDouble(fieldStartPrice.getText().trim());
         double reserve     = parseOptionalDouble(fieldReservePrice.getText());
-        double increment   = parseOptionalDouble(fieldBidIncrement.getText());
+        double increment   = 0;
         LocalDateTime start= parseDateTime(fieldStartTime.getText());
         LocalDateTime end  = parseDateTime(fieldEndTime.getText());
 

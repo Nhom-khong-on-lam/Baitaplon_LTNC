@@ -253,12 +253,28 @@ public class AuctionsController {
         card.setPadding(new Insets(14, 18, 14, 18));
 
         // ── Thumbnail ──
-        Label thumb = new Label(a.getCategoryIcon());
-        thumb.setStyle(
-                "-fx-font-size:28px; -fx-alignment:CENTER;" +
-                        "-fx-min-width:80px; -fx-max-width:80px;" +
-                        "-fx-min-height:80px; -fx-max-height:80px;" +
-                        "-fx-background-color:#f1f5f9; -fx-background-radius:10;");
+        Label thumb = new Label();
+        String imgUrl = a.getItem() != null ? a.getItem().getImageUrl() : null;
+
+        // Nếu sản phẩm có ảnh, dùng CSS để set ảnh làm background
+        if (imgUrl != null && !imgUrl.isEmpty()) {
+            thumb.setStyle(
+                    "-fx-min-width:80px; -fx-max-width:80px;" +
+                            "-fx-min-height:80px; -fx-max-height:80px;" +
+                            "-fx-background-radius:10;" +
+                            "-fx-background-image: url('" + imgUrl + "');" + // Gán URL ảnh
+                            "-fx-background-size: cover;" +                  // Phủ kín vùng 80x80
+                            "-fx-background-position: center;"
+            );
+        } else {
+            // Nếu không có ảnh, dùng Emoji mặc định của danh mục
+            thumb.setText(a.getCategoryIcon());
+            thumb.setStyle(
+                    "-fx-font-size:28px; -fx-alignment:CENTER;" +
+                            "-fx-min-width:80px; -fx-max-width:80px;" +
+                            "-fx-min-height:80px; -fx-max-height:80px;" +
+                            "-fx-background-color:#f1f5f9; -fx-background-radius:10;");
+        }
 
         // ── Info ──
         VBox info = new VBox(5);

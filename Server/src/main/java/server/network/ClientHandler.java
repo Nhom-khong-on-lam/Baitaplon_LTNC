@@ -1,6 +1,7 @@
 package server.network;
 
 import com.auction.common.dto.AuctionDTO;
+import com.auction.common.dto.AutoBidDTO;
 import com.auction.common.dto.UserDTO;
 import com.auction.common.enums.AccountStatus;
 import com.auction.common.enums.AuctionStatus;
@@ -12,6 +13,7 @@ import com.auction.common.model.User;
 import com.auction.common.network.Request;
 import com.auction.common.network.Response;
 import server.repository.AuctionDAO;
+import server.repository.AutoBidDAO;
 import server.repository.UserDAO;
 
 import java.io.ObjectInputStream;
@@ -421,11 +423,23 @@ public class ClientHandler extends Thread {
 
             java.util.Map<Long, String> imageMap = new java.util.HashMap<>();
             java.util.List<com.auction.common.dto.ItemImageDTO> allImages = imageDAO.getAll(); // Sử dụng hàm lấy hết dữ liệu ảnh
+
             if (allImages != null) {
                 for (com.auction.common.dto.ItemImageDTO imgDto : allImages) {
                     // Ưu tiên nạp đường dẫn ảnh đầu tiên tìm thấy của mỗi itemId vào bộ nhớ tạm
                     if (!imageMap.containsKey(imgDto.getItemId())) {
-                        imageMap.put(imgDto.getItemId(), imgDto.getImageUrl());
+
+                        String rawUrl = imgDto.getImageUrl();
+                        if (rawUrl != null) {
+                            // Xử lý đường dẫn Windows thành chuẩn URI của JavaFX ngay tại đây
+                            String safeUrl = rawUrl.replace("\\", "/");
+                            if (!safeUrl.startsWith("http") && !safeUrl.startsWith("file:")) {
+                                safeUrl = "file:///" + safeUrl;
+                            }
+
+                            // Lưu đường dẫn đã xử lý an toàn vào Map
+                            imageMap.put(imgDto.getItemId(), safeUrl);
+                        }
                     }
                 }
             }

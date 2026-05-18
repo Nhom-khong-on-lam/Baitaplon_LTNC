@@ -83,15 +83,6 @@
                                text="Leave blank for no reserve"/>
                     </VBox>
                 </HBox>
-
-                <!-- Bid Increment -->
-                <VBox spacing="6">
-                    <Label text="MINIMUM BID INCREMENT ($)" styleClass="form-label"/>
-                    <TextField fx:id="fieldBidIncrement" styleClass="form-input"
-                               promptText="e.g., 10" text="10"/>
-                    <Label styleClass="form-hint"
-                           text="Minimum amount each new bid must exceed the current by"/>
-                </VBox>
             </VBox>
 
             <!-- ── Right Column: Image + Schedule ─────────── -->
