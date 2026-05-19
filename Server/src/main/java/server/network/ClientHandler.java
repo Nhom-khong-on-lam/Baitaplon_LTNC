@@ -60,10 +60,12 @@ public class ClientHandler extends Thread {
             case Request.LOGIN: {
                 String[] creds    = (String[]) req.getData();
                 String   username = creds[0];
-                String   password = creds[1];
+                String   rawPassword = creds[1]; // Mật khẩu thô từ Client gửi lên
 
                 UserDTO user = userDAO.findByUsername(username);
-                if (user == null || !user.getPassword().equals(password)) {
+
+                // SỬ DỤNG BCRYPT: So sánh mật khẩu thô và chuỗi băm trong DB
+                if (user == null || !org.mindrot.jbcrypt.BCrypt.checkpw(rawPassword, user.getPassword())) {
                     return Response.error("Invalid username or password.");
                 }
                 if ("BANNED".equals(user.getAccountStatus())) {
@@ -90,17 +92,18 @@ public class ClientHandler extends Thread {
                 if (userDAO.isExisted("email", incoming.getEmail())) {
                     return Response.error("Email is already in use.");
                 }
-
+                String rawPassword = incoming.getPasswordHash(); // Client truyền mật khẩu thô qua hàm này
+                String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(rawPassword, org.mindrot.jbcrypt.BCrypt.gensalt());
                 UserDTO newUser = new UserDTO();
                 newUser.setUsername(incoming.getUsername());
                 newUser.setEmail(emailToCheck);
-                newUser.setPassword(incoming.getPasswordHash());
+                newUser.setPassword(hashedPassword);
                 newUser.setSystemRole("USER");
                 newUser.setAccountStatus("ACTIVE");
 
                 long id = userDAO.insert(newUser);
                 if (id == -1) return Response.error("System error. Please try again.");
-                return Response.ok(null);
+                return new Response(true, "Registration successful!", null);
             }
 
             case Request.LOGOUT: {
@@ -201,24 +204,29 @@ public class ClientHandler extends Thread {
             case "CHECK_PASSWORD": {
                 Object[] data   = (Object[]) req.getData();
                 Long     userId = (Long) data[0];
-                String   pass   = (String) data[1];
+                String   rawPass = (String) data[1]; // Mật khẩu thô cần kiểm tra
                 UserDTO  user   = userDAO.findById(userId);
                 if (user == null) return Response.error("User not found.");
-                boolean match = user.getPassword().equals(pass);
+
+                // SỬ DỤNG BCRYPT: Kiểm tra mật khẩu cũ khi người dùng muốn đổi pass
+                boolean match = org.mindrot.jbcrypt.BCrypt.checkpw(rawPass, user.getPassword());
                 return new Response(match, match ? "Password is correct." : "Incorrect password.", null);
             }
 
             case "UPDATE_PASSWORD": {
                 Object[] data    = (Object[]) req.getData();
                 String   email   = (String) data[0];
-                String   newPass = (String) data[1];
+                String   newRawPass = (String) data[1]; // Mật khẩu mới dạng thô
                 UserDTO  user    = userDAO.findByField("email", email);
                 if (user == null) return Response.error("User not found.");
-                user.setPassword(newPass);
+
+                // SỬ DỤNG BCRYPT: Băm mật khẩu mới trước khi lưu
+                String newHashedPass = org.mindrot.jbcrypt.BCrypt.hashpw(newRawPass, org.mindrot.jbcrypt.BCrypt.gensalt());
+                user.setPassword(newHashedPass);
+
                 boolean ok = userDAO.update(user);
                 return ok ? Response.ok(null) : Response.error("Failed to update password.");
             }
-
             case "UPDATE_USER": {
                 User incoming = (User) req.getData();
                 UserDTO user = userDAO.findById(incoming.getId());

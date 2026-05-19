@@ -173,9 +173,13 @@ public class AuthService {
             User newUser = new User("");
             newUser.setUsername(username);
             newUser.setEmail(email);
+
+            // Đảm bảo truyền chuỗi thô sang, không đi qua bộ lọc băm nào ở Client cả
             newUser.setPasswordHash(password);
+
             Request  req = new Request(Request.REGISTER, newUser);
             Response res = (Response) connection.sendRequest(req);
+
             return res != null && res.isSuccess();
         } catch (Exception e) {
             e.printStackTrace();

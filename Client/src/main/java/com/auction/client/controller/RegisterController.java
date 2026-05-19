@@ -67,8 +67,9 @@ public class RegisterController {
                     p.setOnFinished(e -> SceneManager.get().navigate(SceneManager.Screen.LOGIN));
                     p.play();
                 } else {
-                    setMsg(regMsg, "Registration failed. Username or Email already exists.", false);
-                    registerBtn.setDisable(false); // Mở khóa nút nếu lỗi
+                    // Sửa lại câu thông báo này cho đúng thực tế debug
+                    setMsg(regMsg, "Registration failed. (Server error or Account already exists)", false);
+                    registerBtn.setDisable(false);
                 }
             });
         }).start();

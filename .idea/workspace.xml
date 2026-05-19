@@ -7,7 +7,10 @@
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/RegisterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Server/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserDAO.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -343,7 +346,9 @@
       <workItem from="1779071555254" duration="9003000" />
       <workItem from="1779082067752" duration="6429000" />
       <workItem from="1779112307551" duration="15656000" />
-      <workItem from="1779154202919" duration="762000" />
+      <workItem from="1779154202919" duration="1534000" />
+      <workItem from="1779177940569" duration="604000" />
+      <workItem from="1779194445710" duration="3596000" />
     </task>
     <servers />
   </component>

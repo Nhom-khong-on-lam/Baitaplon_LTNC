@@ -35,23 +35,56 @@ public class UserDAO {
     }
 
     // --- CREATE ---
+    // --- CREATE (ĐÃ CHUẨN HÓA CHO TIDB SEQUENCE) ---
     public long insert(UserDTO user) {
-        String sql = "INSERT INTO user (username, password, email, systemRole, accountStatus, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        // 1. Lấy ID tiếp theo từ Sequence của TiDB trước
+        long nextId = -1;
+        String sqlSeq = "SELECT NEXT VALUE FOR seq_user"; // Thay 'user_seq' bằng đúng tên SEQUENCE bạn đã tạo trong DB
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getPassword());
-            ps.setString(3, user.getEmail());
-            ps.setString(4, user.getSystemRole() != null ? user.getSystemRole() : "USER");
-            ps.setString(5, user.getAccountStatus() != null ? user.getAccountStatus() : "ACTIVE");
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sqlSeq)) {
+            if (rs.next()) {
+                nextId = rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.WARNING, "Không thể lấy ID từ Sequence, thử dùng cơ chế dự phòng...", e);
+        }
+
+        // 2. Tiến hành INSERT kèm theo ID cụ thể vừa lấy được
+        String sql = "INSERT INTO user (id, username, password, email, systemRole, accountStatus, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            // Nếu lấy sequence thành công thì nạp id, nếu thất bại (=-1) để DB tự xử lý dự phòng
+            if (nextId != -1) {
+                ps.setLong(1, nextId);
+            } else {
+                ps.setNull(1, Types.BIGINT);
+            }
+
+            ps.setString(2, user.getUsername());
+            ps.setString(3, user.getPassword());
+            ps.setString(4, user.getEmail());
+            ps.setString(5, user.getSystemRole() != null ? user.getSystemRole() : "USER");
+            ps.setString(6, user.getAccountStatus() != null ? user.getAccountStatus() : "ACTIVE");
+
             LocalDateTime createdAt = (user.getCreatedAt() != null) ? user.getCreatedAt() : LocalDateTime.now();
-            ps.setTimestamp(6, Timestamp.valueOf(createdAt));
+            ps.setTimestamp(7, Timestamp.valueOf(createdAt));
+
             if (ps.executeUpdate() > 0) {
+                // Nếu ta chủ động nạp nextId từ đầu, trả về chính nó luôn mà không cần thông qua getGeneratedKeys()
+                if (nextId != -1) {
+                    LOGGER.info("INSERT SUCCESS: Đã tạo User mới ID=" + nextId + " [" + user.getUsername() + "]");
+                    return nextId;
+                }
+
+                // Cơ chế dự phòng trong trường hợp không dùng sequence từ đầu
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
-                        long id = rs.getLong(1);
-                        LOGGER.info("INSERT SUCCESS: Đã tạo User mới ID=" + id + " [" + user.getUsername() + "]");
-                        return id;
+                        long generatedId = rs.getLong(1);
+                        LOGGER.info("INSERT SUCCESS (Generated): Đã tạo User mới ID=" + generatedId);
+                        return generatedId;
                     }
                 }
             }
