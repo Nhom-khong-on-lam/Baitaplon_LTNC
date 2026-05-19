@@ -6,10 +6,7 @@ import com.auction.common.dto.UserDTO;
 import com.auction.common.enums.AccountStatus;
 import com.auction.common.enums.AuctionStatus;
 import com.auction.common.enums.SystemRole;
-import com.auction.common.model.Auction;
-import com.auction.common.model.DashboardData;
-import com.auction.common.model.Item;
-import com.auction.common.model.User;
+import com.auction.common.model.*;
 import com.auction.common.network.Request;
 import com.auction.common.network.Response;
 import server.repository.AuctionDAO;
@@ -289,7 +286,6 @@ public class ClientHandler extends Thread {
 
                 // 2. Lưu thông tin giao dịch đặt giá vào bảng lịch sử đấu giá (Bảng bid / bid_transaction)
                 // Hãy đảm bảo bạn đã tạo lớp BidDAO hoặc xử lý lưu lịch sử đấu giá ở đây nếu dự án yêu cầu:
-                /*
                 server.repository.BidDAO bidDAO = new server.repository.BidDAO();
                 com.auction.common.dto.BidDTO bidDto = new com.auction.common.dto.BidDTO();
                 bidDto.setAuctionId(auctionId);
@@ -297,7 +293,6 @@ public class ClientHandler extends Thread {
                 bidDto.setAmount(bidAmount);
                 bidDto.setBidTime(java.time.LocalDateTime.now());
                 bidDAO.insert(bidDto);
-                */
 
                 System.out.println("Sự kiện: Người dùng [" + bidder.getUsername() + "] đã đặt giá " + bidAmount + " cho phòng " + auctionId);
                 return Response.ok("Đặt giá thành công!");
@@ -486,6 +481,36 @@ public class ClientHandler extends Thread {
                 existing.setEndTime(java.time.LocalDateTime.now());
                 boolean ok = auctionDAO.update(existing);
                 return ok ? Response.ok(null) : Response.error("Failed to end auction.");
+            }
+
+            case Request.GET_BID_HISTORY: { // Hoặc case "GET_BID_HISTORY": nếu bạn dùng chuỗi
+                Long targetAuctionId = (Long) req.getData();
+                server.repository.BidDAO bidDAO = new server.repository.BidDAO();
+
+                // Lấy danh sách lịch sử từ Database
+                java.util.List<com.auction.common.dto.BidDTO> bidDtos = bidDAO.getBidsByAuctionId(targetAuctionId);
+
+                java.util.List<BidTransaction> transactions = new java.util.ArrayList<>();
+
+                if (bidDtos != null) {
+                    for (com.auction.common.dto.BidDTO bDto : bidDtos) {
+                        // Lấy thông tin User đã đặt giá
+                        UserDTO bidderDto = userDAO.findById(bDto.getBidderId());
+                        User bidderUser = bidderDto != null ? toClientUser(bidderDto)
+                                : new User(bDto.getBidderId(), "Unknown", "", "", SystemRole.USER);
+
+                        // Đóng gói thành Model gửi về Client (lấy luôn trạng thái isAutoBid từ DB)
+                        BidTransaction transaction = new BidTransaction(bidderUser, bDto.getAmount(), bDto.isAutoBid());
+
+                        // Đồng bộ thời gian đặt giá chuẩn từ Database lên giao diện
+                        if (bDto.getBidTime() != null) {
+                            transaction.setBidTime(bDto.getBidTime()); // Hoặc setBidTime tuỳ theo tên hàm trong class BidTransaction của bạn
+                        }
+
+                        transactions.add(transaction);
+                    }
+                }
+                return Response.ok(transactions);
             }
 
             // ── DEFAULT ──────────────────────────────────────────────────────
