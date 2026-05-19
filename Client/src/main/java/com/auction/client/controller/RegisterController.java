@@ -41,6 +41,14 @@ public class RegisterController {
         if (pass.length() < 6) {
             setMsg(regMsg, "Password must be at least 6 characters.", false); return;
         }
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        if (!email.matches(emailRegex)) {
+            // Hiển thị thông báo lỗi riêng cho ô Email để giao diện trực quan hơn
+            setMsg(emailMsg, "Invalid email format! (e.g. abc@gmail.com)", false);
+            setMsg(regMsg, "Please correct the email format.", false);
+            regEmail.requestFocus(); // Tự động trỏ chuột vào ô nhập email bị lỗi
+            return; // Chặn đứng, không cho chạy xuống Thread ngầm gửi lên Server
+        }
 
         // Tạm khóa nút và hiện thông báo chờ
         registerBtn.setDisable(true);

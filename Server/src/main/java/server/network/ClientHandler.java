@@ -82,7 +82,11 @@ public class ClientHandler extends Thread {
 
             case Request.REGISTER: {
                 User incoming = (User) req.getData();
-
+                String emailToCheck = incoming.getEmail() != null ? incoming.getEmail().trim() : "";
+                String serverEmailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+                if (emailToCheck.isEmpty() || !emailToCheck.matches(serverEmailRegex)) {
+                    return Response.error("Registration failed. Invalid email format.");
+                }
                 if (userDAO.isExisted("username", incoming.getUsername())) {
                     return Response.error("Username already exists.");
                 }
@@ -92,7 +96,7 @@ public class ClientHandler extends Thread {
 
                 UserDTO newUser = new UserDTO();
                 newUser.setUsername(incoming.getUsername());
-                newUser.setEmail(incoming.getEmail());
+                newUser.setEmail(emailToCheck);
                 newUser.setPassword(incoming.getPasswordHash());
                 newUser.setSystemRole("USER");
                 newUser.setAccountStatus("ACTIVE");

@@ -120,7 +120,7 @@ public class AuthService {
     // ── VALIDATION ───────────────────────────────────────────────────────────
     public boolean isValidEmail(String email) {
         if (email == null) return false;
-        return email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+        return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
     }
 
     public boolean isEmailExists(String email) {
