@@ -1,9 +1,10 @@
 package com.auction.common.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class BidTransaction {
+public class BidTransaction implements Serializable {
     private User bidder;
     private double amount;
     private LocalDateTime bidTime;
@@ -14,6 +15,10 @@ public class BidTransaction {
         this.amount = amount;
         this.autoBid = autoBid;
         this.bidTime = LocalDateTime.now();
+    }
+
+    public void setBidTime(LocalDateTime newTime) {
+        this.bidTime = newTime;
     }
     public User getBidder() {
         return bidder;
@@ -30,6 +35,7 @@ public class BidTransaction {
     public boolean isValid(double currentPrice, double step) {
         return amount >= currentPrice + step;
     }
+
     @Override
     public String toString() {
         return "BidTransaction{" +
@@ -39,9 +45,16 @@ public class BidTransaction {
                 ", autoBid=" + autoBid +
                 '}';
     }
+
     public String getFormattedTime() {
+        if (this.bidTime == null) {
+            String emptyTime = "";
+            return emptyTime;
+        }
+
         // Định dạng theo kiểu Giờ:Phút:Giây (Ví dụ: 21:45:10)
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        return bidTime.format(formatter);
+        String formattedString = this.bidTime.format(formatter);
+        return formattedString;
     }
 }
