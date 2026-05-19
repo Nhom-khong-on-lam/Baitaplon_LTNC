@@ -6,10 +6,7 @@ import com.auction.common.dto.UserDTO;
 import com.auction.common.enums.AccountStatus;
 import com.auction.common.enums.AuctionStatus;
 import com.auction.common.enums.SystemRole;
-import com.auction.common.model.Auction;
-import com.auction.common.model.DashboardData;
-import com.auction.common.model.Item;
-import com.auction.common.model.User;
+import com.auction.common.model.*;
 import com.auction.common.network.Request;
 import com.auction.common.network.Response;
 import server.repository.AuctionDAO;
@@ -240,6 +237,7 @@ public class ClientHandler extends Thread {
                 for (UserDTO dto : dtos) users.add(toClientUser(dto));
                 return Response.ok(users);
             }
+
             case Request.PLACE_BID: { // Hoặc thay bằng Request.PLACE_BID nếu bạn có định nghĩa hằng số
                 Object[] data = (Object[]) req.getData();
                 Long auctionId = (Long) data[0];
@@ -269,6 +267,22 @@ public class ClientHandler extends Thread {
                 // Nếu DB của bạn có trường lưu ID người giữ giá cao nhất, gán thêm tại đây:
                 // auctionDto.setHighestBidderId(bidder.getId());
 
+                //  THÊM LOGIC ANTI-SNIPING Ở ĐÂY ĐỂ LƯU XUỐNG DATABASE 
+                java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                java.time.LocalDateTime endTime = auctionDto.getEndTime();
+
+                if (endTime != null && now.isBefore(endTime)) {
+                    // Tính số giây còn lại thực tế trên Server
+                    long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
+
+                    // Luật: Nếu lượt đặt giá diễn ra trong 3 phút cuối cùng (180 giây)
+                    if (secondsRemaining <= 180) {
+                        // Cộng thêm 3 phút (180 giây) vào thời gian kết thúc
+                        auctionDto.setEndTime(endTime.plusSeconds(180));
+                        System.out.println("Anti-sniping kích hoạt: Phiên " + auctionId + " được gia hạn thêm 3 phút.");
+                    }
+                }
+
                 boolean updateSuccess = auctionDAO.update(auctionDto);
                 if (!updateSuccess) {
                     return Response.error("Không thể cập nhật giá đấu.");
@@ -276,7 +290,6 @@ public class ClientHandler extends Thread {
 
                 // 2. Lưu thông tin giao dịch đặt giá vào bảng lịch sử đấu giá (Bảng bid / bid_transaction)
                 // Hãy đảm bảo bạn đã tạo lớp BidDAO hoặc xử lý lưu lịch sử đấu giá ở đây nếu dự án yêu cầu:
-                /*
                 server.repository.BidDAO bidDAO = new server.repository.BidDAO();
                 com.auction.common.dto.BidDTO bidDto = new com.auction.common.dto.BidDTO();
                 bidDto.setAuctionId(auctionId);
@@ -284,7 +297,6 @@ public class ClientHandler extends Thread {
                 bidDto.setAmount(bidAmount);
                 bidDto.setBidTime(java.time.LocalDateTime.now());
                 bidDAO.insert(bidDto);
-                */
 
                 System.out.println("Sự kiện: Người dùng [" + bidder.getUsername() + "] đã đặt giá " + bidAmount + " cho phòng " + auctionId);
                 return Response.ok("Đặt giá thành công!");
@@ -473,6 +485,36 @@ public class ClientHandler extends Thread {
                 existing.setEndTime(java.time.LocalDateTime.now());
                 boolean ok = auctionDAO.update(existing);
                 return ok ? Response.ok(null) : Response.error("Failed to end auction.");
+            }
+
+            case Request.GET_BID_HISTORY: { // Hoặc case "GET_BID_HISTORY": nếu bạn dùng chuỗi
+                Long targetAuctionId = (Long) req.getData();
+                server.repository.BidDAO bidDAO = new server.repository.BidDAO();
+
+                // Lấy danh sách lịch sử từ Database
+                java.util.List<com.auction.common.dto.BidDTO> bidDtos = bidDAO.getBidsByAuctionId(targetAuctionId);
+
+                java.util.List<BidTransaction> transactions = new java.util.ArrayList<>();
+
+                if (bidDtos != null) {
+                    for (com.auction.common.dto.BidDTO bDto : bidDtos) {
+                        // Lấy thông tin User đã đặt giá
+                        UserDTO bidderDto = userDAO.findById(bDto.getBidderId());
+                        User bidderUser = bidderDto != null ? toClientUser(bidderDto)
+                                : new User(bDto.getBidderId(), "Unknown", "", "", SystemRole.USER);
+
+                        // Đóng gói thành Model gửi về Client (lấy luôn trạng thái isAutoBid từ DB)
+                        BidTransaction transaction = new BidTransaction(bidderUser, bDto.getAmount(), bDto.isAutoBid());
+
+                        // Đồng bộ thời gian đặt giá chuẩn từ Database lên giao diện
+                        if (bDto.getBidTime() != null) {
+                            transaction.setBidTime(bDto.getBidTime()); // Hoặc setBidTime tuỳ theo tên hàm trong class BidTransaction của bạn
+                        }
+
+                        transactions.add(transaction);
+                    }
+                }
+                return Response.ok(transactions);
             }
 
             // ── DEFAULT ──────────────────────────────────────────────────────
