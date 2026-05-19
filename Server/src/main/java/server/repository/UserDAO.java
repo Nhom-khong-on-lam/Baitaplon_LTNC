@@ -19,8 +19,13 @@ public class UserDAO {
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password"));
         user.setEmail(rs.getString("email"));
-        user.setSystemRole(rs.getString("systemRole"));
-        user.setAccountStatus(rs.getString("accountStatus"));
+
+        // 🔥 CHUẨN HÓA CHỮ HOA: Tránh lỗi nếu trong DB lỡ lưu chữ thường 'admin' hoặc 'user'
+        String role = rs.getString("systemRole");
+        user.setSystemRole(role != null ? role.toUpperCase().trim() : "USER");
+
+        String status = rs.getString("accountStatus");
+        user.setAccountStatus(status != null ? status.toUpperCase().trim() : "ACTIVE");
 
         Timestamp ts = rs.getTimestamp("created_at");
         if(ts != null) {

@@ -790,7 +790,7 @@ is_read</ColNames>
       <UnderlyingIndexName>auction_id</UnderlyingIndexName>
     </key>
     <column id="151" parent="35" name="id">
-      <AutoIncrement>2</AutoIncrement>
+      <AutoIncrement>0</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
