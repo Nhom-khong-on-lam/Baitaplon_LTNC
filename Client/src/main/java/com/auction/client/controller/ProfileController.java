@@ -167,18 +167,18 @@ public class ProfileController {
             row.setStyle("-fx-background-color:#f0fdf4; -fx-background-radius:8;" +
                     "-fx-border-color:#bbf7d0; -fx-border-radius:8; -fx-border-width:1;");
 
-            Label icon = new Label(a.getCategoryIcon());
-            icon.setStyle("-fx-font-size:20px;");
-
             VBox info = new VBox(2);
             HBox.setHgrow(info, Priority.ALWAYS);
+
             Label title = new Label(a.getTitle());
             title.setStyle("-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#15803d;");
+
+            title.setWrapText(true);
             Label price = new Label("$" + String.format("%,.0f", a.getCurrentPrice()));
             price.setStyle("-fx-font-size:11px; -fx-text-fill:#16a34a;");
             info.getChildren().addAll(title, price);
 
-            row.getChildren().addAll(icon, info);
+            row.getChildren().addAll(info);
             wonList.getChildren().add(row);
         }
     }

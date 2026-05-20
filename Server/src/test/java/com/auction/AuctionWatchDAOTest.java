@@ -65,7 +65,7 @@ public class AuctionWatchDAOTest {
     @Order(2)
     @DisplayName("2. Test Find By User ID")
     void testFindByUserId() {
-        List<Auction_watchDTO> list = watchDAO.findByUserId(testUserId);
+        List<Auction_watchDTO> list = watchDAO.getWatchListByUserId(testUserId);
         assertNotNull(list);
         assertFalse(list.isEmpty());
         // Kiểm tra xem ID auction lấy ra có đúng cái mình vừa lưu không

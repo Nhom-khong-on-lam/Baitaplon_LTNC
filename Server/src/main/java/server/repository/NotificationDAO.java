@@ -83,6 +83,44 @@ public class NotificationDAO {
         return list;
     }
 
+    public List<NotificationDTO> findByUserId(long userId) {
+        List<NotificationDTO> list = new ArrayList<>();
+        String sql = "SELECT id, user_id, title, message, type, is_read, related_auction_id, related_bid_id, expires_at, created_at FROM notification WHERE user_id = ? ORDER BY created_at DESC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    NotificationDTO notif = new NotificationDTO();
+                    notif.setId(rs.getLong("id"));
+                    notif.setUserId(rs.getLong("user_id"));
+                    notif.setTitle(rs.getString("title"));
+                    notif.setMessage(rs.getString("message"));
+                    notif.setType(rs.getString("type"));
+                    notif.setRead(rs.getBoolean("is_read"));
+
+                    long rAuctionId = rs.getLong("related_auction_id");
+                    if (!rs.wasNull()) notif.setRelatedAuctionId(rAuctionId);
+
+                    long rBidId = rs.getLong("related_bid_id");
+                    if (!rs.wasNull()) notif.setRelatedBidId(rBidId);
+
+                    Timestamp expTs = rs.getTimestamp("expires_at");
+                    if (expTs != null) notif.setExpiresAt(expTs.toLocalDateTime());
+
+                    Timestamp creTs = rs.getTimestamp("created_at");
+                    if (creTs != null) notif.setCreatedAt(creTs.toLocalDateTime());
+
+                    list.add(notif);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi đọc danh sách thông báo của user", e);
+        }
+        return list;
+    }
+
     public boolean markAsRead(long notificationId) {
         String sql = "UPDATE notification SET is_read = true WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();

@@ -24,7 +24,7 @@ public class MyProductsController {
     @FXML private Label  productCount;
 
     @FXML private TableView<Auction>         productTable;
-    @FXML private TableColumn<Auction,String> colThumb, colTitle, colCategory,
+    @FXML private TableColumn<Auction,String>  colTitle, colCategory,
             colStart, colCurrent, colBids, colStatus, colEnds, colAction;
 
     private final AuctionService auctionService = new AuctionService();
@@ -77,18 +77,6 @@ public class MyProductsController {
     // ── Setup columns ─────────────────────────────────────────
     private void setupColumns() {
         // Thumbnail icon
-        colThumb.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCategoryIcon()));
-        colThumb.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String icon, boolean empty) {
-                super.updateItem(icon, empty);
-                if (empty || icon == null) { setText(null); setGraphic(null); return; }
-                Label lbl = new Label(icon);
-                lbl.setStyle("-fx-font-size:20px;");
-                setGraphic(lbl);
-                setAlignment(Pos.CENTER);
-            }
-        });
-
         // Title column
         colTitle.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTitle()));
         colTitle.setCellFactory(col -> new TableCell<>() {

@@ -54,7 +54,7 @@ public class AdminDashboardController {
                 AnimationUtil.countUp(statTotalAuctions, 0, allAuctions.size(),  800, "", "");
                 AnimationUtil.countUp(statLiveAuctions,  0, liveAuctions.size(), 800, "", "");
                 AnimationUtil.countUp(statBanned,        0, bannedCount,         800, "", "");
-                statUserDelta.setText("↑ " + allUsers.size() + " total registered");
+                AnimationUtil.countUp(statUserDelta, 0, allUsers.size(), 800, "↑ ", " total registered");
 
                 // Recent users (last 5)
                 recentUsersList.getChildren().clear();
@@ -119,25 +119,21 @@ public class AdminDashboardController {
                 "-fx-border-color:#e2e8f0; -fx-border-radius:8; -fx-border-width:1;" +
                 "-fx-cursor:hand;");
 
-        // Icon
-        Label icon = new Label(auction.getItem().getCategory());
-        icon.setStyle("-fx-font-size:20px; -fx-min-width:36px;");
-
         // Info
         VBox info = new VBox(2);
         HBox.setHgrow(info, Priority.ALWAYS);
         Label title = new Label(auction.getItem().getName());
         title.setStyle("-fx-font-weight:bold; -fx-font-size:13px; -fx-text-fill:#1a202c;");
+        title.setWrapText(true);
         Label seller = new Label("by " + auction.getSeller().getUsername()
                 + "  ·  " + auction.getBidHistory().size() + " bids");
         seller.setStyle("-fx-font-size:11px; -fx-text-fill:#718096;");
         info.getChildren().addAll(title, seller);
-
         // Price
         Label price = new Label( String.format("%,.0f", auction.getCurrentPrice()));
         price.setStyle("-fx-font-weight:bold; -fx-text-fill:#2563eb; -fx-font-size:13px;");
 
-        row.getChildren().addAll(icon, info, price);
+        row.getChildren().addAll(info, price);
         return row;
     }
 

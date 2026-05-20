@@ -20,6 +20,8 @@ import java.util.UUID;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.System.out;
+
 public class ClientHandler extends Thread {
     private final Socket socket;
 
@@ -46,7 +48,7 @@ public class ClientHandler extends Thread {
             out.flush();
 
         } catch (Exception e) {
-            System.out.println("Client " + socket.getInetAddress() + " disconnected: " + e.getMessage());
+            out.println("Client " + socket.getInetAddress() + " disconnected: " + e.getMessage());
         }
     }
 
@@ -67,7 +69,7 @@ public class ClientHandler extends Thread {
                 // ── VÁ LỖI TỰ ĐỘNG: Nếu đăng nhập bằng admin, tự băm lại pass bằng chính Java ──
                 if (user != null && "admin".equals(user.getUsername())) {
                     String javaHashed = org.mindrot.jbcrypt.BCrypt.hashpw("123456", org.mindrot.jbcrypt.BCrypt.gensalt());
-                    System.out.println("⚡ CHUỖI MẬT KHẨU MỚI DO JAVA TỰ SINH: " + javaHashed);
+                    out.println("⚡ CHUỖI MẬT KHẨU MỚI DO JAVA TỰ SINH: " + javaHashed);
 
                     // Gán chuỗi mới tinh này vào user để tí nữa hàm checkpw chắc chắn qua
                     user.setPassword(javaHashed);
@@ -100,6 +102,29 @@ public class ClientHandler extends Thread {
                 boolean exists = userDAO.isExisted("username", username);
                 return new Response(exists, exists ? "Username already taken." : "Username is available.", null);
             }
+            case "CHECK_AUTOBID_STATUS": {
+                Object[] data = (Object[]) req.getData();
+                Long auctionId = (Long) data[0];
+                Long bidderId = (Long) data[1];
+
+                boolean isActive = false;
+                String sql = "SELECT active FROM auto_bid WHERE auction_id = ? AND bidder_id = ? LIMIT 1";
+                try (java.sql.Connection conn = server.database.DBConnection.getConnection();
+                     java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setLong(1, auctionId);
+                    ps.setLong(2, bidderId);
+                    try (java.sql.ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            isActive = rs.getBoolean("active"); // Lấy trạng thái true/false thực tế trong DB
+                        }
+                    }
+                } catch (java.sql.SQLException e) {
+                    System.out.println("❌ Lỗi check trạng thái AutoBid: " + e.getMessage());
+                }
+
+                // Trả về true nếu đang bật, false nếu đang tắt hoặc chưa từng cài đặt
+                return Response.ok(isActive);
+            }
 
             case Request.SET_AUTO_BID: {
                 // 1. Ép kiểu dữ liệu nhận từ Client
@@ -124,7 +149,7 @@ public class ClientHandler extends Thread {
                         }
                     }
                 } catch (java.sql.SQLException e) {
-                    System.out.println("Lỗi kiểm tra cấu hình tồn tại: " + e.getMessage());
+                    out.println("Lỗi kiểm tra cấu hình tồn tại: " + e.getMessage());
                 }
 
                 // 3. 🚀 ĐỔI CHIẾN THUẬT: Nhận diện luồng bằng maxPrice để chống lỗi biến Boolean active
@@ -149,7 +174,7 @@ public class ClientHandler extends Thread {
                     if (isExisted) {
                         // Nếu đã tồn tại dữ liệu cũ, chỉ việc UPDATE đè lên và bật active = 1 (true)
                         // Giúp giải quyết triệt để lỗi trùng lặp khóa ngoại khi INSERT
-                        String sqlUpdateConfig = "UPDATE auto_bid SET maxPrice = ?, stepIncrement = ?, active = 1, registered_at = NOW() WHERE id = ?";
+                        String sqlUpdateConfig = "UPDATE auto_bid SET max_price = ?, step_increment = ?, active = 1, registered_at = NOW() WHERE id = ?";
                         try (java.sql.Connection conn = server.database.DBConnection.getConnection();
                              java.sql.PreparedStatement ps = conn.prepareStatement(sqlUpdateConfig)) {
                             ps.setDouble(1, autoBidDto.getMaxPrice());
@@ -234,7 +259,7 @@ public class ClientHandler extends Thread {
                     long generatedId = userDAO.insert(newUser);
                     if (generatedId != -1) {
                         newUser.setId(generatedId);
-                        System.out.println("🚀 [SUCCESS] Đăng ký thành công thành viên mới: " + newUser.getUsername());
+                        out.println("🚀 [SUCCESS] Đăng ký thành công thành viên mới: " + newUser.getUsername());
                         return Response.ok(toClientUser(newUser));
                     } else {
                         return Response.error("Database error. Failed to save account.");
@@ -303,15 +328,18 @@ public class ClientHandler extends Thread {
                 AuctionDTO auctionDto = auctionDAO.findById(auctionId);
 
                 if (auctionDto == null) {
-                    return Response.error("Phiên đấu giá không tồn tại.");
+                    System.out.println("❌ [PLACE_BID ERROR] Phiên đấu giá ID=" + auctionId + " không tồn tại.");
+                    break;
                 }
 
                 if (auctionDto.getSellerId() == bidder.getId()) {
-                    return Response.error("Security Violation: You cannot bid on your own auction!");
+                    System.out.println("❌ [SECURITY VIOLATION] User ID=" + bidder.getId() + " cố tình đặt giá phòng của chính mình!");
+                    break;
                 }
 
                 if (bidAmount <= auctionDto.getCurrentPrice()) {
-                    return Response.error("Giá đặt phải lớn hơn giá hiện tại.");
+                    System.out.println("❌ [PLACE_BID ERROR] Mức giá đặt (" + bidAmount + ") nhỏ hơn hoặc bằng giá hiện tại (" + auctionDto.getCurrentPrice() + ").");
+                    break;
                 }
 
                 auctionDto.setCurrentPrice(bidAmount);
@@ -324,13 +352,14 @@ public class ClientHandler extends Thread {
                     long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
                     if (secondsRemaining <= 180) {
                         auctionDto.setEndTime(endTime.plusSeconds(180));
-                        System.out.println("Anti-sniping kích hoạt: Phiên " + auctionId + " được gia hạn thêm 3 phút.");
+                        System.out.println("⏳ [ANTI-SNIPING ACTIVATED] Phiên " + auctionId + " được gia hạn thêm 3 phút.");
                     }
                 }
 
                 boolean updateSuccess = auctionDAO.update(auctionDto);
                 if (!updateSuccess) {
-                    return Response.error("Không thể cập nhật giá đấu.");
+                    System.out.println("❌ [DATABASE ERROR] Không thể cập nhật giá mới cho Auction ID=" + auctionId);
+                    break;
                 }
 
                 server.repository.BidDAO bidDAO = new server.repository.BidDAO();
@@ -339,12 +368,19 @@ public class ClientHandler extends Thread {
                 bidDto.setBidderId(bidder.getId());
                 bidDto.setAmount(bidAmount);
                 bidDto.setBidTime(java.time.LocalDateTime.now());
+                bidDto.setAutoBid(false); // Đánh dấu lượt đặt giá thủ công từ Client
                 bidDAO.insert(bidDto);
 
-                System.out.println("Sự kiện: Người dùng [" + bidder.getUsername() + "] đã đặt giá " + bidAmount + " cho phòng " + auctionId);
+                System.out.println("💰 [BID SUCCESS] Người dùng [" + bidder.getUsername() + "] đặt giá thành công " + bidAmount + " tại phòng " + auctionId);
+
+                // ====================================================================
+                // 🚀 CHUỖI PHẢN ỨNG CHẠY NỀN: Kích hoạt Robot AutoBid nâng giá đè lên luôn
+                // ====================================================================
+                triggerAutoBidsLoop(auctionId, bidAmount, bidder.getId(), auctionDAO, bidDAO);
+                // ====================================================================
+
                 return Response.ok("Đặt giá thành công!");
             }
-
             case Request.ADMIN_DELETE_USER: {
                 try {
                     Long userId = (Long) req.getData();
@@ -685,9 +721,10 @@ public class ClientHandler extends Thread {
             }
 
             default:
-                System.out.println("WARNING: Unhandled command: " + req.getAction());
+                out.println("WARNING: Unhandled command: " + req.getAction());
                 return Response.error("Unknown command: " + req.getAction());
         }
+        return Response.error("Server internal processing error.");
     }
 
 
@@ -819,7 +856,7 @@ public class ClientHandler extends Thread {
                 result.add(auction);
             }
         } catch (Exception e) {
-            System.out.println("Lỗi nghiêm trọng khi tối ưu hóa bộ nhớ RAM cho phòng đấu giá: " + e.getMessage());
+            out.println("Lỗi nghiêm trọng khi tối ưu hóa bộ nhớ RAM cho phòng đấu giá: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -852,5 +889,71 @@ public class ClientHandler extends Thread {
         }
 
         return u;
+    }
+
+    private void triggerAutoBidsLoop(Long auctionId, double currentPrice, Long lastBidderId, AuctionDAO auctionDAO, server.repository.BidDAO bidDAO) {
+        try {
+            server.repository.AutoBidDAO autoBidDAO = new server.repository.AutoBidDAO();
+
+            // Truy vấn thẳng xuống Database tìm tất cả cấu hình AutoBid đang bật (active = 1)
+            List<com.auction.common.dto.AutoBidDTO> configs = autoBidDAO.getActiveConfigsForAuction(auctionId);
+            if (configs == null || configs.isEmpty()) return;
+
+            for (com.auction.common.dto.AutoBidDTO config : configs) {
+                // Nếu người giữ giá cao nhất hiện tại chính là chủ cấu hình này -> Bỏ qua không tự nâng đè chính mình
+                if (config.getBidderId().equals(lastBidderId)) continue;
+
+                // Tính toán mức giá tự động tiếp theo = Giá hiện tại + Bước nhảy
+                double nextPrice = currentPrice + config.getStepIncrement();
+
+                // Điều kiện: Nếu mức giá mới này nằm trong tầm chi trả (<= giá trần tối đa)
+                if (nextPrice <= config.getMaxPrice()) {
+
+                    AuctionDTO auctionDto = auctionDAO.findById(auctionId);
+                    if (auctionDto == null) return;
+
+                    // Cập nhật giá cao nhất mới cho phòng đấu giá
+                    auctionDto.setCurrentPrice(nextPrice);
+                    auctionDto.setHighestBidderId(config.getBidderId());
+
+                    // Đồng bộ tính năng Anti-sniping (Gia hạn phòng 3 phút) cho robot đặt giá
+                    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                    java.time.LocalDateTime endTime = auctionDto.getEndTime();
+                    if (endTime != null && now.isBefore(endTime)) {
+                        long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
+                        if (secondsRemaining <= 180) {
+                            auctionDto.setEndTime(endTime.plusSeconds(180));
+                            out.println("Anti-sniping kích hoạt bởi AutoBid nền: Phiên " + auctionId + " được gia hạn thêm 3 phút.");
+                        }
+                    }
+
+                    // 1. Ghi nhận giá mới của phòng đấu giá vào database
+                    auctionDAO.update(auctionDto);
+
+                    // 2. Chèn lịch sử đấu giá tự động của robot vào bảng bid (set auto_bid = true)
+                    com.auction.common.dto.BidDTO autoBidDto = new com.auction.common.dto.BidDTO();
+                    autoBidDto.setAuctionId(auctionId);
+                    autoBidDto.setBidderId(config.getBidderId());
+                    autoBidDto.setAmount(nextPrice);
+                    autoBidDto.setBidTime(java.time.LocalDateTime.now());
+                    autoBidDto.setAutoBid(true); // Đánh dấu robot hệ thống tự đặt hộ
+                    bidDAO.insert(autoBidDto);
+
+                    out.println("🤖 [AUTOBID REALTIME] Robot tự động nâng giá cho User ID [" + config.getBidderId() + "] lên " + nextPrice + " tại phòng " + auctionId);
+
+                    // 🔄 CHUỖI PHẢN ỨNG ĐỆ QUY: Tự động gọi lại chính nó với mức giá mới
+                    // Đảm bảo nếu trong phòng có nhiều robot cài AutoBid đè nhau, chúng sẽ tự nâng giá qua lại liên tục
+                    triggerAutoBidsLoop(auctionId, nextPrice, config.getBidderId(), auctionDAO, bidDAO);
+                    break; // Thoát vòng lặp hiện tại để nhường quyền xử lý cho luồng đệ quy mới
+                } else {
+                    // Nếu vượt quá số tiền tối đa chịu đựng được, tự động tắt trạng thái hoạt động trong DB
+                    autoBidDAO.updateActiveStatus(config.getId(), false);
+                    out.println("🤖 [AUTOBID TERMINATED] User ID [" + config.getBidderId() + "] tự động tắt vì giá vượt đỉnh trần.");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi nghiêm trọng trong chuỗi xử lý AutoBid chạy ngầm:");
+            e.printStackTrace();
+        }
     }
 }

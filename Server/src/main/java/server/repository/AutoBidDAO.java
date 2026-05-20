@@ -15,8 +15,7 @@ public class AutoBidDAO {
     private static final Logger LOGGER = Logger.getLogger(AutoBidDAO.class.getName());
 
     public long insert(AutoBidDTO config) {
-        String sql = "INSERT INTO auto_bid (auction_id, bidder_id, maxPrice, stepIncrement, active, registered_at) VALUES (?, ?, ?, ?, ?, ?)";
-
+        String sql = "INSERT INTO auto_bid (auction_id, bidder_id, maxPrice, step_increment, active) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -29,8 +28,6 @@ public class AutoBidDAO {
 
             ps.setBoolean(5, config.isActive());
 
-            LocalDateTime timeToSave = (config.getRegisteredAt() != null) ? config.getRegisteredAt() : LocalDateTime.now();
-            ps.setTimestamp(6, Timestamp.valueOf(timeToSave));
 
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -72,7 +69,8 @@ public class AutoBidDAO {
 
     public List<AutoBidDTO> getActiveConfigsForAuction(Long auctionId) {
         List<AutoBidDTO> configs = new ArrayList<>();
-        String sql = "SELECT * FROM auto_bid WHERE auction_id = ? AND active = 1 ORDER BY registered_at ASC";
+        // ✅ ĐÃ SỬA: Lấy theo maxPrice và stepIncrement
+        String sql = "SELECT * FROM auto_bid WHERE auction_id = ? AND active = 1 ORDER BY max_price DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -85,8 +83,9 @@ public class AutoBidDAO {
                     config.setAuctionId(rs.getLong("auction_id"));
                     config.setBidderId(rs.getLong("bidder_id"));
 
-                    config.setMaxPrice(rs.getDouble("maxPrice"));
-                    config.setStepIncrement(rs.getDouble("stepIncrement"));
+                    // ✅ ĐÃ SỬA: Tên cột chuẩn CamelCase của Database
+                    config.setMaxPrice(rs.getDouble("max_price"));
+                    config.setStepIncrement(rs.getDouble("step_increment"));
 
                     config.setActive(rs.getBoolean("active"));
 
@@ -116,8 +115,8 @@ public class AutoBidDAO {
                     config.setAuctionId(rs.getLong("auction_id"));
                     config.setBidderId(rs.getLong("bidder_id"));
 
-                    config.setMaxPrice(rs.getDouble("maxPrice"));
-                    config.setStepIncrement(rs.getDouble("stepIncrement"));
+                    config.setMaxPrice(rs.getDouble("max_price"));
+                    config.setStepIncrement(rs.getDouble("step_increment"));
                     config.setActive(rs.getBoolean("active"));
 
                     Timestamp ts = rs.getTimestamp("registered_at");

@@ -5,8 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminDashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionDetailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionDetailController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyProductsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyProductsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/ProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/ProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_dashboard.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_dashboard.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/global.css" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/global.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/my_products.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/my_products.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" beforeDir="false" afterPath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/AutoBidDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/AutoBidDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/NotificationDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/NotificationDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionWatchDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionWatchDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDTOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDTOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserSessionDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserSessionDAOTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AutoBidDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AutoBidDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,117 +74,117 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.AuctionDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;Application.AuctionServer.executor&quot;: &quot;Run&quot;,
-    &quot;Application.DBConnection.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Launcher.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
-    &quot;Application.TestConnection.executor&quot;: &quot;Run&quot;,
-    &quot;Application.TestInsert.executor&quot;: &quot;Run&quot;,
-    &quot;Database Script.DATABASE.sql.executor&quot;: &quot;Run&quot;,
-    &quot;Database Script.database.sql.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminAuctionControllertest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminAuctionsControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminDashboardControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminMainControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AdminUsersControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AnimationUtilTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ArtFactoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ArtTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionDAOTest.testGetAll.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionDAOTest.testGetAllAuctions.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionDAOTest.testInsertAuction.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionDetailControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionExtensionLogDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionObserverTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionWatchDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.Auction_extension_logDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.Auction_watchDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AuctionsControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AutoBidConfigTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AutoBidDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AutoBidDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.BaseEntityTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.BidDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.BidDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.BidTransactionTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.BidTransactionTest.testConstructor.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CreateAuctionControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.DBConnectionTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.DashboardControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ElectronicsFactoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ElectronicsTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ItemDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ItemDAOTest.testGetItemById.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ItemDAOTest.testInsertItem.executor&quot;: &quot;Debug&quot;,
-    &quot;JUnit.ItemDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ItemImageDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ItemImageDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ItemTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.LoginControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.MainControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.MyBidsControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.MyProductsControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.NotificationDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.NotificationDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PaymentDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PaymentDAOTest.testGetHistoryAndUpdate.executor&quot;: &quot;Debug&quot;,
-    &quot;JUnit.PaymentDAOTest.testInsertPayment.executor&quot;: &quot;Debug&quot;,
-    &quot;JUnit.PaymentDAOTest.testUpdateAndHistory.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PaymentDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ProfileControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.RegisterControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.SceneManagerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.SessionManagerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.SplashControllerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserSessionDAOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.User_SessionDTOTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.VehicleFactoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.VehicleTest.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/ADMIN/Baitaplon_LTNC/untitled/src/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.customizations&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AuctionDAOTest.executor": "Run",
+    "Application.AuctionServer.executor": "Run",
+    "Application.DBConnection.executor": "Run",
+    "Application.Launcher.executor": "Debug",
+    "Application.MainApp.executor": "Run",
+    "Application.TestConnection.executor": "Run",
+    "Application.TestInsert.executor": "Run",
+    "Database Script.DATABASE.sql.executor": "Run",
+    "Database Script.database.sql.executor": "Run",
+    "JUnit.AdminAuctionControllertest.executor": "Run",
+    "JUnit.AdminAuctionsControllerTest.executor": "Run",
+    "JUnit.AdminDashboardControllerTest.executor": "Run",
+    "JUnit.AdminMainControllerTest.executor": "Run",
+    "JUnit.AdminUsersControllerTest.executor": "Run",
+    "JUnit.AnimationUtilTest.executor": "Run",
+    "JUnit.ArtFactoryTest.executor": "Run",
+    "JUnit.ArtTest.executor": "Run",
+    "JUnit.AuctionDAOTest.executor": "Run",
+    "JUnit.AuctionDAOTest.testGetAll.executor": "Run",
+    "JUnit.AuctionDAOTest.testGetAllAuctions.executor": "Run",
+    "JUnit.AuctionDAOTest.testInsertAuction.executor": "Run",
+    "JUnit.AuctionDTOTest.executor": "Run",
+    "JUnit.AuctionDetailControllerTest.executor": "Run",
+    "JUnit.AuctionExtensionLogDAOTest.executor": "Run",
+    "JUnit.AuctionObserverTest.executor": "Run",
+    "JUnit.AuctionTest.executor": "Run",
+    "JUnit.AuctionWatchDAOTest.executor": "Run",
+    "JUnit.Auction_extension_logDTOTest.executor": "Run",
+    "JUnit.Auction_watchDTOTest.executor": "Run",
+    "JUnit.AuctionsControllerTest.executor": "Run",
+    "JUnit.AutoBidConfigTest.executor": "Run",
+    "JUnit.AutoBidDAOTest.executor": "Run",
+    "JUnit.AutoBidDTOTest.executor": "Run",
+    "JUnit.BaseEntityTest.executor": "Run",
+    "JUnit.BidDAOTest.executor": "Run",
+    "JUnit.BidDTOTest.executor": "Run",
+    "JUnit.BidTransactionTest.executor": "Run",
+    "JUnit.BidTransactionTest.testConstructor.executor": "Run",
+    "JUnit.CreateAuctionControllerTest.executor": "Run",
+    "JUnit.DBConnectionTest.executor": "Run",
+    "JUnit.DashboardControllerTest.executor": "Run",
+    "JUnit.ElectronicsFactoryTest.executor": "Run",
+    "JUnit.ElectronicsTest.executor": "Run",
+    "JUnit.ItemDAOTest.executor": "Run",
+    "JUnit.ItemDAOTest.testGetItemById.executor": "Run",
+    "JUnit.ItemDAOTest.testInsertItem.executor": "Debug",
+    "JUnit.ItemDTOTest.executor": "Run",
+    "JUnit.ItemImageDAOTest.executor": "Run",
+    "JUnit.ItemImageDTOTest.executor": "Run",
+    "JUnit.ItemTest.executor": "Run",
+    "JUnit.LoginControllerTest.executor": "Run",
+    "JUnit.MainControllerTest.executor": "Run",
+    "JUnit.MyBidsControllerTest.executor": "Run",
+    "JUnit.MyProductsControllerTest.executor": "Run",
+    "JUnit.NotificationDAOTest.executor": "Run",
+    "JUnit.NotificationDTOTest.executor": "Run",
+    "JUnit.PaymentDAOTest.executor": "Run",
+    "JUnit.PaymentDAOTest.testGetHistoryAndUpdate.executor": "Debug",
+    "JUnit.PaymentDAOTest.testInsertPayment.executor": "Debug",
+    "JUnit.PaymentDAOTest.testUpdateAndHistory.executor": "Run",
+    "JUnit.PaymentDTOTest.executor": "Run",
+    "JUnit.ProfileControllerTest.executor": "Run",
+    "JUnit.RegisterControllerTest.executor": "Run",
+    "JUnit.SceneManagerTest.executor": "Run",
+    "JUnit.SessionManagerTest.executor": "Run",
+    "JUnit.SplashControllerTest.executor": "Run",
+    "JUnit.UserDAOTest.executor": "Run",
+    "JUnit.UserDTOTest.executor": "Run",
+    "JUnit.UserSessionDAOTest.executor": "Run",
+    "JUnit.UserTest.executor": "Run",
+    "JUnit.User_SessionDTOTest.executor": "Run",
+    "JUnit.VehicleFactoryTest.executor": "Run",
+    "JUnit.VehicleTest.executor": "Run",
+    "Maven.Client [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "develop",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/ADMIN/Baitaplon_LTNC/untitled/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.customizations",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ],
-    &quot;RunConfigurationTargetLRU&quot;: [
-      &quot;1c51dd04-cdc9-4594-b9f0-bc35004fb068&quot;,
-      &quot;f89b9c79-0571-4441-9faa-1348da6f5751&quot;
+    "RunConfigurationTargetLRU": [
+      "1c51dd04-cdc9-4594-b9f0-bc35004fb068",
+      "f89b9c79-0571-4441-9faa-1348da6f5751"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\resources\com\auction\client" />
@@ -173,7 +192,7 @@
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\DAO" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Launcher">
+  <component name="RunManager">
     <configuration name="AuctionServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="server.network.AuctionServer" />
       <module name="Server" />
@@ -346,6 +365,7 @@
       <workItem from="1779257003903" duration="111000" />
       <workItem from="1779258007836" duration="5288000" />
       <workItem from="1779266756169" duration="917000" />
+      <workItem from="1779282127038" duration="4338000" />
     </task>
     <servers />
   </component>

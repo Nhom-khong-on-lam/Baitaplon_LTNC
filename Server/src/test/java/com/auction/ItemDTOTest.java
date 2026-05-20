@@ -2,7 +2,7 @@ package com.auction;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.common.dto.ItemDTO;
+import com.auction.common.dto.ItemDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 

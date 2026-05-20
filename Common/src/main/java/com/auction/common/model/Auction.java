@@ -36,7 +36,7 @@ public class Auction extends BaseEntity {
 
     public boolean addBid(BidTransaction bid) {
         if (status != AuctionStatus.RUNNING) return false;
-        if (bid.getAmount() <= currentPrice) return false;
+        if (bid.getAmount() < currentPrice + getMinIncrement()) return false;
 
         this.currentPrice = bid.getAmount();
         this.highestBidder = bid.getBidder();
@@ -258,5 +258,13 @@ public class Auction extends BaseEntity {
         for (Observer o : observers) o.update(this);
     }
 
-
+    public double getMinIncrement() {
+        if (currentPrice <= 500.0) {
+            return 10.0;
+        } else if (currentPrice <= 1000.0) {
+            return 20.0;
+        } else {
+            return 50.0;
+        }
+    }
 }

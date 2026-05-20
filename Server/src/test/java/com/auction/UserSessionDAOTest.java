@@ -50,9 +50,9 @@ class UserSessionDAOTest {
         newSession.setExpiresAt(LocalDateTime.now().plusDays(1));
         newSession.setCreatedAt(LocalDateTime.now());
 
-        long newId = sessionDAO.insert(newSession);
+        boolean success = sessionDAO.insert(newSession);
 
-        assertTrue(newId > 0, "Insert thất bại, ID trả về phải lớn hơn 0");
+        assertTrue(success, "Insert thất bại");
 
         User_SessionDTO retrievedSession = sessionDAO.findByToken(testToken);
 
