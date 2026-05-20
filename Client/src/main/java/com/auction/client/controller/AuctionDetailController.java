@@ -17,6 +17,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 
 import java.util.List;
 
@@ -28,6 +30,8 @@ import java.util.List;
  * - Bid history timeline
  */
 public class AuctionDetailController {
+    @FXML private LineChart<String, Number> priceChart;
+    private XYChart.Series<String, Number> priceSeries;
 
     @FXML private Label    detailImageIcon, detailTitle, detailSeller, detailDesc;
     @FXML private Label    detailCatBadge, detailCondBadge, detailStatusPill;
@@ -148,6 +152,11 @@ public class AuctionDetailController {
                     : "This auction has ended.");
             bidMsg.setTextFill(Color.web("#718096"));
         }
+
+        // Khởi tạo LineChart
+        priceSeries = new XYChart.Series<>();
+        priceSeries.setName("Price Trend");
+        priceChart.setAnimated(false); // Tắt animation để tránh giật lag. KHÔNG add Series vào Chart ở đây.
 
         // Bid history
         loadBidHistory();
@@ -407,15 +416,33 @@ public class AuctionDetailController {
 
     // ── Bid history ───────────────────────────────────────────
     private void loadBidHistory() {
-        // 1. Mở luồng phụ đi lấy dữ liệu mạng
         new Thread(() -> {
             List<BidTransaction> history = auctionService.getBidHistory(auction.getId());
 
-            // 2. Có dữ liệu rồi thì nhờ luồng UI vẽ lên giao diện
             javafx.application.Platform.runLater(() -> {
                 bidHistoryList.getChildren().clear();
-                bidHistoryCount.setText(history.size() + " bids");
 
+                String countText = history.size() + " bids";
+                bidHistoryCount.setText(countText);
+
+                // 1. Làm sạch biểu đồ
+                priceChart.getData().clear();
+                priceSeries.getData().clear();
+
+                // 2. Nạp dữ liệu vào Series (Từ cũ đến mới)
+                XYChart.Data<String, Number> startPoint = new XYChart.Data<>("Start", auction.getItem().getStartingPrice());
+                priceSeries.getData().add(startPoint);
+
+                for (int i = history.size() - 1; i >= 0; i--) {
+                    BidTransaction bid = history.get(i);
+                    XYChart.Data<String, Number> bidPoint = new XYChart.Data<>(bid.getFormattedTime(), bid.getAmount());
+                    priceSeries.getData().add(bidPoint);
+                }
+
+                // 3. Nạp xong xuôi mới đưa Series vào LineChart
+                priceChart.getData().add(priceSeries);
+
+                // 4. Vẽ danh sách Text bên dưới
                 if (history.isEmpty()) {
                     Label empty = new Label("No bids yet. Be the first!");
                     empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px;");
@@ -425,7 +452,7 @@ public class AuctionDetailController {
 
                 for (int i = 0; i < history.size(); i++) {
                     BidTransaction bid = history.get(i);
-                    boolean isTop = i == 0;
+                    boolean isTop = (i == 0);
                     HBox row = buildBidHistoryRow(bid, isTop);
                     bidHistoryList.getChildren().add(row);
                 }
