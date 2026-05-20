@@ -45,6 +45,10 @@
         <Button fx:id="navUsers" maxWidth="Infinity" onAction="#navUsers" styleClass="nav-btn" text="👥  Manage Users" />
 
         <Button fx:id="navAuctions" maxWidth="Infinity" onAction="#navAuctions" styleClass="nav-btn" text="🔨  Manage Auctions" textAlignment="CENTER" />
+        <Button fx:id="navApprovals"
+                text="🔔  Kiểm Duyệt"
+                onAction="#navApprovals"
+                styleClass="sidebar-btn" />
 
         <!-- Spacer -->
         <Region VBox.vgrow="ALWAYS" />

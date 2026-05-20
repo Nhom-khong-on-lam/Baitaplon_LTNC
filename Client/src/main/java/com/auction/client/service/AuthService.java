@@ -83,6 +83,8 @@ public class AuthService {
             Object[] data    = {userId, status};
             Request  request = new Request(Request.ADMIN_UPDATE_USER_STATUS, data);
             attachToken(request);
+
+            // 🚀 Nhận gói tin phản hồi chuẩn từ Server và ép kiểu về Response
             Response res = (Response) connection.sendRequest(request);
             return res != null && res.isSuccess();
         } catch (Exception e) {
@@ -109,6 +111,8 @@ public class AuthService {
         try {
             Request  request = new Request(Request.ADMIN_DELETE_USER, userId);
             attachToken(request);
+
+            // 🚀 Nhận gói tin phản hồi chuẩn từ Server và ép kiểu về Response
             Response res = (Response) connection.sendRequest(request);
             return res != null && res.isSuccess();
         } catch (Exception e) {

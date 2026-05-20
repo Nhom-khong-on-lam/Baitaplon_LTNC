@@ -27,6 +27,7 @@ public class AdminMainController {
     @FXML private VBox   sidebar;
     @FXML private Button navDashboard, navUsers, navAuctions;
     @FXML private Label  sidebarAvatar, sidebarUserName;
+    @FXML private Button navApprovals;
 
     // ── Topbar ────────────────────────────────────────────
     @FXML private Label     topbarTitle, topbarBread, topbarAvatar;
@@ -46,7 +47,19 @@ public class AdminMainController {
     public void initialize() {
         AnimationUtil.slideInLeft(sidebar, 30, 450);
     }
+    @FXML
+    public void navApprovals() {
+        // 1. Kích hoạt hiệu ứng đổi màu đậm nhạt (Active) cho nút bấm trên thanh Sidebar
+        setActive(navApprovals);
 
+        // 2. Đổi tiêu đề thanh Topbar phía trên cùng hệ thống
+        setTopbar("Auction Approvals", "Admin / Approvals");
+
+        // 3. Sử dụng hàm loadContent có sẵn của bạn để nạp giao diện và truyền Admin đăng nhập vào
+        loadContent(BASE + "admin_auction_approval.fxml", (AdminAuctionApprovalController ctrl) -> {
+            ctrl.initData(currentAdmin);
+        });
+    }
     /**
      * Gọi từ LoginController sau khi xác nhận role = ADMIN.
      */

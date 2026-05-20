@@ -42,7 +42,7 @@ public class CreateAuctionController {
     @FXML
     public void initialize() {
         fieldCategory.setItems(FXCollections.observableArrayList(
-                "Electronics", "Art", "Vehicles"));
+                "Electronics", "Art", "Vehicle"));
 
         fieldCondition.setItems(FXCollections.observableArrayList(
                 "New", "Like New", "Excellent", "Good", "Fair", "For Parts"));

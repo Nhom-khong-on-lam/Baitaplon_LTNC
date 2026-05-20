@@ -236,4 +236,48 @@ public class AuctionService {
         }
         return null;
     }
+    // ── 5 HÀM PHỤC VỤ CHỨC NĂNG DUYỆT ĐẤU GIÁ CỦA ADMIN ───────────────────────
+
+    public List<Auction> getPendingAuctions() {
+        Response res = send(new Request("GET_PENDING_AUCTIONS"));
+        if (res != null && res.isSuccess() && res.getData() instanceof List) {
+            return (List<Auction>) res.getData();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Auction> getApprovedAuctions() {
+        Response res = send(new Request("GET_APPROVED_AUCTIONS"));
+        if (res != null && res.isSuccess() && res.getData() instanceof List) {
+            return (List<Auction>) res.getData();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Auction> getRejectedAuctions() {
+        Response res = send(new Request("GET_REJECTED_AUCTIONS"));
+        if (res != null && res.isSuccess() && res.getData() instanceof List) {
+            return (List<Auction>) res.getData();
+        }
+        return new ArrayList<>();
+    }
+
+    public boolean approveAuction(Long auctionId) {
+        Response res = send(new Request("ADMIN_APPROVE_AUCTION", auctionId));
+        return res != null && res.isSuccess();
+    }
+
+    public boolean rejectAuction(Long auctionId, String reason) {
+        Object[] data = {auctionId, reason};
+        Response res = send(new Request("ADMIN_REJECT_AUCTION", data));
+        return res != null && res.isSuccess();
+    }
+    public List<Auction> getAllApprovalAuctions() {
+        // Gửi lệnh "GET_ALL_APPROVAL_AUCTIONS" lên Server chỉ với 1 cú gọi duy nhất
+        Response res = send(new Request("GET_ALL_APPROVAL_AUCTIONS"));
+        if (res != null && res.isSuccess() && res.getData() instanceof List) {
+            return (List<Auction>) res.getData();
+        }
+        return new ArrayList<>();
+    }
 }

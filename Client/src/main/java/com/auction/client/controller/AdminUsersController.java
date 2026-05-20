@@ -238,34 +238,38 @@ public class AdminUsersController {
     }
 
     // ── Actions ───────────────────────────────────────────────
+    // ── Thay thế hàm handleToggleBan cũ bằng hàm này ───────────────────────────────────────────
     private void handleToggleBan(User user) {
         boolean isBanned = user.getAccountStatus() == AccountStatus.BANNED;
         String action    = isBanned ? "Unban" : "Ban";
-        String msg       = isBanned
-                ? "Restore access for " + user.getUsername() + "?"
-                : "Suspend " + user.getUsername() + "'s account?";
+        String msg       = isBanned ? "Restore access for " + user.getUsername() + "?" : "Suspend " + user.getUsername() + "'s account?";
 
         Alert confirm = new Alert(AlertType.CONFIRMATION);
         confirm.setTitle(action + " User");
-        confirm.setHeaderText(action + " — " + user.getUsername());
         confirm.setContentText(msg);
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
                 AccountStatus newStatus = isBanned ? AccountStatus.ACTIVE : AccountStatus.BANNED;
 
                 new Thread(() -> {
-                    authService.updateUserStatus(user.getId(), newStatus);
+                    // Gọi sang Service hứng kết quả boolean
+                    boolean isSuccess = authService.updateUserStatus(user.getId(), newStatus);
 
                     javafx.application.Platform.runLater(() -> {
-                        user.setAccountStatus(newStatus);
-                        usersTable.refresh();
-                        showInfo(user.getUsername() + " has been " + action.toLowerCase() + "ned.");
+                        if (isSuccess) {
+                            user.setAccountStatus(newStatus);
+                            usersTable.refresh(); // Làm mới bảng lập tức
+                            showInfo(user.getUsername() + " has been " + action.toLowerCase() + "ned thành công.");
+                        } else {
+                            showError("Thất bại! Server từ chối cập nhật trạng thái.");
+                        }
                     });
                 }).start();
             }
         });
     }
 
+    // ── Thay thế hàm handleDelete cũ bằng hàm này ─────────────────────────────────────────────
     private void handleDelete(User user) {
         Alert confirm = new Alert(AlertType.CONFIRMATION);
         confirm.setTitle("Delete User");
@@ -275,16 +279,31 @@ public class AdminUsersController {
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
                 new Thread(() -> {
-                    authService.deleteUser(user.getId());
+                    // Gọi sang Service hứng kết quả boolean từ Server
+                    boolean isSuccess = authService.deleteUser(user.getId());
 
                     javafx.application.Platform.runLater(() -> {
-                        allUsers.removeIf(u -> u.getId().equals(user.getId()));
-                        loadTable(allUsers);
-                        showInfo("User \"" + user.getUsername() + "\" deleted.");
+                        if (isSuccess) {
+                            // Xóa hoàn toàn khỏi mảng dữ liệu đang hiển thị trên bảng
+                            allUsers.removeIf(u -> u.getId().equals(user.getId()));
+                            loadTable(allUsers); // Hàm load lại bảng giao diện của bạn
+                            showInfo("User \"" + user.getUsername() + "\" đã bị xóa vĩnh viễn.");
+                        } else {
+                            showError("Xóa thất bại! Người dùng này có thể đang có phòng đấu giá hoặc lượt đặt giá hợp lệ.");
+                        }
                     });
                 }).start();
             }
         });
+    }
+
+    // Hàm phụ hiển thị lỗi phục vụ cho việc thông báo trực quan
+    private void showError(String msg) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.show();
     }
 
     private void showInfo(String msg) {

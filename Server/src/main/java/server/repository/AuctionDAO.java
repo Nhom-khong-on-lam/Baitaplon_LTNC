@@ -26,7 +26,7 @@ public class AuctionDAO {
             ps.setDouble(3, a.getCurrentPrice());
             ps.setTimestamp(4, Timestamp.valueOf(a.getStartTime()));
             ps.setTimestamp(5, Timestamp.valueOf(a.getEndTime()));
-            ps.setString(6, a.getStatus() != null ? a.getStatus() : "RUNNING");
+            ps.setString(6, a.getStatus() != null ? a.getStatus() : "PENDING_APPROVAL");
 
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -152,6 +152,62 @@ public class AuctionDAO {
             return ok;
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "UPDATE auction ERROR id=" + a.getId(), e);
+        }
+        return false;
+    }
+
+    // ── 1. LẤY DANH SÁCH AUCTION THEO TRẠNG THÁI CỦA ADMIN ─────────────────────
+    public List<AuctionDTO> getByStatus(String status) {
+        List<AuctionDTO> list = new ArrayList<>();
+        String sql = "SELECT * FROM auction WHERE status = ? ORDER BY id DESC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi getByStatus với trạng thái = " + status, e);
+        }
+        return list;
+    }
+
+    // ── 2. DUYỆT PHÒNG ĐẤU GIÁ (Đổi trạng thái sang RUNNING + Đặt thời gian bắt đầu) ──
+    public boolean updateStatusAndStartTime(long auctionId, String status, java.time.LocalDateTime startTime) {
+        String sql = "UPDATE auction SET status = ?, start_time = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status);
+            ps.setTimestamp(2, Timestamp.valueOf(startTime));
+            ps.setLong(3, auctionId);
+
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) LOGGER.info("ADMIN APPROVED AUCTION SUCCESS: ID=" + auctionId);
+            return ok;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi updateStatusAndStartTime ID=" + auctionId, e);
+        }
+        return false;
+    }
+
+    // ── 3. TỪ CHỐI DUYỆT PHÒNG ĐẤU GIÁ (Cập nhật trạng thái thành REJECTED) ──────────
+    public boolean updateStatus(long auctionId, String status) {
+        String sql = "UPDATE auction SET status = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status);
+            ps.setLong(2, auctionId);
+
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) LOGGER.info("ADMIN REJECTED AUCTION SUCCESS: ID=" + auctionId);
+            return ok;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi updateStatus ID=" + auctionId, e);
         }
         return false;
     }

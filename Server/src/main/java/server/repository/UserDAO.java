@@ -73,6 +73,31 @@ public class UserDAO {
         return -1;
     }
 
+    public boolean deleteUserById(long userId) {
+        String sql = "DELETE FROM user WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            return ps.executeUpdate() > 0; // Trả về true nếu có dòng bị xóa trong DB
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi xóa User: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean updateStatus(long userId, String status) {
+        String sql = "UPDATE user SET accountStatus = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status.toUpperCase().trim());
+            ps.setLong(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi đổi trạng thái User: " + e.getMessage());
+            return false;
+        }
+    }
+
     // --- CÓ ĐỦ CẢ HÀM FIND_BY_FIELD CHO ĐOẠN "UPDATE_PASSWORD" CỦA BẠN ---
     public UserDTO findByField(String fieldName, Object value) {
         String sql = "SELECT u.*, (SELECT COUNT(DISTINCT auction_id) FROM bid b WHERE b.bidder_id = u.id) AS bid_count " +

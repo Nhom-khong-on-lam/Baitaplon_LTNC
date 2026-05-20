@@ -30,7 +30,7 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-             ObjectInputStream  in  = new ObjectInputStream(socket.getInputStream())) {
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
             out.flush();
 
@@ -57,12 +57,10 @@ public class ClientHandler extends Thread {
 
             // ── AUTH ─────────────────────────────────────────────────────────
 
-            // ── AUTH ─────────────────────────────────────────────────────────
-
             case Request.LOGIN: {
-                String[] creds    = (String[]) req.getData();
-                String   username = creds[0];
-                String   rawPassword = creds[1]; // Mật khẩu thô từ Client gửi lên
+                String[] creds = (String[]) req.getData();
+                String username = creds[0];
+                String rawPassword = creds[1]; // Mật khẩu thô từ Client gửi lên
 
                 UserDTO user = userDAO.findByUsername(username);
 
@@ -98,10 +96,11 @@ public class ClientHandler extends Thread {
             }
 
             case Request.CHECK_USER_EXISTS: {
-                String  username = (String) req.getData();
-                boolean exists   = userDAO.isExisted("username", username);
+                String username = (String) req.getData();
+                boolean exists = userDAO.isExisted("username", username);
                 return new Response(exists, exists ? "Username already taken." : "Username is available.", null);
             }
+
             case Request.SET_AUTO_BID: {
                 // 1. Ép kiểu dữ liệu nhận từ Client
                 AutoBidDTO autoBidDto = (AutoBidDTO) req.getData();
@@ -183,7 +182,7 @@ public class ClientHandler extends Thread {
             }
 
             case "CHECK_EMAIL_EXISTS": {
-                String  email  = (String) req.getData();
+                String email = (String) req.getData();
                 boolean exists = userDAO.isExisted("email", email);
                 return new Response(exists, exists ? "Email already registered." : "Email is available.", null);
             }
@@ -242,7 +241,6 @@ public class ClientHandler extends Thread {
                     }
 
                 } catch (Exception ex) {
-                    // 🔥 CHỐT CHẶN BẢO VỆ: Nếu có bất kỳ lỗi gì phát sinh (Null Pointer,...), in ra log chứ không làm sập Socket!
                     System.err.println(" LỖI NGHIÊM TRỌNG TRONG LUỒNG REGISTER: " + ex.getMessage());
                     ex.printStackTrace();
                     return Response.error("Server internal error during registration.");
@@ -250,10 +248,10 @@ public class ClientHandler extends Thread {
             }
 
             case "CHECK_PASSWORD": {
-                Object[] data   = (Object[]) req.getData();
-                Long     userId = (Long) data[0];
-                String   rawPass = (String) data[1]; // Mật khẩu thô cần kiểm tra
-                UserDTO  user   = userDAO.findById(userId);
+                Object[] data = (Object[]) req.getData();
+                Long userId = (Long) data[0];
+                String rawPass = (String) data[1]; // Mật khẩu thô cần kiểm tra
+                UserDTO user = userDAO.findById(userId);
                 if (user == null) return Response.error("User not found.");
 
                 // SỬ DỤNG BCRYPT: Kiểm tra mật khẩu cũ khi người dùng muốn đổi pass
@@ -262,10 +260,10 @@ public class ClientHandler extends Thread {
             }
 
             case "UPDATE_PASSWORD": {
-                Object[] data    = (Object[]) req.getData();
-                String   email   = (String) data[0];
-                String   newRawPass = (String) data[1]; // Mật khẩu mới dạng thô
-                UserDTO  user    = userDAO.findByField("email", email);
+                Object[] data = (Object[]) req.getData();
+                String email = (String) data[0];
+                String newRawPass = (String) data[1]; // Mật khẩu mới dạng thô
+                UserDTO user = userDAO.findByField("email", email);
                 if (user == null) return Response.error("User not found.");
 
                 // SỬ DỤNG BCRYPT: Băm mật khẩu mới trước khi lưu
@@ -275,6 +273,7 @@ public class ClientHandler extends Thread {
                 boolean ok = userDAO.update(user);
                 return ok ? Response.ok(null) : Response.error("Failed to update password.");
             }
+
             case "UPDATE_USER": {
                 User incoming = (User) req.getData();
                 UserDTO user = userDAO.findById(incoming.getId());
@@ -288,13 +287,13 @@ public class ClientHandler extends Thread {
             // ── ADMIN ────────────────────────────────────────────────────────
 
             case Request.ADMIN_GET_USERS: {
-                java.util.List<UserDTO> dtos  = userDAO.findAll();
+                java.util.List<UserDTO> dtos = userDAO.findAll();
                 java.util.List<User> users = new java.util.ArrayList<>();
                 for (UserDTO dto : dtos) users.add(toClientUser(dto));
                 return Response.ok(users);
             }
 
-            case Request.PLACE_BID: { // Hoặc thay bằng Request.PLACE_BID nếu bạn có định nghĩa hằng số
+            case Request.PLACE_BID: {
                 Object[] data = (Object[]) req.getData();
                 Long auctionId = (Long) data[0];
                 User bidder = (User) data[1];
@@ -307,33 +306,22 @@ public class ClientHandler extends Thread {
                     return Response.error("Phiên đấu giá không tồn tại.");
                 }
 
-                // 🚀 CHỐT CHẶN BẢO MẬT TUYỆT ĐỐI: Người bán không được phép tự đặt giá sản phẩm của mình
                 if (auctionDto.getSellerId() == bidder.getId()) {
                     return Response.error("Security Violation: You cannot bid on your own auction!");
                 }
 
-                // Kiểm tra xem giá bid mới có lớn hơn giá hiện tại không
                 if (bidAmount <= auctionDto.getCurrentPrice()) {
                     return Response.error("Giá đặt phải lớn hơn giá hiện tại.");
                 }
 
-                // ── TIẾN HÀNH LƯU ĐẶT GIÁ VÀO DATABASE ──
-                // 1. Cập nhật lại giá hiện tại của phiên đấu giá trong DB
                 auctionDto.setCurrentPrice(bidAmount);
-                // Nếu DB của bạn có trường lưu ID người giữ giá cao nhất, gán thêm tại đây:
-                // auctionDto.setHighestBidderId(bidder.getId());
 
-                //  THÊM LOGIC ANTI-SNIPING Ở ĐÂY ĐỂ LƯU XUỐNG DATABASE 
                 java.time.LocalDateTime now = java.time.LocalDateTime.now();
                 java.time.LocalDateTime endTime = auctionDto.getEndTime();
 
                 if (endTime != null && now.isBefore(endTime)) {
-                    // Tính số giây còn lại thực tế trên Server
                     long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
-
-                    // Luật: Nếu lượt đặt giá diễn ra trong 3 phút cuối cùng (180 giây)
                     if (secondsRemaining <= 180) {
-                        // Cộng thêm 3 phút (180 giây) vào thời gian kết thúc
                         auctionDto.setEndTime(endTime.plusSeconds(180));
                         System.out.println("Anti-sniping kích hoạt: Phiên " + auctionId + " được gia hạn thêm 3 phút.");
                     }
@@ -344,8 +332,6 @@ public class ClientHandler extends Thread {
                     return Response.error("Không thể cập nhật giá đấu.");
                 }
 
-                // 2. Lưu thông tin giao dịch đặt giá vào bảng lịch sử đấu giá (Bảng bid / bid_transaction)
-                // Hãy đảm bảo bạn đã tạo lớp BidDAO hoặc xử lý lưu lịch sử đấu giá ở đây nếu dự án yêu cầu:
                 server.repository.BidDAO bidDAO = new server.repository.BidDAO();
                 com.auction.common.dto.BidDTO bidDto = new com.auction.common.dto.BidDTO();
                 bidDto.setAuctionId(auctionId);
@@ -359,27 +345,48 @@ public class ClientHandler extends Thread {
             }
 
             case Request.ADMIN_DELETE_USER: {
-                Long    userId = (Long) req.getData();
-                boolean ok     = userDAO.delete(userId);
-                return ok ? Response.ok(null) : Response.error("Failed to delete user.");
+                try {
+                    Long userId = (Long) req.getData();
+
+                    // Gọi xuống UserDAO thực thi lệnh SQL: DELETE FROM user WHERE id = ?
+                    boolean success = userDAO.deleteUserById(userId);
+
+                    if (success) {
+                        // 🚀 GIẢI PHÁP: Return trực tiếp gói tin về luồng xử lý trung tâm, không dùng out.writeObject và break nữa
+                        return Response.ok("Đã xóa người dùng vĩnh viễn khỏi hệ thống!");
+                    } else {
+                        return Response.error("Xóa thất bại! Người dùng có thể đang vướng ràng buộc dữ liệu đấu giá.");
+                    }
+                } catch (Exception e) {
+                    return Response.error("Lỗi Server khi xóa: " + e.getMessage());
+                }
             }
 
             case Request.ADMIN_UPDATE_USER_STATUS: {
-                Object[] data   = (Object[]) req.getData();
-                Long     userId = (Long) data[0];
-                String   status = data[1].toString();
-                UserDTO  user   = userDAO.findById(userId);
-                if (user == null) return Response.error("User not found.");
-                user.setAccountStatus(status);
-                boolean ok = userDAO.update(user);
-                return ok ? Response.ok(null) : Response.error("Failed to update account status.");
+                try {
+                    Object[] data = (Object[]) req.getData();
+                    Long userId = (Long) data[0];
+                    String newStatus = data[1].toString();
+
+                    // Gọi xuống UserDAO để thực thi lệnh SQL: UPDATE user SET accountStatus = ? WHERE id = ?
+                    boolean success = userDAO.updateStatus(userId, newStatus);
+
+                    if (success) {
+                        // 🚀 GIẢI PHÁP: Dùng return chuẩn cấu trúc kiến trúc phần mềm
+                        return Response.ok("Cập nhật trạng thái người dùng thành công!");
+                    } else {
+                        return Response.error("Không thể cập nhật trạng thái trong Database.");
+                    }
+                } catch (Exception e) {
+                    return Response.error("Lỗi Server: " + e.getMessage());
+                }
             }
 
             // ── AUCTION ──────────────────────────────────────────────────────
 
             case Request.GET_AUCTIONS: {
                 AuctionDAO auctionDAO = new AuctionDAO();
-                java.util.List<AuctionDTO> dtos = auctionDAO.findAll();
+                java.util.List<AuctionDTO> dtos = auctionDAO.findActive();
                 return Response.ok(toClientAuctions(dtos, userDAO));
             }
 
@@ -424,28 +431,25 @@ public class ClientHandler extends Thread {
             case "CREATE_AUCTION": {
                 Object[] data = (Object[]) req.getData();
 
-                User owner          = (User) data[0];
-                String title        = data.length > 1 && data[1] != null ? (String) data[1] : "Sản phẩm không tên";
-                String description  = data.length > 2 && data[2] != null ? (String) data[2] : "";
-                String category     = data.length > 3 && data[3] != null ? (String) data[3] : "Electronics";
-                String condition    = data.length > 4 && data[4] != null ? (String) data[4] : "New";
+                User owner = (User) data[0];
+                String title = data.length > 1 && data[1] != null ? (String) data[1] : "Sản phẩm không tên";
+                String description = data.length > 2 && data[2] != null ? (String) data[2] : "";
+                String category = data.length > 3 && data[3] != null ? (String) data[3] : "Electronics";
+                String condition = data.length > 4 && data[4] != null ? (String) data[4] : "New";
 
-                // VÁ LỖI 1: Ép kiểu số an toàn, tránh ClassCastException làm sập Server
                 double startPrice = 0.0;
                 if (data.length > 5 && data[5] != null) {
                     startPrice = ((Number) data[5]).doubleValue();
                 }
 
                 java.time.LocalDateTime startTime = data.length > 8 && data[8] != null ? (java.time.LocalDateTime) data[8] : java.time.LocalDateTime.now();
-                java.time.LocalDateTime endTime   = data.length > 9 && data[9] != null ? (java.time.LocalDateTime) data[9] : java.time.LocalDateTime.now().plusDays(1);
+                java.time.LocalDateTime endTime = data.length > 9 && data[9] != null ? (java.time.LocalDateTime) data[9] : java.time.LocalDateTime.now().plusDays(1);
 
-                // VÁ LỖI 2: Đảm bảo bốc chuỗi String link Cloudinary từ Client một cách chuẩn chỉ
                 String imagePath = null;
                 if (data.length > 10 && data[10] != null) {
                     imagePath = (String) data[10];
                 }
 
-                // ── BƯỚC 1: TẠO VÀ LƯU SẢN PHẨM (ITEM) VÀO DATABASE TRƯỚC ──
                 server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
                 com.auction.common.dto.ItemDTO newItemDto = new com.auction.common.dto.ItemDTO();
                 newItemDto.setName(title);
@@ -453,51 +457,39 @@ public class ClientHandler extends Thread {
                 newItemDto.setCategory(category);
                 newItemDto.setStartingPrice(startPrice);
 
-                // Thực hiện hàm insert sản phẩm của bạn để lấy ID tự sinh từ DB
                 long generatedItemId = itemDAO.insert(newItemDto);
                 if (generatedItemId == -1) {
-                    System.err.println("❌ LỖI: Không thể insert Item vào database.");
                     return Response.error("Failed to create product item.");
                 }
-                System.out.println("✓ Đã lưu thành công Item. ID sản phẩm mới sinh ra: " + generatedItemId);
 
-                // ── BƯỚC 2: TẠO VÀ LƯU ẢNH SẢN PHẨM (NẾU CÓ TRUYỀN LINK ẢNH CLOUDINARY) ──
                 if (imagePath != null && !imagePath.isBlank()) {
                     server.repository.ItemImageDAO imageDAO = new server.repository.ItemImageDAO();
                     com.auction.common.dto.ItemImageDTO imgDto = new com.auction.common.dto.ItemImageDTO();
                     imgDto.setItemId(generatedItemId);
-                    imgDto.setImageUrl(imagePath.trim()); // Ghi link "https://res.cloudinary.com/..."
-
-                    // Thực hiện ghi xuống bảng item_image
-                    boolean isImgSaved = imageDAO.insert(imgDto);
-                    System.out.println(" Link Cloudinary nạp xuống bảng item_image thành công? -> " + isImgSaved);
-                } else {
-                    System.out.println(" Phòng đấu giá này người dùng không đăng tải ảnh sản phẩm.");
+                    imgDto.setImageUrl(imagePath.trim());
+                    imageDAO.insert(imgDto);
                 }
 
-                // ── BƯỚC 3: TẠO PHIÊN ĐẤU GIÁ LIÊN KẾT CHÍNH XÁC VỚI ITEM VỪA TẠO ──
                 AuctionDTO auction = new AuctionDTO();
                 auction.setItemId(generatedItemId);
                 auction.setSellerId(owner.getId());
                 auction.setCurrentPrice(startPrice);
                 auction.setStartTime(startTime != null ? startTime : java.time.LocalDateTime.now());
                 auction.setEndTime(endTime);
-                auction.setStatus("RUNNING");
+                auction.setStatus("PENDING_APPROVAL");
 
                 AuctionDAO auctionDAO = new AuctionDAO();
                 long newId = auctionDAO.insert(auction);
                 if (newId == -1) {
-                    System.err.println("❌ LỖI: Không thể insert thông tin phiên Đấu giá vào database.");
                     return Response.error("Failed to create auction.");
                 }
 
-                System.out.println("✓ TẠO PHÒNG ĐẤU GIÁ HOÀN TẤT TRÊN DATABASE! ID phiên: " + newId);
                 return Response.ok(newId);
             }
 
             case Request.UPDATE_AUCTION: {
                 Object[] data = (Object[]) req.getData();
-                Long auctionId   = (Long)   data[0];
+                Long auctionId = (Long) data[0];
                 double startPrice = (Double) data[4];
                 java.time.LocalDateTime endTime = (java.time.LocalDateTime) data[5];
 
@@ -516,43 +508,46 @@ public class ClientHandler extends Thread {
                 boolean ok = auctionDAO.delete(auctionId);
                 return ok ? Response.ok(null) : Response.error("Failed to delete auction.");
             }
+
             case "GET_DASHBOARD_DATA": {
                 long userId = (Long) req.getData();
                 AuctionDAO auctionDAO = new AuctionDAO();
-
-                // Khởi tạo lớp xử lý User, đổi tên biến thành userRepo để không trùng
                 server.repository.UserDAO userRepo = new server.repository.UserDAO();
 
-                // Khớp chuẩn 100% với các hàm có sẵn trong file AuctionDAO.java của bạn
-                java.util.List<com.auction.common.dto.AuctionDTO> allDtos     = auctionDAO.findAll();
-                java.util.List<com.auction.common.dto.AuctionDTO> bidDtos     = auctionDAO.findByBidder(userId);
+                java.util.List<com.auction.common.dto.AuctionDTO> allDtos = auctionDAO.findAll();
+                java.util.List<com.auction.common.dto.AuctionDTO> bidDtos = auctionDAO.findByBidder(userId);
                 java.util.List<com.auction.common.dto.AuctionDTO> winningDtos = auctionDAO.findWinningByUser(userId);
                 java.util.List<com.auction.common.dto.AuctionDTO> productDtos = auctionDAO.findBySeller(userId);
-                java.util.List<com.auction.common.dto.AuctionDTO> liveDtos    = auctionDAO.findActive();
+                java.util.List<com.auction.common.dto.AuctionDTO> liveDtos = auctionDAO.findActive();
 
-                // Chuyển đổi DTO sang Model List<Auction> thông qua hàm xử lý của bạn
-                java.util.List<Auction> all      = toClientAuctions(allDtos, userRepo);
-                java.util.List<Auction> bids     = toClientAuctions(bidDtos, userRepo);
-                java.util.List<Auction> winning  = toClientAuctions(winningDtos, userRepo);
+                java.util.List<Auction> all = toClientAuctions(allDtos, userRepo);
+                java.util.List<Auction> bids = toClientAuctions(bidDtos, userRepo);
+                java.util.List<Auction> winning = toClientAuctions(winningDtos, userRepo);
                 java.util.List<Auction> products = toClientAuctions(productDtos, userRepo);
-                java.util.List<Auction> live     = toClientAuctions(liveDtos, userRepo);
+                java.util.List<Auction> live = toClientAuctions(liveDtos, userRepo);
 
-                // Gom gọn gàng vào 1 Object duy nhất để chuyển về cho Client
                 DashboardData dashboardData = new DashboardData(all, bids, winning, products, live);
-
                 return Response.ok(dashboardData);
             }
 
             case Request.EXTEND_AUCTION: {
-                Object[] data  = (Object[]) req.getData();
+                Object[] data = (Object[]) req.getData();
                 Long auctionId = (Long) data[0];
-                int hours      = (Integer) data[1];
+                int hours = (Integer) data[1];
                 AuctionDAO auctionDAO = new AuctionDAO();
                 AuctionDTO existing = auctionDAO.findById(auctionId);
                 if (existing == null) return Response.error("Auction not found.");
                 existing.setEndTime(existing.getEndTime().plusHours(hours));
                 boolean ok = auctionDAO.update(existing);
                 return ok ? Response.ok(null) : Response.error("Failed to extend auction.");
+            }
+
+            // 🔥 ĐÃ FIX LUỒNG: Đổi từ writeObject sang lệnh return Response chuẩn chỉnh cho hàm!
+            case "GET_ALL_APPROVAL_AUCTIONS": {
+                AuctionDAO auctionDAO = new AuctionDAO();
+                List<com.auction.common.dto.AuctionDTO> dtos = auctionDAO.findAll();
+                List<Auction> clientAuctions = toClientAuctions(dtos, userDAO);
+                return Response.ok(clientAuctions);
             }
 
             case Request.END_AUCTION_EARLY: {
@@ -565,14 +560,13 @@ public class ClientHandler extends Thread {
                 boolean ok = auctionDAO.update(existing);
                 return ok ? Response.ok(null) : Response.error("Failed to end auction.");
             }
-
-            case Request.GET_BID_HISTORY: { // Hoặc case "GET_BID_HISTORY": nếu bạn dùng chuỗi
+            case Request.GET_BID_HISTORY: {
                 Long targetAuctionId = (Long) req.getData();
+                // Khởi tạo DAO lấy lịch sử đấu giá (Sửa theo đúng tên package DAO trong dự án của bạn)
                 server.repository.BidDAO bidDAO = new server.repository.BidDAO();
 
                 // Lấy danh sách lịch sử từ Database
                 java.util.List<com.auction.common.dto.BidDTO> bidDtos = bidDAO.getBidsByAuctionId(targetAuctionId);
-
                 java.util.List<BidTransaction> transactions = new java.util.ArrayList<>();
 
                 if (bidDtos != null) {
@@ -582,21 +576,97 @@ public class ClientHandler extends Thread {
                         User bidderUser = bidderDto != null ? toClientUser(bidderDto)
                                 : new User(bDto.getBidderId(), "Unknown", "", "", SystemRole.USER);
 
-                        // Đóng gói thành Model gửi về Client (lấy luôn trạng thái isAutoBid từ DB)
+                        // Đóng gói thành Model gửi về Client
                         BidTransaction transaction = new BidTransaction(bidderUser, bDto.getAmount(), bDto.isAutoBid());
 
                         // Đồng bộ thời gian đặt giá chuẩn từ Database lên giao diện
                         if (bDto.getBidTime() != null) {
-                            transaction.setBidTime(bDto.getBidTime()); // Hoặc setBidTime tuỳ theo tên hàm trong class BidTransaction của bạn
+                            transaction.setBidTime(bDto.getBidTime());
                         }
 
                         transactions.add(transaction);
                     }
                 }
-                return Response.ok(transactions);
+            }
+            // BỔ SUNG VÀO TRONG HÀM handleRequest(Request req) CỦA ClientHandler.java
+            case "DELETE_USER": {
+                Long userId = (Long) req.getData();
+                // Gọi xuống UserDAO để chạy lệnh DELETE SQL
+                boolean ok = userDAO.deleteUserById(userId);
+                return ok ? Response.ok(null) : Response.error("Không thể xóa người dùng này khỏi DB!");
             }
 
-            // ── DEFAULT ──────────────────────────────────────────────────────
+            case "UPDATE_USER_STATUS": {
+                Object[] data = (Object[]) req.getData();
+                Long userId = (Long) data[0];
+                String newStatus = (String) data[1];
+                // Gọi xuống UserDAO để chạy lệnh UPDATE user SET accountStatus = ? WHERE id = ?
+                boolean ok = userDAO.updateStatus(userId, newStatus);
+                return ok ? Response.ok(null) : Response.error("Không thể cập nhật trạng thái User!");
+            }
+
+            case "GET_PENDING_AUCTIONS": {
+                try {
+                    server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
+                    List<AuctionDTO> dtos = auctionDAO.getByStatus("PENDING_APPROVAL");
+                    List<Auction> clientAuctions = toClientAuctions(dtos, userDAO);
+                    return Response.ok(clientAuctions);
+                } catch (Exception e) {
+                    return Response.error("Lỗi lấy danh sách chờ duyệt: " + e.getMessage());
+                }
+            }
+
+            case "GET_APPROVED_AUCTIONS": {
+                try {
+                    server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
+                    List<AuctionDTO> dtos = auctionDAO.getByStatus("RUNNING");
+                    List<Auction> clientAuctions = toClientAuctions(dtos, userDAO);
+                    return Response.ok(clientAuctions);
+                } catch (Exception e) {
+                    return Response.error("Lỗi lấy danh sách đã duyệt: " + e.getMessage());
+                }
+            }
+
+            case "GET_REJECTED_AUCTIONS": {
+                try {
+                    server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
+                    List<AuctionDTO> dtos = auctionDAO.getByStatus("REJECTED");
+                    List<Auction> clientAuctions = toClientAuctions(dtos, userDAO);
+                    return Response.ok(clientAuctions);
+                } catch (Exception e) {
+                    return Response.error("Lỗi lấy danh sách bị từ chối: " + e.getMessage());
+                }
+            }
+
+            case "ADMIN_APPROVE_AUCTION": {
+                try {
+                    Long auctionId = ((Number) req.getData()).longValue();
+                    server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
+                    boolean success = auctionDAO.updateStatusAndStartTime(auctionId, "RUNNING", java.time.LocalDateTime.now());
+                    if (success) {
+                        return Response.ok("Duyệt thành công");
+                    } else {
+                        return Response.error("Không thể cập nhật trạng thái");
+                    }
+                } catch (Exception e) {
+                    return Response.error("Lỗi Server Approve: " + e.getMessage());
+                }
+            }
+
+            case "ADMIN_REJECT_AUCTION": {
+                try {
+                    Long auctionId = ((Number) req.getData()).longValue();
+                    server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
+                    boolean success = auctionDAO.updateStatus(auctionId, "REJECTED");
+                    if (success) {
+                        return Response.ok("Từ chối thành công");
+                    } else {
+                        return Response.error("Không thể từ chối");
+                    }
+                } catch (Exception e) {
+                    return Response.error("Lỗi Server Reject: " + e.getMessage());
+                }
+            }
 
             default:
                 System.out.println("WARNING: Unhandled command: " + req.getAction());
