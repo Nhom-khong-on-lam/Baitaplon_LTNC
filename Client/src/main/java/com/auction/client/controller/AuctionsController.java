@@ -27,6 +27,9 @@ public class AuctionsController {
     @FXML private VBox       auctionListContainer;
     @FXML private Button     gridViewBtn;
     @FXML private Button     listViewBtn;
+    @FXML private Button     tabAll;
+    @FXML private Button     tabLive;
+    @FXML private Button     tabEnded;
 
     private final AuctionService auctionService = new AuctionService();
     private User currentUser;
@@ -40,6 +43,8 @@ public class AuctionsController {
     private boolean isFull = false;   // Đã tải hết dữ liệu trên Server chưa
     private boolean isLoading = false;
     private javafx.animation.Timeline countdownTimeline;
+    /** "ALL" | "LIVE" | "ENDED" */
+    private String currentTab = "ALL";
 
     @FXML
     public void initialize() {
@@ -47,9 +52,9 @@ public class AuctionsController {
         categoryFilter.getSelectionModel().selectFirst();
 
         sortBox.setItems(FXCollections.observableArrayList(
-                "Ending Soon", "Newest First", "Price: Low → High",
+                "Newest First", "Price: Low → High",
                 "Price: High → Low", "Most Bids"));
-        sortBox.getSelectionModel().selectFirst();
+        // Không chọn mặc định — hiển thị placeholder "Sort By"
 
         // Tạo bộ đếm chạy mỗi 1 giây để cập nhật toàn bộ Timer đang hiển thị
         countdownTimeline = new javafx.animation.Timeline(
@@ -136,7 +141,25 @@ public class AuctionsController {
         searchField.clear();
         categoryFilter.getSelectionModel().selectFirst();
         sortBox.getSelectionModel().selectFirst();
+        applyFilters();
+    }
 
+    // ── Tab handlers ─────────────────────────────────────────
+    @FXML public void switchTabAll()   { setActiveTab("ALL");   }
+    @FXML public void switchTabLive()  { setActiveTab("LIVE");  }
+    @FXML public void switchTabEnded() { setActiveTab("ENDED"); }
+
+    private void setActiveTab(String tab) {
+        currentTab = tab;
+        // Cập nhật style nút tab
+        tabAll.getStyleClass().removeAll("tab-btn-active");
+        tabLive.getStyleClass().removeAll("tab-btn-active");
+        tabEnded.getStyleClass().removeAll("tab-btn-active");
+        switch (tab) {
+            case "ALL"   -> tabAll.getStyleClass().add("tab-btn-active");
+            case "LIVE"  -> tabLive.getStyleClass().add("tab-btn-active");
+            case "ENDED" -> tabEnded.getStyleClass().add("tab-btn-active");
+        }
         applyFilters();
     }
 
@@ -157,13 +180,17 @@ public class AuctionsController {
 
     /** Lọc và sắp xếp danh sách */
     private void applyFilters() {
-        String kw  = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
-        String cat = categoryFilter.getValue();
+        String kw   = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
+        String cat  = categoryFilter.getValue();
         String sort = sortBox.getValue();
 
         List<Auction> filtered = allAuctions.stream()
-                .filter(a -> a.getRemainingSeconds() > 0)
-
+                // ── Lọc theo Tab ─────────────────────────────────────
+                .filter(a -> switch (currentTab) {
+                    case "LIVE"  -> a.getRemainingSeconds() > 0;
+                    case "ENDED" -> a.getRemainingSeconds() <= 0;
+                    default      -> true; // ALL
+                })
                 .filter(a -> kw.isEmpty()
                         || a.getTitle().toLowerCase().contains(kw)
                         || a.getCategory().toLowerCase().contains(kw))
@@ -180,9 +207,8 @@ public class AuctionsController {
             filtered.sort((a, b) -> b.getBidCount() - a.getBidCount());
         } else if ("Newest First".equals(sort)) {
             filtered.sort((a, b) -> Long.compare(b.getId(), a.getId()));
-        } else { // Ending Soon
-            filtered.sort((a, b) -> Long.compare(a.getRemainingSeconds(), b.getRemainingSeconds()));
         }
+        // sort == null (chưa chọn): giữ nguyên thứ tự từ server
 
         this.currentFilteredList = filtered;
         auctionListContainer.getChildren().clear();
@@ -308,20 +334,28 @@ public class AuctionsController {
         right.setAlignment(Pos.CENTER_RIGHT);
         right.setMinWidth(160);
 
-        Label priceLabel = new Label("CURRENT BID");
+        boolean ended = a.getRemainingSeconds() <= 0;
+
+        Label priceLabel = new Label(ended ? "FINAL PRICE" : "CURRENT BID");
         priceLabel.getStyleClass().add("auction-card-price-label");
 
-        Label price = new Label( String.format("%,.0f", a.getCurrentPrice()));
-        price.getStyleClass().add("auction-card-price");
+        Label price = new Label(String.format("%,.0f", a.getCurrentPrice()));
+        price.getStyleClass().add(ended ? "auction-card-price-ended" : "auction-card-price");
 
-        Label timerLbl = new Label("⏱ " + a.getTimeRemaining());
-        String timerStyle = a.getRemainingSeconds() < 3600
-                ? (a.getRemainingSeconds() < 600 ? "timer-critical" : "timer-warning")
-                : "timer-normal";
-        timerLbl.getStyleClass().add(timerStyle);
+        Label timerLbl = new Label();
+        if (ended) {
+            timerLbl.setText("🏁 Ended");
+            timerLbl.getStyleClass().add("timer-ended");
+        } else {
+            timerLbl.setText("⏱ " + a.getTimeRemaining());
+            String timerStyle = a.getRemainingSeconds() < 3600
+                    ? (a.getRemainingSeconds() < 600 ? "timer-critical" : "timer-warning")
+                    : "timer-normal";
+            timerLbl.getStyleClass().add(timerStyle);
+        }
 
-        Button bidBtn = new Button("Place Bid →");
-        bidBtn.getStyleClass().add("btn-primary");
+        Button bidBtn = new Button(ended ? "View Results" : "Place Bid →");
+        bidBtn.getStyleClass().add(ended ? "btn-secondary" : "btn-primary");
         bidBtn.setOnAction(e -> openDetail(a));
 
         right.getChildren().addAll(priceLabel, price, timerLbl, bidBtn);
@@ -348,10 +382,12 @@ public class AuctionsController {
         // Duyệt qua tất cả các thẻ AuctionCard đang hiện trên màn hình
         for (javafx.scene.Node node : auctionListContainer.getChildren()) {
             if (node instanceof HBox card && card.getUserData() instanceof Auction a) {
+                // Skip các phiên đã ended — không cần đếm ngược
+                if (a.getRemainingSeconds() <= 0) continue;
+
                 // Tìm Label chứa Timer trong VBox 'right' (vị trí cuối cùng của HBox)
                 VBox right = (VBox) card.getChildren().get(card.getChildren().size() - 1);
                 for (javafx.scene.Node n : right.getChildren()) {
-
                     if (n instanceof Label lbl) {
                         if (lbl.getStyleClass().contains("timer-normal") ||
                                 lbl.getStyleClass().contains("timer-warning") ||
