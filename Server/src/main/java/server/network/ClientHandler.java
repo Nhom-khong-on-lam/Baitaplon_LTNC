@@ -425,15 +425,25 @@ public class ClientHandler extends Thread {
                 Object[] data = (Object[]) req.getData();
 
                 User owner          = (User) data[0];
-                String title        = data.length > 1 ? (String) data[1] : "Sản phẩm không tên";
-                String description  = data.length > 2 ? (String) data[2] : "";
-                String category     = data.length > 3 ? (String) data[3] : "Electronics";
-                String condition    = data.length > 4 ? (String) data[4] : "New";
-                double startPrice   = data.length > 5 ? (Double) data[5] : 0.0;
+                String title        = data.length > 1 && data[1] != null ? (String) data[1] : "Sản phẩm không tên";
+                String description  = data.length > 2 && data[2] != null ? (String) data[2] : "";
+                String category     = data.length > 3 && data[3] != null ? (String) data[3] : "Electronics";
+                String condition    = data.length > 4 && data[4] != null ? (String) data[4] : "New";
 
-                java.time.LocalDateTime startTime = data.length > 8 ? (java.time.LocalDateTime) data[8] : java.time.LocalDateTime.now();
-                java.time.LocalDateTime endTime   = data.length > 9 ? (java.time.LocalDateTime) data[9] : java.time.LocalDateTime.now().plusDays(1);
-                String imagePath    = data.length > 10 ? (String) data[10] : null;
+                // VÁ LỖI 1: Ép kiểu số an toàn, tránh ClassCastException làm sập Server
+                double startPrice = 0.0;
+                if (data.length > 5 && data[5] != null) {
+                    startPrice = ((Number) data[5]).doubleValue();
+                }
+
+                java.time.LocalDateTime startTime = data.length > 8 && data[8] != null ? (java.time.LocalDateTime) data[8] : java.time.LocalDateTime.now();
+                java.time.LocalDateTime endTime   = data.length > 9 && data[9] != null ? (java.time.LocalDateTime) data[9] : java.time.LocalDateTime.now().plusDays(1);
+
+                // VÁ LỖI 2: Đảm bảo bốc chuỗi String link Cloudinary từ Client một cách chuẩn chỉ
+                String imagePath = null;
+                if (data.length > 10 && data[10] != null) {
+                    imagePath = (String) data[10];
+                }
 
                 // ── BƯỚC 1: TẠO VÀ LƯU SẢN PHẨM (ITEM) VÀO DATABASE TRƯỚC ──
                 server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
@@ -445,20 +455,29 @@ public class ClientHandler extends Thread {
 
                 // Thực hiện hàm insert sản phẩm của bạn để lấy ID tự sinh từ DB
                 long generatedItemId = itemDAO.insert(newItemDto);
-                if (generatedItemId == -1) return Response.error("Failed to create product item.");
+                if (generatedItemId == -1) {
+                    System.err.println("❌ LỖI: Không thể insert Item vào database.");
+                    return Response.error("Failed to create product item.");
+                }
+                System.out.println("✓ Đã lưu thành công Item. ID sản phẩm mới sinh ra: " + generatedItemId);
 
-                // ── BƯỚC 2: TẠO VÀ LƯU ẢNH SẢN PHẨM (NẾU CÓ TRUYỀN LINK ẢNH) ──
+                // ── BƯỚC 2: TẠO VÀ LƯU ẢNH SẢN PHẨM (NẾU CÓ TRUYỀN LINK ẢNH CLOUDINARY) ──
                 if (imagePath != null && !imagePath.isBlank()) {
                     server.repository.ItemImageDAO imageDAO = new server.repository.ItemImageDAO();
                     com.auction.common.dto.ItemImageDTO imgDto = new com.auction.common.dto.ItemImageDTO();
                     imgDto.setItemId(generatedItemId);
-                    imgDto.setImageUrl(imagePath);
-                    imageDAO.insert(imgDto); // Lưu đường dẫn ảnh xuống DB
+                    imgDto.setImageUrl(imagePath.trim()); // Ghi link "https://res.cloudinary.com/..."
+
+                    // Thực hiện ghi xuống bảng item_image
+                    boolean isImgSaved = imageDAO.insert(imgDto);
+                    System.out.println(" Link Cloudinary nạp xuống bảng item_image thành công? -> " + isImgSaved);
+                } else {
+                    System.out.println(" Phòng đấu giá này người dùng không đăng tải ảnh sản phẩm.");
                 }
 
                 // ── BƯỚC 3: TẠO PHIÊN ĐẤU GIÁ LIÊN KẾT CHÍNH XÁC VỚI ITEM VỪA TẠO ──
                 AuctionDTO auction = new AuctionDTO();
-                auction.setItemId(generatedItemId); // Đã đồng bộ ID thật, không còn dùng placeholder số 1 nữa!
+                auction.setItemId(generatedItemId);
                 auction.setSellerId(owner.getId());
                 auction.setCurrentPrice(startPrice);
                 auction.setStartTime(startTime != null ? startTime : java.time.LocalDateTime.now());
@@ -467,8 +486,12 @@ public class ClientHandler extends Thread {
 
                 AuctionDAO auctionDAO = new AuctionDAO();
                 long newId = auctionDAO.insert(auction);
-                if (newId == -1) return Response.error("Failed to create auction.");
+                if (newId == -1) {
+                    System.err.println("❌ LỖI: Không thể insert thông tin phiên Đấu giá vào database.");
+                    return Response.error("Failed to create auction.");
+                }
 
+                System.out.println("✓ TẠO PHÒNG ĐẤU GIÁ HOÀN TẤT TRÊN DATABASE! ID phiên: " + newId);
                 return Response.ok(newId);
             }
 
@@ -611,17 +634,30 @@ public class ClientHandler extends Thread {
                     if (!imageMap.containsKey(imgDto.getItemId())) {
 
                         String rawUrl = imgDto.getImageUrl();
-                        if (rawUrl != null) {
-                            // Xử lý đường dẫn Windows thành chuẩn URI của JavaFX ngay tại đây
-                            String safeUrl = rawUrl.replace("\\", "/");
-                            if (!safeUrl.startsWith("http") && !safeUrl.startsWith("file:")) {
-                                safeUrl = "file:///" + safeUrl;
-                            }
+                        if (rawUrl != null && !rawUrl.isBlank()) {
+                            // Làm sạch khoảng trắng thừa và chuẩn hóa dấu gạch xuôi
+                            String safeUrl = rawUrl.trim().replace("\\", "/");
 
-                            // Lưu đường dẫn đã xử lý an toàn vào Map
-                            imageMap.put(imgDto.getItemId(), safeUrl);
+                            // Nếu là link mạng trực tuyến (chứa http:// hoặc https://) thì GIỮ NGUYÊN HOÀN TOÀN
+                            if (safeUrl.toLowerCase().startsWith("http://") || safeUrl.toLowerCase().startsWith("https://")) {
+                                imageMap.put(imgDto.getItemId(), safeUrl);
+                            }
+                            // Nếu là đường dẫn local cũ dưới máy tính mà chưa có tiền tố file:
+                            else if (!safeUrl.toLowerCase().startsWith("file:")) {
+                                safeUrl = "file:///" + safeUrl;
+                                imageMap.put(imgDto.getItemId(), safeUrl);
+                            } else {
+                                imageMap.put(imgDto.getItemId(), safeUrl);
+                            }
                         }
                     }
+                }
+            }
+            java.util.Map<Long, UserDTO> userMap = new java.util.HashMap<>();
+            java.util.List<UserDTO> allUsers = userDAO.findAll(); // Sử dụng hàm lấy toàn bộ danh sách thành viên
+            if (allUsers != null) {
+                for (UserDTO uDto : allUsers) {
+                    userMap.put(uDto.getId(), uDto);
                 }
             }
 
@@ -630,7 +666,7 @@ public class ClientHandler extends Thread {
                 if (dto == null || dto.getItemId() <= 0) continue;
 
                 // Đồng bộ nhanh thông tin người bán (Seller)
-                UserDTO sellerDto = userDAO.findById(dto.getSellerId());
+                UserDTO sellerDto = userMap.get(dto.getSellerId());
                 User seller = sellerDto != null
                         ? toClientUser(sellerDto)
                         : new User(dto.getSellerId(), "Unknown", "", "", SystemRole.USER);

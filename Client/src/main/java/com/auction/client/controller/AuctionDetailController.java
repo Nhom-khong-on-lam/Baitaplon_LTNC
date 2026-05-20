@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -48,6 +49,7 @@ public class AuctionDetailController {
     @FXML private TextField autoBidLimitField; // Thay cho autoBidMaxPriceField cũ
     @FXML private TextField autoBidStepField;  // Biến này giữ nguyên vì FXML đã đặt đúng
     @FXML private Button autoBidBtn;
+    @FXML private ImageView myImageView;
 
     public void initData(User user, Auction auction) {
         this.currentUser = user;
@@ -59,15 +61,53 @@ public class AuctionDetailController {
         if (imgUrl != null && !imgUrl.isEmpty()) {
             detailImageIcon.setText(""); // Xóa chữ Icon đi
 
-            // FIX LỖI HIỂN THỊ: Ép khung vuông 200x200 và dùng 'contain' để giữ nguyên vẹn ảnh
-            detailImageIcon.setStyle(
-                    "-fx-min-width: 300px; -fx-max-width: 300px;" +
-                            "-fx-min-height: 300px; -fx-max-height: 300px;" +
-                            "-fx-background-image: url('" + imgUrl + "');" +
-                            "-fx-background-size: contain;" +    // Giữ nguyên vẹn tỷ lệ, không cắt xén góc ảnh
-                            "-fx-background-repeat: no-repeat;" + // Không lặp lại ảnh nếu khung thừa không gian
-                            "-fx-background-position: center;"    // Căn ảnh nằm chính giữa khung hình vuông
-            );
+            String url = imgUrl.trim();
+
+            // Kiểm tra xem là link mạng Cloudinary (http/https) hay file local cũ
+            if (url.toLowerCase().startsWith("http://") || url.toLowerCase().startsWith("https://")) {
+                // Tạo đối tượng Image JavaFX chuyên dụng, truyền tham số 'true' để TẢI ẢNH NGẦM qua Internet
+                javafx.scene.image.Image cloudImage = new javafx.scene.image.Image(url, true);
+
+                // Lắng nghe khi nào ảnh tải xong từ mây Cloudinary về máy khách thành công
+                cloudImage.progressProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.doubleValue() == 1.0 && !cloudImage.isError()) {
+                        // Khi ảnh tải xong (đạt 100%), dùng Platform.runLater nạp CSS hiển thị lên giao diện
+                        javafx.application.Platform.runLater(() -> {
+                            detailImageIcon.setText("");
+                            detailImageIcon.setStyle(
+                                    "-fx-min-width: 300px; -fx-max-width: 300px;" +
+                                            "-fx-min-height: 300px; -fx-max-height: 300px;" +
+                                            "-fx-background-image: url('" + url + "');" +
+                                            "-fx-background-size: contain;" +
+                                            "-fx-background-repeat: no-repeat;" +
+                                            "-fx-background-position: center;"
+                            );
+                        });
+                    }
+                });
+
+                // Trường hợp lỗi tải (link hỏng, mất mạng), nạp ảnh mặc định hoặc báo lỗi
+                cloudImage.exceptionProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue != null || cloudImage.isError()) {
+                        javafx.application.Platform.runLater(() -> {
+                            detailImageIcon.setText("⚠️");
+                            detailImageIcon.setStyle("-fx-font-size:50px; -fx-padding:20; -fx-alignment: center; -fx-text-fill: #dc2626;");
+                            System.err.println("❌ Lỗi tải ảnh từ Cloudinary: " + (newValue != null ? newValue.getMessage() : "Unknown error"));
+                        });
+                    }
+                });
+
+            } else {
+                // Nếu là đường dẫn tệp cục bộ cũ (file:///) thì nạp trực tiếp qua CSS như cũ bình thường
+                detailImageIcon.setStyle(
+                        "-fx-min-width: 300px; -fx-max-width: 300px;" +
+                                "-fx-min-height: 300px; -fx-max-height: 300px;" +
+                                "-fx-background-image: url('" + url + "');" +
+                                "-fx-background-size: contain;" +
+                                "-fx-background-repeat: no-repeat;" +
+                                "-fx-background-position: center;"
+                );
+            }
         } else {
             // Khôi phục lại giao diện icon mặc định nếu sản phẩm không có ảnh up lên
             detailImageIcon.setText(auction.getCategoryIcon());

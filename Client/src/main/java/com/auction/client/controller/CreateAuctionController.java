@@ -37,7 +37,7 @@ public class CreateAuctionController {
 
     private User currentUser;
     private Auction editingAuction; // null = create mode
-    private String  selectedImagePath;
+    private File selectedImageFile;
 
     @FXML
     public void initialize() {
@@ -102,7 +102,7 @@ public class CreateAuctionController {
         File file = fc.showOpenDialog(imagePreviewBox.getScene().getWindow());
         if (file != null) {
             // Chuyển đổi File thành chuẩn URI (file:///) trước khi gán
-            selectedImagePath = file.toURI().toString();
+            this.selectedImageFile = file;
 
             imageIcon.setText("🖼");
             imageHint.setText(file.getName());
@@ -143,11 +143,16 @@ public class CreateAuctionController {
 
         // 3. Mở luồng phụ để gửi dữ liệu lên Server
         new Thread(() -> {
+            String finalImagePath = null;
             if (editingAuction == null) {
+                if (selectedImageFile != null) {
+                    // Gọi dịch vụ đẩy ảnh lên mây lấy link trực tuyến
+                    finalImagePath = com.auction.client.service.CloudinaryService.uploadImage(selectedImageFile);
+                }
                 // Create new
                 auctionService.createAuction(currentUser, title, desc,
                         category, condition, startPrice, reserve, increment,
-                        start, end, selectedImagePath);
+                        start, end, finalImagePath);
             } else {
                 // Edit existing
                 auctionService.updateAuction(editingAuction.getId(), title, desc,
@@ -161,6 +166,7 @@ public class CreateAuctionController {
                 } else {
                     showSuccess("Auction updated successfully! ✓");
                 }
+                this.selectedImageFile = null;
 
                 AnimationUtil.pulse(submitBtn);
                 submitBtn.setDisable(false); // Mở khóa nút bấm

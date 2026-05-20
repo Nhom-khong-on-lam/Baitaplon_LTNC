@@ -602,6 +602,7 @@ auction_id</ColNames>
     </column>
     <foreign-key id="112" parent="32" name="fk_1">
       <ColNames>item_id</ColNames>
+      <OnDelete>cascade</OnDelete>
       <RefColNames>id</RefColNames>
       <RefTableName>item</RefTableName>
     </foreign-key>
