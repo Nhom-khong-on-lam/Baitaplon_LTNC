@@ -188,6 +188,67 @@ public class ClientHandler extends Thread {
                 return new Response(exists, exists ? "Email already registered." : "Email is available.", null);
             }
 
+            case "REGISTER": {
+                try {
+                    // Kiểm tra xem dữ liệu gửi lên là gì để tránh lỗi ép kiểu (ClassCastException)
+                    Object requestData = req.getData();
+                    UserDTO newUser = null;
+
+                    if (requestData instanceof com.auction.common.dto.UserDTO) {
+                        newUser = (com.auction.common.dto.UserDTO) requestData;
+                    } else if (requestData instanceof com.auction.common.model.User) {
+                        // Phòng trường hợp Client gửi nhầm Object Model User sang, ta tự map lại thành DTO
+                        com.auction.common.model.User modelUser = (com.auction.common.model.User) requestData;
+                        newUser = new UserDTO();
+                        newUser.setUsername(modelUser.getUsername());
+                        newUser.setPassword(modelUser.getPasswordHash());
+                        newUser.setEmail(modelUser.getEmail());
+                    }
+
+                    if (newUser == null) {
+                        System.err.println("❌ LỖI ĐĂNG KÝ: Dữ liệu Client gửi lên không hợp lệ (Null hoặc sai kiểu Class)!");
+                        return Response.error("Invalid registration data form.");
+                    }
+
+                    // 1. Kiểm tra trùng lặp tài khoản
+                    if (userDAO.isExisted("username", newUser.getUsername())) {
+                        return Response.error("Username already taken.");
+                    }
+                    if (newUser.getEmail() != null && userDAO.isExisted("email", newUser.getEmail())) {
+                        return Response.error("Email already registered.");
+                    }
+
+                    // 2. Mã hóa mật khẩu bằng BCrypt
+                    String rawPassword = newUser.getPassword();
+                    if (rawPassword == null || rawPassword.isBlank()) {
+                        return Response.error("Password cannot be empty.");
+                    }
+                    String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(rawPassword, org.mindrot.jbcrypt.BCrypt.gensalt());
+                    newUser.setPassword(hashedPassword);
+
+                    // 3. Set thông tin mặc định
+                    newUser.setSystemRole("USER");
+                    newUser.setAccountStatus("ACTIVE");
+                    newUser.setCreatedAt(java.time.LocalDateTime.now());
+
+                    // 4. Lưu xuống cơ sở dữ liệu TiDB
+                    long generatedId = userDAO.insert(newUser);
+                    if (generatedId != -1) {
+                        newUser.setId(generatedId);
+                        System.out.println("🚀 [SUCCESS] Đăng ký thành công thành viên mới: " + newUser.getUsername());
+                        return Response.ok(toClientUser(newUser));
+                    } else {
+                        return Response.error("Database error. Failed to save account.");
+                    }
+
+                } catch (Exception ex) {
+                    // 🔥 CHỐT CHẶN BẢO VỆ: Nếu có bất kỳ lỗi gì phát sinh (Null Pointer,...), in ra log chứ không làm sập Socket!
+                    System.err.println(" LỖI NGHIÊM TRỌNG TRONG LUỒNG REGISTER: " + ex.getMessage());
+                    ex.printStackTrace();
+                    return Response.error("Server internal error during registration.");
+                }
+            }
+
             case "CHECK_PASSWORD": {
                 Object[] data   = (Object[]) req.getData();
                 Long     userId = (Long) data[0];
