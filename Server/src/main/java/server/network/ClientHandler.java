@@ -587,7 +587,8 @@ public class ClientHandler extends Thread {
                         transactions.add(transaction);
                     }
                 }
-            }
+                return Response.ok(transactions);
+        }
             // BỔ SUNG VÀO TRONG HÀM handleRequest(Request req) CỦA ClientHandler.java
             case "DELETE_USER": {
                 Long userId = (Long) req.getData();
