@@ -10,6 +10,9 @@
 -->
 <?import java.lang.String?>
 <?import java.net.URL?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <ScrollPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.auction.client.controller.AuctionDetailController"
@@ -170,10 +173,29 @@
         <!-- ── Bid History ────────────────────────────────── -->
         <VBox styleClass="section-card" spacing="14">
             <HBox alignment="CENTER_LEFT">
-                <Label text="Bid History" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <Label text="Bid History &amp; Trend" styleClass="section-title" HBox.hgrow="ALWAYS"/>
                 <Label fx:id="bidHistoryCount" styleClass="section-subtitle" text="0 bids"/>
             </HBox>
-            <VBox fx:id="bidHistoryList" spacing="0"/>
+
+            <LineChart fx:id="priceChart" prefHeight="260" legendVisible="false" createSymbols="true"
+                        horizontalGridLinesVisible="true" verticalGridLinesVisible="true"
+                        style="-fx-padding: 10px 20px 10px 5px;">
+            <xAxis>
+                <CategoryAxis fx:id="xAxis" label="Trục Ox: Thời gian" animated="false"
+                              tickLabelRotation="-25" tickLabelsVisible="true" tickMarkVisible="true"
+                              tickLabelFill="#1e293b"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis fx:id="yAxis" label="Trục Oy: Mức giá (VND)" animated="false" forceZeroInRange="false"
+                            tickLabelsVisible="true" tickMarkVisible="true"
+                            tickLabelFill="#1e293b"/>
+            </yAxis>
+        </LineChart>
+
+            <ScrollPane fitToWidth="true" prefHeight="180"
+                        style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0;">
+                <VBox fx:id="bidHistoryList" spacing="0"/>
+            </ScrollPane>
         </VBox>
 
         <Region minHeight="16"/>
