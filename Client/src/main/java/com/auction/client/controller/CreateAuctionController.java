@@ -226,8 +226,8 @@ public class CreateAuctionController {
         if (end == null) {
             msgTime.setText("End time format: YYYY-MM-DD HH:mm");
             AnimationUtil.shake(fieldEndTime); ok = false;
-        } else if (end.isBefore(LocalDateTime.now().plusMinutes(30))) {
-            msgTime.setText("End time must be at least 30 min from now.");
+        } else if (end.isBefore(LocalDateTime.now().plusMinutes(5))) {
+            msgTime.setText("End time must be at least 5 min from now.");
             ok = false;
         }
         if (!ok) {
