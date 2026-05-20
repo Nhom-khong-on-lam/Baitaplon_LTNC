@@ -419,7 +419,21 @@ public class ClientHandler extends Thread {
                 Long userId = (Long) req.getData();
                 AuctionDAO auctionDAO = new AuctionDAO();
                 java.util.List<AuctionDTO> dtos = auctionDAO.findByBidder(userId);
-                return Response.ok(toClientAuctions(dtos, userDAO));
+                java.util.List<Auction> result = toClientAuctions(dtos, userDAO);
+
+                server.repository.BidDAO bidDAO = new server.repository.BidDAO();
+                for (Auction a : result) {
+                    java.util.List<com.auction.common.dto.BidDTO> bids = bidDAO.getBidsByAuctionId(a.getId());
+                    double maxBid = bids.stream()
+                            .filter(b -> b.getBidderId() != null && b.getBidderId().equals(userId))
+                            .mapToDouble(com.auction.common.dto.BidDTO::getAmount)
+                            .max().orElse(0.0);
+                    if (maxBid > 0) {
+                        User fakeUser = new User(userId, "You", "", "", com.auction.common.enums.SystemRole.USER);
+                        a.getBidHistory().add(new com.auction.common.model.BidTransaction(fakeUser, maxBid, false));
+                    }
+                }
+                return Response.ok(result);
             }
 
             case "GET_WINNING_BIDS": {
