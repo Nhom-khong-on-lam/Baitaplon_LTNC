@@ -185,9 +185,10 @@ public class MyBidsController {
             // Nút đặt giá lại
             Button rebidBtn = new Button(winning ? "Boost Bid" : "Re-Bid →");
             rebidBtn.getStyleClass().add(winning ? "btn-secondary" : "btn-primary");
-            rebidBtn.setOnAction(e -> openDetail(a)); // Giả sử bạn có hàm openDetail
+            rebidBtn.setOnAction(e -> openDetail(a)); // Mở chi tiết
 
             right.getChildren().addAll(timer, rebidBtn);
+
         } else {
             // Hiển thị kết quả thắng/thua
             String resultText = won ? "🏆 Won — $" + String.format("%,.0f", a.getCurrentPrice()) : "❌ Lost";
@@ -195,7 +196,12 @@ public class MyBidsController {
             String color = won ? "#16a34a" : "#dc2626";
             resultLbl.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:" + color + ";");
 
-            right.getChildren().add(resultLbl);
+            //  THÊM NÚT XEM CHI TIẾT DÀNH CHO PHIÊN ĐÃ KẾT THÚC
+            Button viewBtn = new Button("View Detail");
+            viewBtn.getStyleClass().add("btn-secondary"); // Dùng nút phụ (viền mờ) cho phiên đã kết thúc
+            viewBtn.setOnAction(e -> openDetail(a)); // Vẫn gọi hàm mở phòng chi tiết bình thường
+
+            right.getChildren().addAll(resultLbl, viewBtn);
         }
 
         row.getChildren().addAll(dot, thumb, info, right);
