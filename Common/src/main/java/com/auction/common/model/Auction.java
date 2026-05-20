@@ -98,6 +98,7 @@ public class Auction extends BaseEntity {
 
     public double getCurrentPrice() { return currentPrice; }
     public User getHighestBidder() { return highestBidder; }
+    public void setHighestBidder(User highestBidder) { this.highestBidder = highestBidder; }
     public List<BidTransaction> getBidHistory() { return bidHistory; }
     public LocalDateTime getStartTime() { return startTime; }
     public LocalDateTime getEndTime() { return endTime; }

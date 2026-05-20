@@ -43,6 +43,7 @@ public class AuctionsController {
     private boolean isFull = false;   // Đã tải hết dữ liệu trên Server chưa
     private boolean isLoading = false;
     private javafx.animation.Timeline countdownTimeline;
+    private int refreshTick = 0;
     /** "ALL" | "LIVE" | "ENDED" */
     private String currentTab = "ALL";
 
@@ -58,10 +59,26 @@ public class AuctionsController {
 
         // Tạo bộ đếm chạy mỗi 1 giây để cập nhật toàn bộ Timer đang hiển thị
         countdownTimeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> updateAllTimers())
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
+                    updateAllTimers();
+                    refreshTick++;
+                    if (refreshTick % 5 == 0) {
+                        pollLatestActiveAuctions();
+                    }
+                })
         );
         countdownTimeline.setCycleCount(javafx.animation.Timeline.INDEFINITE);
         countdownTimeline.play();
+
+        // Tự động dọn dẹp khi chuyển màn hình
+        auctionListContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene == null) {
+                if (countdownTimeline != null) {
+                    countdownTimeline.stop();
+                    System.out.println("Cleaned up countdownTimeline in AuctionsController.");
+                }
+            }
+        });
     }
 
     public void initData(User user) {
@@ -402,6 +419,108 @@ public class AuctionsController {
                                     ? (a.getRemainingSeconds() < 600 ? "timer-critical" : "timer-warning")
                                     : "timer-normal");
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private void pollLatestActiveAuctions() {
+        new Thread(() -> {
+            try {
+                auctionService.refreshActiveAuctionsFromServer();
+                List<Auction> freshData = auctionService.getActiveAuctionsCached();
+                if (freshData != null) {
+                    javafx.application.Platform.runLater(() -> {
+                        updateUIInPlace(freshData);
+                    });
+                }
+            } catch (Exception e) {
+                System.err.println("Error polling active auctions: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    private void updateUIInPlace(List<Auction> freshData) {
+        if (freshData == null || allAuctions == null) return;
+
+        java.util.Map<Long, Auction> freshMap = freshData.stream()
+                .collect(Collectors.toMap(Auction::getId, a -> a));
+
+        for (int i = 0; i < allAuctions.size(); i++) {
+            Auction oldAuc = allAuctions.get(i);
+            Auction newAuc = freshMap.get(oldAuc.getId());
+            if (newAuc != null) {
+                allAuctions.set(i, newAuc);
+            }
+        }
+
+        for (int i = 0; i < currentFilteredList.size(); i++) {
+            Auction oldAuc = currentFilteredList.get(i);
+            Auction newAuc = freshMap.get(oldAuc.getId());
+            if (newAuc != null) {
+                currentFilteredList.set(i, newAuc);
+            }
+        }
+
+        for (javafx.scene.Node node : auctionListContainer.getChildren()) {
+            if (node instanceof HBox card && card.getUserData() instanceof Auction a) {
+                Auction newAuc = freshMap.get(a.getId());
+                if (newAuc != null) {
+                    card.setUserData(newAuc);
+
+                    try {
+                        // 1. Update status badge & bid count in info VBox
+                        if (card.getChildren().size() > 1 && card.getChildren().get(1) instanceof VBox info) {
+                            if (info.getChildren().size() > 0 && info.getChildren().get(0) instanceof HBox titleRow) {
+                                if (titleRow.getChildren().size() > 1 && titleRow.getChildren().get(1) instanceof Label statusBadge) {
+                                    statusBadge.setText(newAuc.getStatusLabel());
+                                    statusBadge.getStyleClass().removeAll("badge-green", "badge-gray", "badge-orange", "badge-red");
+                                    statusBadge.getStyleClass().add(newAuc.getStatusStyleClass());
+                                }
+                            }
+                            if (info.getChildren().size() > 2 && info.getChildren().get(2) instanceof Label meta) {
+                                meta.setText("👤 " + newAuc.getSeller().getUsername() + "   ·   🔨 " + newAuc.getBidCount() + " bids");
+                            }
+                        }
+
+                        // 2. Update price and button in right VBox
+                        if (card.getChildren().size() > 2 && card.getChildren().get(2) instanceof VBox right) {
+                            boolean ended = newAuc.getRemainingSeconds() <= 0;
+
+                            if (right.getChildren().size() > 0 && right.getChildren().get(0) instanceof Label priceLabel) {
+                                priceLabel.setText(ended ? "FINAL PRICE" : "CURRENT BID");
+                            }
+
+                            if (right.getChildren().size() > 1 && right.getChildren().get(1) instanceof Label price) {
+                                price.setText(String.format("%,.0f", newAuc.getCurrentPrice()));
+                                price.getStyleClass().removeAll("auction-card-price", "auction-card-price-ended");
+                                price.getStyleClass().add(ended ? "auction-card-price-ended" : "auction-card-price");
+                            }
+
+                            if (right.getChildren().size() > 2 && right.getChildren().get(2) instanceof Label timerLbl) {
+                                if (ended) {
+                                    timerLbl.setText("🏁 Ended");
+                                    timerLbl.getStyleClass().removeAll("timer-normal", "timer-warning", "timer-critical", "timer-ended");
+                                    timerLbl.getStyleClass().add("timer-ended");
+                                } else {
+                                    timerLbl.setText("⏱ " + newAuc.getTimeRemaining());
+                                    String timerStyle = newAuc.getRemainingSeconds() < 3600
+                                            ? (newAuc.getRemainingSeconds() < 600 ? "timer-critical" : "timer-warning")
+                                            : "timer-normal";
+                                    timerLbl.getStyleClass().removeAll("timer-normal", "timer-warning", "timer-critical", "timer-ended");
+                                    timerLbl.getStyleClass().add(timerStyle);
+                                }
+                            }
+
+                            if (right.getChildren().size() > 3 && right.getChildren().get(3) instanceof Button bidBtn) {
+                                bidBtn.setText(ended ? "View Results" : "Place Bid →");
+                                bidBtn.getStyleClass().removeAll("btn-primary", "btn-secondary");
+                                bidBtn.getStyleClass().add(ended ? "btn-secondary" : "btn-primary");
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error updating card in-place: " + e.getMessage());
                     }
                 }
             }

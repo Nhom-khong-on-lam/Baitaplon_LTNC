@@ -315,6 +315,7 @@ public class ClientHandler extends Thread {
                 }
 
                 auctionDto.setCurrentPrice(bidAmount);
+                auctionDto.setHighestBidderId(bidder.getId());
 
                 java.time.LocalDateTime now = java.time.LocalDateTime.now();
                 java.time.LocalDateTime endTime = auctionDto.getEndTime();
@@ -786,6 +787,13 @@ public class ClientHandler extends Thread {
                 Auction auction = new Auction(item, seller, endTime);
                 auction.setId(dto.getId());
                 auction.setCurrentPrice(dto.getCurrentPrice());
+
+                if (dto.getHighestBidderId() != null && dto.getHighestBidderId() > 0) {
+                    UserDTO bidderDto = userMap.get(dto.getHighestBidderId());
+                    if (bidderDto != null) {
+                        auction.setHighestBidder(toClientUser(bidderDto));
+                    }
+                }
 
                 try {
                     auction.setStatus(AuctionStatus.valueOf(

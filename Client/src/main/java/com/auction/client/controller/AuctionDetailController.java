@@ -48,6 +48,7 @@ public class AuctionDetailController {
     private User    currentUser;
     private Auction auction;
     private Timeline countdownTimeline;
+    private int pollTick = 0;
     private String SellerName;
     private boolean isAutoBidActive = false;
     @FXML private TextField autoBidLimitField; // Thay cho autoBidMaxPriceField cũ
@@ -161,6 +162,16 @@ public class AuctionDetailController {
         // Bid history
         loadBidHistory();
 
+        // Dọn dẹp Timeline khi màn hình chi tiết bị đóng/chuyển trang
+        detailTimer.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null) {
+                if (countdownTimeline != null) {
+                    countdownTimeline.stop();
+                    System.out.println("Cleaned up countdownTimeline in AuctionDetailController.");
+                }
+            }
+        });
+
         // Start live countdown
         startCountdown();
     }
@@ -186,15 +197,67 @@ public class AuctionDetailController {
             detailTimer.setText(formatCountdown(secs));
 
             // Logic đổi màu sắc theo thời gian còn lại
+            // Logic đổi màu sắc theo thời gian còn lại
             if (secs < 600) { // Dưới 10 phút: Đỏ
                 detailTimer.setStyle("-fx-text-fill:#dc2626; -fx-font-weight:bold;");
             } else if (secs < 3600) { // Dưới 1 tiếng: Cam
                 detailTimer.setStyle("-fx-text-fill:#d97706; -fx-font-weight:bold;");
             }
+
+            // Đồng bộ dữ liệu ngầm mỗi 2 giây
+            pollTick++;
+            if (pollTick % 2 == 0) {
+                pollLatestAuctionData();
+            }
         }));
 
         countdownTimeline.setCycleCount(Timeline.INDEFINITE);
         countdownTimeline.play();
+    }
+
+    private void pollLatestAuctionData() {
+        new Thread(() -> {
+            try {
+                Response res = auctionService.getAuctionById(auction.getId());
+                if (res != null && res.isSuccess() && res.getData() instanceof Auction updatedAuction) {
+                    List<BidTransaction> history = auctionService.getBidHistory(auction.getId());
+                    javafx.application.Platform.runLater(() -> {
+                        // Cập nhật thông tin auction
+                        this.auction.setCurrentPrice(updatedAuction.getCurrentPrice());
+                        this.auction.setEndTime(updatedAuction.getEndTime());
+                        this.auction.setStatus(updatedAuction.getStatus());
+                        this.auction.setHighestBidder(updatedAuction.getHighestBidder());
+                        
+                        // Cập nhật hiển thị UI
+                        updatePriceDisplay();
+                        
+                        // Cập nhật status pill
+                        detailStatusPill.setText(this.auction.getStatusLabel());
+                        
+                        // Cập nhật nút Bid và TextField nếu phiên đấu giá đã kết thúc hoặc là của mình
+                        boolean canBid = this.auction.isLive()
+                                && this.auction.getSeller().getId() != currentUser.getId();
+                        placeBidBtn.setDisable(!canBid);
+                        bidAmountField.setDisable(!canBid);
+                        if (!canBid) {
+                            bidMsg.setText(this.auction.isLive()
+                                    ? "You cannot bid on your own auction."
+                                    : "This auction has ended.");
+                            bidMsg.setTextFill(Color.web("#718096"));
+                        } else {
+                            if (bidMsg.getText().equals("This auction has ended.") || bidMsg.getText().equals("You cannot bid on your own auction.")) {
+                                bidMsg.setText("");
+                            }
+                        }
+                        
+                        // Cập nhật biểu đồ và lịch sử bid
+                        renderBidHistory(history);
+                    });
+                }
+            } catch (Exception ex) {
+                System.err.println("Lỗi đồng bộ dữ liệu phiên đấu giá: " + ex.getMessage());
+            }
+        }).start();
     }
     @FXML
     private void handleSetAutoBid() {
@@ -418,46 +481,47 @@ public class AuctionDetailController {
     private void loadBidHistory() {
         new Thread(() -> {
             List<BidTransaction> history = auctionService.getBidHistory(auction.getId());
-
-            javafx.application.Platform.runLater(() -> {
-                bidHistoryList.getChildren().clear();
-
-                String countText = history.size() + " bids";
-                bidHistoryCount.setText(countText);
-
-                // 1. Làm sạch biểu đồ
-                priceChart.getData().clear();
-                priceSeries.getData().clear();
-
-                // 2. Nạp dữ liệu vào Series (Từ cũ đến mới)
-                XYChart.Data<String, Number> startPoint = new XYChart.Data<>("Start", auction.getItem().getStartingPrice());
-                priceSeries.getData().add(startPoint);
-
-                for (int i = history.size() - 1; i >= 0; i--) {
-                    BidTransaction bid = history.get(i);
-                    XYChart.Data<String, Number> bidPoint = new XYChart.Data<>(bid.getFormattedTime(), bid.getAmount());
-                    priceSeries.getData().add(bidPoint);
-                }
-
-                // 3. Nạp xong xuôi mới đưa Series vào LineChart
-                priceChart.getData().add(priceSeries);
-
-                // 4. Vẽ danh sách Text bên dưới
-                if (history.isEmpty()) {
-                    Label empty = new Label("No bids yet. Be the first!");
-                    empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px;");
-                    bidHistoryList.getChildren().add(empty);
-                    return;
-                }
-
-                for (int i = 0; i < history.size(); i++) {
-                    BidTransaction bid = history.get(i);
-                    boolean isTop = (i == 0);
-                    HBox row = buildBidHistoryRow(bid, isTop);
-                    bidHistoryList.getChildren().add(row);
-                }
-            });
+            javafx.application.Platform.runLater(() -> renderBidHistory(history));
         }).start();
+    }
+
+    private void renderBidHistory(List<BidTransaction> history) {
+        bidHistoryList.getChildren().clear();
+
+        String countText = history.size() + " bids";
+        bidHistoryCount.setText(countText);
+
+        // 1. Làm sạch biểu đồ
+        priceChart.getData().clear();
+        priceSeries.getData().clear();
+
+        // 2. Nạp dữ liệu vào Series (Từ cũ đến mới)
+        XYChart.Data<String, Number> startPoint = new XYChart.Data<>("Start", auction.getItem().getStartingPrice());
+        priceSeries.getData().add(startPoint);
+
+        for (int i = history.size() - 1; i >= 0; i--) {
+            BidTransaction bid = history.get(i);
+            XYChart.Data<String, Number> bidPoint = new XYChart.Data<>(bid.getFormattedTime(), bid.getAmount());
+            priceSeries.getData().add(bidPoint);
+        }
+
+        // 3. Nạp xong xuôi mới đưa Series vào LineChart
+        priceChart.getData().add(priceSeries);
+
+        // 4. Vẽ danh sách Text bên dưới
+        if (history.isEmpty()) {
+            Label empty = new Label("No bids yet. Be the first!");
+            empty.setStyle("-fx-text-fill:#a0aec0; -fx-font-size:13px;");
+            bidHistoryList.getChildren().add(empty);
+            return;
+        }
+
+        for (int i = 0; i < history.size(); i++) {
+            BidTransaction bid = history.get(i);
+            boolean isTop = (i == 0);
+            HBox row = buildBidHistoryRow(bid, isTop);
+            bidHistoryList.getChildren().add(row);
+        }
     }
 
     private HBox buildBidHistoryRow(BidTransaction bid, boolean isTop) {

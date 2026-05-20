@@ -6,7 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionDetailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionDetailController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" beforeDir="false" afterPath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -173,7 +179,33 @@
       <recent name="C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\DAO" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.Launcher">
+    <configuration name="AuctionServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="server.network.AuctionServer" />
+      <module name="Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="server.network.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Launcher" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.auction.client.Launcher" />
+      <module name="Client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.client.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.auction.client.MainApp" />
       <module name="Client" />
@@ -193,37 +225,6 @@
       <script-mode>FILE</script-mode>
       <data-source id="1c51dd04-cdc9-4594-b9f0-bc35004fb068" />
       <method v="2" />
-    </configuration>
-    <configuration name="AutoBidConfigTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Client" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.auction.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.auction" />
-      <option name="MAIN_CLASS_NAME" value="com.auction.AutoBidConfigTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="BidTransactionTest.testConstructor" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Client" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.auction.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.auction" />
-      <option name="MAIN_CLASS_NAME" value="com.auction.BidTransactionTest" />
-      <option name="METHOD_NAME" value="testConstructor" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
     </configuration>
     <configuration name="ItemDAOTest.testInsertItem" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Server" />
@@ -257,20 +258,20 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Application.AuctionServer" />
+      <item itemvalue="Application.Launcher" />
       <item itemvalue="Application.MainApp" />
       <item itemvalue="Database Script.database.sql" />
       <item itemvalue="JUnit.ItemDAOTest.testInsertItem" />
-      <item itemvalue="JUnit.AutoBidConfigTest" />
-      <item itemvalue="JUnit.BidTransactionTest.testConstructor" />
       <item itemvalue="JUnit.PaymentDAOTest" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Launcher" />
+        <item itemvalue="Application.AuctionServer" />
         <item itemvalue="Application.MainApp" />
         <item itemvalue="JUnit.ItemDAOTest.testInsertItem" />
         <item itemvalue="JUnit.PaymentDAOTest" />
-        <item itemvalue="JUnit.BidTransactionTest.testConstructor" />
-        <item itemvalue="JUnit.AutoBidConfigTest" />
       </list>
     </recent_temporary>
   </component>
@@ -350,6 +351,7 @@
       <workItem from="1779256857734" duration="126000" />
       <workItem from="1779257003903" duration="111000" />
       <workItem from="1779258007836" duration="5288000" />
+      <workItem from="1779266756169" duration="465000" />
     </task>
     <servers />
   </component>
