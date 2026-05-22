@@ -86,6 +86,20 @@ public class AuctionDAO {
         return list;
     }
 
+    // ── FIND PUBLIC (status = RUNNING hoặc FINISHED) ───────────────────────
+    public List<AuctionDTO> findPublic() {
+        List<AuctionDTO> list = new ArrayList<>();
+        String sql = "SELECT * FROM auction WHERE status IN ('RUNNING', 'FINISHED') ORDER BY end_time DESC";
+        try (Connection conn = DBConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "findPublic auction ERROR", e);
+        }
+        return list;
+    }
+
     // ── FIND BY SELLER ────────────────────────────────────────────────────────
     public List<AuctionDTO> findBySeller(long sellerId) {
         List<AuctionDTO> list = new ArrayList<>();
@@ -242,5 +256,40 @@ public class AuctionDAO {
         a.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
         a.setStatus(rs.getString("status"));
         return a;
+    }
+    // ── THÊM VÀO ĐỂ GIẢI QUYẾT TRIỆT ĐỂ LỖI KHÔNG XÓA ĐƯỢC ITEM ──────────────────
+
+    /**
+     * Lấy mã định danh món hàng (item_id) gắn liền với phiên đấu giá trước khi tiêu hủy phiên
+     */
+    public long getItemIdByAuctionId(long auctionId) {
+        String sql = "SELECT item_id FROM auction WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, auctionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("item_id");
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi truy vấn lấy item_id từ auctionId=" + auctionId, e);
+        }
+        return -1;
+    }
+
+    /**
+     * Thực hiện xóa vĩnh viễn dữ liệu hàng hóa gốc trong bảng item
+     */
+    public boolean deleteItem(long itemId) {
+        String sql = "DELETE FROM item WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, itemId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi nghiêm trọng không thể xóa bản ghi trong bảng item ID=" + itemId, e);
+            return false;
+        }
     }
 }

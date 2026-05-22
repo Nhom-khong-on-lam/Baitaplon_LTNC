@@ -54,12 +54,18 @@ public class MyBidsController {
     @FXML
     public void showWinning() {
         setActiveTab(tabWinning);
-
-        // Giả sử currentUser là đối tượng User đang đăng nhập trong Controller của bạn
         Long curId = currentUser.getId();
 
         List<Auction> winningList = myBids.stream()
-                .filter(a -> a.getHighestBidder() != null && a.getHighestBidder().getId().equals(curId))
+                .filter(a -> {
+                    if (a.isLive()) {
+                        // Nếu đang diễn ra: Mình phải là người ra giá cao nhất
+                        return a.getHighestBidder() != null && a.getHighestBidder().getId().equals(curId);
+                    } else {
+                        // Nếu đã kết thúc: Biến isUserWon(id) của class Auction phải trả về true
+                        return a.isUserWon(curId);
+                    }
+                })
                 .collect(Collectors.toList());
 
         renderBids(winningList);
@@ -68,7 +74,6 @@ public class MyBidsController {
     public void showOutbid() {
         setActiveTab(tabOutbid);
 
-        // Lấy ID của người dùng hiện tại
         Long curId = currentUser.getId();
 
         List<Auction> outbidList = myBids.stream()
@@ -80,15 +85,36 @@ public class MyBidsController {
                     boolean isNotWinning = a.getHighestBidder() == null ||
                             !a.getHighestBidder().getId().equals(curId);
 
-                    return isLive && isNotWinning;
+                    // ⭐ Điều kiện 3 (QUYẾT ĐỊNH): Mình PHẢI TỪNG ĐẶT GIÁ cho phiên này rồi
+                    // Kiểm tra xem số tiền mình từng bid có lớn hơn 0 hay không
+                    boolean iHaveBid = a.getUserBidAmount(curId) > 0;
+
+                    // Thỏa mãn cả 3 mới được coi là bị người khác vượt mặt
+                    return isLive && isNotWinning && iHaveBid;
                 })
                 .collect(Collectors.toList());
 
         renderBids(outbidList);
     }
-    @FXML public void showEnded()   {
+    @FXML
+    public void showEnded() {
         setActiveTab(tabEnded);
-        renderBids(myBids.stream().filter(a -> !a.isLive()).collect(Collectors.toList()));
+
+        Long curId = currentUser.getId();
+
+        List<Auction> endedList = myBids.stream()
+                .filter(a -> {
+                    // Điều kiện 1: Phiên đấu giá đã kết thúc
+                    boolean isEnded = !a.isLive();
+
+                    // Điều kiện 2: Mình PHẢI TỪNG ĐẶT GIÁ cho phiên này
+                    boolean iHaveBid = a.getUserBidAmount(curId) > 0;
+
+                    return isEnded && iHaveBid;
+                })
+                .collect(Collectors.toList());
+
+        renderBids(endedList);
     }
 
     private void setActiveTab(Button tab) {
@@ -160,7 +186,12 @@ public class MyBidsController {
 
         String statusTxt = live ? (winning ? "🏆 Winning" : "⚠️ Outbid") : (won ? "🎉 Won" : "❌ Lost");
         Label statusBadge = new Label(statusTxt);
-        statusBadge.getStyleClass().add(winning ? "pill-running" : live ? "pill-ending" : "pill-finished");
+        if (live) {
+            statusBadge.getStyleClass().add(winning ? "pill-running" : "pill-ending");
+        } else {
+            // Nếu thắng cuộc thì cho màu xanh (pill-running), nếu thua cho màu xám/đỏ (pill-finished)
+            statusBadge.getStyleClass().add(won ? "pill-running" : "pill-finished");
+        }
 
         metaRow.getChildren().addAll(catBadge, statusBadge);
 

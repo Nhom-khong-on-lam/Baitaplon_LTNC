@@ -15,7 +15,7 @@ public class AutoBidDAO {
     private static final Logger LOGGER = Logger.getLogger(AutoBidDAO.class.getName());
 
     public long insert(AutoBidDTO config) {
-        String sql = "INSERT INTO auto_bid (auction_id, bidder_id, maxPrice, step_increment, active) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO auto_bid (auction_id, bidder_id, max_price, step_increment, active) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 

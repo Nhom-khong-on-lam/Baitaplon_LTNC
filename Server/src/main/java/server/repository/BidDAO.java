@@ -40,10 +40,26 @@ public class BidDAO {
         }
         return -1;
     }
+    public boolean deleteBidsByAuctionId(long auctionId) {
+        String sql = "DELETE FROM bid WHERE auction_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, auctionId);
+            int rowsDeleted = ps.executeUpdate();
+
+            LOGGER.info("DELETE SUCCESS: Đã xóa " + rowsDeleted + " lượt đặt giá thuộc Auction ID=" + auctionId);
+            return true;
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "DELETE ERROR: Lỗi khi xóa các lượt đặt giá của Auction ID=" + auctionId, e);
+            return false;
+        }
+    }
 
     public List<BidDTO> getBidsByAuctionId(long auctionId) {
         List<BidDTO> bidHistory = new ArrayList<>();
-        String sql = "SELECT b.*, u.username FROM bid b LEFT JOIN user u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time DESC";
+        String sql = "SELECT b.*, u.username FROM bid b LEFT JOIN user u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.amount DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -75,5 +91,36 @@ public class BidDAO {
             LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi lấy danh sách bid của auction_id=" + auctionId, e);
         }
         return bidHistory;
+    }
+
+    /** Đếm tổng số lần đặt giá của một phiên đấu giá */
+    public int countByAuctionId(long auctionId) {
+        String sql = "SELECT COUNT(*) FROM bid WHERE auction_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, auctionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "COUNT bid ERROR for auction_id=" + auctionId, e);
+        }
+        return 0;
+    }
+
+    /** Lấy số lần đặt giá của TẤT CẢ các phiên cùng lúc — trả về Map<auctionId, count> */
+    public java.util.Map<Long, Integer> countAllGroupedByAuction() {
+        java.util.Map<Long, Integer> map = new java.util.HashMap<>();
+        String sql = "SELECT auction_id, COUNT(*) AS cnt FROM bid GROUP BY auction_id";
+        try (Connection conn = DBConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                map.put(rs.getLong("auction_id"), rs.getInt("cnt"));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "countAllGroupedByAuction ERROR", e);
+        }
+        return map;
     }
 }

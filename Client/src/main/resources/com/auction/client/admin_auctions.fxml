@@ -34,8 +34,6 @@
                 onAction="#showAll"/>
         <Button fx:id="tabLive"     text="Live"     styleClass="btn-secondary"
                 onAction="#showLive"/>
-        <Button fx:id="tabEnding"   text="Ending"   styleClass="btn-secondary"
-                onAction="#showEnding"/>
         <Button fx:id="tabFinished" text="Finished" styleClass="btn-secondary"
                 onAction="#showFinished"/>
 

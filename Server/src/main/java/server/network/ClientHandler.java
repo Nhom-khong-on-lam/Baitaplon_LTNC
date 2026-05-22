@@ -9,13 +9,15 @@ import com.auction.common.enums.SystemRole;
 import com.auction.common.model.*;
 import com.auction.common.network.Request;
 import com.auction.common.network.Response;
-import server.repository.AuctionDAO;
-import server.repository.AutoBidDAO;
-import server.repository.UserDAO;
+import server.repository.*;
 
+import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,32 +25,57 @@ import java.util.List;
 import static java.lang.System.out;
 
 public class ClientHandler extends Thread {
-    private final Socket socket;
+    private Socket clientSocket;
+    private ObjectOutputStream objectOut; // Đổi từ out -> objectOut
+    private ObjectInputStream in;
 
     public ClientHandler(Socket socket) {
-        this.socket = socket;
+        this.clientSocket = socket;
     }
 
     @Override
     public void run() {
-        try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+        try {
+            // Đổi tên ở đây luôn
+            this.objectOut = new ObjectOutputStream(clientSocket.getOutputStream());
+            this.in = new ObjectInputStream(clientSocket.getInputStream());
 
-            out.flush();
+            while (true) {
+                Object requestObj = in.readObject();
+                if (requestObj == null) break;
 
-            Object input = in.readObject();
-            if (!(input instanceof Request)) return;
+                System.out.println("📩 [Server] Nhận được gói tin từ Client: " + requestObj.getClass().getSimpleName());
 
-            Request req = (Request) input;
-            System.out.println("Server received command: " + req.getAction());
+                // 🔴 BƯỚC SỬA QUYẾT ĐỊNH:
+                // Bạn hãy tìm lại file ClientHandler.java GỐC (lúc chưa sửa gì hôm qua)
+                // xem nhóm bạn xử lý gói tin 'requestObj' này như thế nào, rồi copy y hệt đoạn đó bỏ vào đây.
 
-            Response res = handleRequest(req);
+                Object responseObj = null;
 
-            out.writeObject(res);
-            out.flush();
+                // Ví dụ cấu hình chuẩn theo logic thông thường của đồ án:
+                // Bạn cần gọi hàm xử lý thực tế của nhóm bạn, ví dụ:
+                responseObj = handleRequest((com.auction.common.network.Request) requestObj);
 
+                // Hoặc nếu nhóm bạn viết trực tiếp bằng if-else:
+                // if (requestObj instanceof Request) {
+                //     responseObj = Controller.process((Request) requestObj);
+                // }
+
+                // Gửi trả kết quả xịn (Không còn bị null hay bị lệch kiểu dữ liệu nữa)
+                if (responseObj != null) {
+                    System.out.println("📤 [Server] Gửi trả phản hồi thành công: " + responseObj.getClass().getSimpleName());
+                } else {
+                    System.out.println("⚠️ [Server] Cảnh báo: responseObj đang bị NULL! Kiểm tra lại hàm xử lý logic.");
+                }
+
+                objectOut.writeObject(responseObj);
+                objectOut.flush();
+                objectOut.reset();
+            }
         } catch (Exception e) {
-            out.println("Client " + socket.getInetAddress() + " disconnected: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try { clientSocket.close(); } catch (Exception e) {}
         }
     }
 
@@ -107,23 +134,27 @@ public class ClientHandler extends Thread {
                 Long auctionId = (Long) data[0];
                 Long bidderId = (Long) data[1];
 
-                boolean isActive = false;
-                String sql = "SELECT active FROM auto_bid WHERE auction_id = ? AND bidder_id = ? LIMIT 1";
+                com.auction.common.dto.AutoBidDTO config = null;
+                String sql = "SELECT * FROM auto_bid WHERE auction_id = ? AND bidder_id = ? LIMIT 1";
                 try (java.sql.Connection conn = server.database.DBConnection.getConnection();
                      java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
                     ps.setLong(1, auctionId);
                     ps.setLong(2, bidderId);
                     try (java.sql.ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
-                            isActive = rs.getBoolean("active"); // Lấy trạng thái true/false thực tế trong DB
+                            config = new com.auction.common.dto.AutoBidDTO();
+                            config.setId(rs.getLong("id"));
+                            config.setMaxPrice(rs.getDouble("max_price"));
+                            config.setStepIncrement(rs.getDouble("step_increment"));
+                            config.setActive(rs.getBoolean("active"));
                         }
                     }
                 } catch (java.sql.SQLException e) {
                     System.out.println("❌ Lỗi check trạng thái AutoBid: " + e.getMessage());
                 }
 
-                // Trả về true nếu đang bật, false nếu đang tắt hoặc chưa từng cài đặt
-                return Response.ok(isActive);
+                // Trả về DTO
+                return Response.ok(config);
             }
 
             case Request.SET_AUTO_BID: {
@@ -199,6 +230,22 @@ public class ClientHandler extends Thread {
                         } else {
                             responseToClient = new Response(false, "Lỗi hệ thống: Không thể lưu cấu hình mới!", null);
                         }
+                    }
+                }
+                if (responseToClient != null && responseToClient.isSuccess() && autoBidDto.getMaxPrice() > 0) {
+                    try {
+                        AuctionDAO auctionDAO = new AuctionDAO();
+                        AuctionDTO auctionDto = auctionDAO.findById(autoBidDto.getAuctionId());
+                        if (auctionDto != null) {
+                            Long currentLeaderId = auctionDto.getHighestBidderId();
+                            // Nếu phòng chưa có người đặt, hoặc người đặt cao nhất hiện tại KHÔNG phải là user này
+                            if (currentLeaderId == null || !currentLeaderId.equals(autoBidDto.getBidderId())) {
+                                server.repository.BidDAO bidDAO = new server.repository.BidDAO();
+                                triggerAutoBidsLoop(auctionDto.getId(), auctionDto.getCurrentPrice(), currentLeaderId != null ? currentLeaderId : -1L, auctionDAO, bidDAO);
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Lỗi kích hoạt AutoBid ngay lập tức: " + e.getMessage());
                     }
                 }
 
@@ -423,7 +470,7 @@ public class ClientHandler extends Thread {
 
             case Request.GET_AUCTIONS: {
                 AuctionDAO auctionDAO = new AuctionDAO();
-                java.util.List<AuctionDTO> dtos = auctionDAO.findActive();
+                java.util.List<AuctionDTO> dtos = auctionDAO.findPublic();
                 return Response.ok(toClientAuctions(dtos, userDAO));
             }
 
@@ -553,11 +600,82 @@ public class ClientHandler extends Thread {
                 return ok ? Response.ok(null) : Response.error("Failed to update auction.");
             }
 
-            case Request.DELETE_AUCTION: {
-                Long auctionId = (Long) req.getData();
+            case "DELETE_AUCTION": {
+                Object rawData = req.getData();
+                if (rawData == null) return Response.error("ID phiên đấu giá không được để trống!");
+
+                long auctionId = -1;
+                if (rawData instanceof Number) {
+                    auctionId = ((Number) rawData).longValue();
+                } else {
+                    try {
+                        auctionId = Long.parseLong(rawData.toString().trim());
+                    } catch (Exception e) {
+                        return Response.error("Định dạng ID không hợp lệ.");
+                    }
+                }
+
                 AuctionDAO auctionDAO = new AuctionDAO();
-                boolean ok = auctionDAO.delete(auctionId);
-                return ok ? Response.ok(null) : Response.error("Failed to delete auction.");
+                ItemDAO itemDAO = new ItemDAO();
+
+                // 1. Lấy ra mã hàng hóa item_id trước khi bảng auction bị xóa sạch
+                long itemId = auctionDAO.getItemIdByAuctionId(auctionId);
+                System.out.println("🚀 [CLEAN] Tiến hành dọn dẹp chuỗi bản ghi liên kết cho Auction ID: " + auctionId);
+
+                // 2. Thực thi chuỗi lệnh xóa bằng SQL thuần bọc cô lập để dọn sạch các bảng không có CASCADE
+                try (Connection conn = server.database.DBConnection.getConnection()) {
+                    conn.setAutoCommit(false); // Bật chế độ quản lý giao dịch để tránh xóa dở dang
+
+                    try (PreparedStatement psAutoBid   = conn.prepareStatement("DELETE FROM auto_bid WHERE auction_id = ?");
+                         PreparedStatement psPayment   = conn.prepareStatement("DELETE FROM payment WHERE auction_id = ?");
+                         PreparedStatement psExtLog    = conn.prepareStatement("DELETE FROM auction_extension_log WHERE auction_id = ?");
+                         PreparedStatement psBids      = conn.prepareStatement("DELETE FROM bid WHERE auction_id = ?");
+                         PreparedStatement psAuction   = conn.prepareStatement("DELETE FROM auction WHERE id = ?");
+                         PreparedStatement psItem      = conn.prepareStatement("DELETE FROM item WHERE id = ?")) {
+
+                        // Bước A: Xóa sạch dữ liệu ở tất cả các bảng con đang giữ khóa ngoại cứng
+                        psAutoBid.setLong(1, auctionId);
+                        psAutoBid.executeUpdate();
+
+                        psPayment.setLong(1, auctionId);
+                        psPayment.executeUpdate();
+
+                        psExtLog.setLong(1, auctionId);
+                        psExtLog.executeUpdate();
+
+                        psBids.setLong(1, auctionId);
+                        psBids.executeUpdate();
+
+                        // Bước B: Xóa tiêu đề phiên đấu giá trong bảng auction
+                        psAuction.setLong(1, auctionId);
+                        int auctionRows = psAuction.executeUpdate();
+
+                        // Bước C: Xóa thực thể hàng hóa gốc trong bảng item
+                        int itemRows = 0;
+                        if (itemId != -1) {
+                            psItem.setLong(1, itemId);
+                            itemRows = psItem.executeUpdate();
+                        }
+
+                        // Kiểm tra: Nếu bản ghi auction chính đã được dọn khỏi bộ nhớ DB
+                        if (auctionRows > 0) {
+                            conn.commit(); // Hợp thức hóa, ghi dữ liệu xuống ổ cứng vĩnh viễn
+                            System.out.println("🗑️ [SUCCESS] Đã xóa mất hút khỏi DB: 1 Auction và " + itemRows + " Item.");
+                            return Response.ok("Xóa thành công");
+                        } else {
+                            conn.rollback();
+                            return Response.error("Không tìm thấy phiên đấu giá tương ứng trong DB.");
+                        }
+
+                    } catch (SQLException e) {
+                        conn.rollback(); // Hoàn tác dữ liệu ngay nếu có một bảng bị kẹt
+                        System.err.println("❌ Lỗi thực thi SQL khi dọn rác DB: " + e.getMessage());
+                        return Response.error("Lỗi ràng buộc dữ liệu: " + e.getMessage());
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    return Response.error("Lỗi kết nối cơ sở dữ liệu Server.");
+                }
             }
 
             case "GET_DASHBOARD_DATA": {
@@ -582,18 +700,56 @@ public class ClientHandler extends Thread {
             }
 
             case Request.EXTEND_AUCTION: {
-                Object[] data = (Object[]) req.getData();
-                Long auctionId = (Long) data[0];
-                int hours = (Integer) data[1];
-                AuctionDAO auctionDAO = new AuctionDAO();
-                AuctionDTO existing = auctionDAO.findById(auctionId);
-                if (existing == null) return Response.error("Auction not found.");
-                existing.setEndTime(existing.getEndTime().plusHours(hours));
-                boolean ok = auctionDAO.update(existing);
-                return ok ? Response.ok(null) : Response.error("Failed to extend auction.");
+                try {
+                    Object[] data = (Object[]) req.getData();
+                    if (data == null || data.length < 2) {
+                        return Response.error("Dữ liệu yêu cầu gia hạn không đầy đủ.");
+                    }
+
+                    // 🚀 GIẢI PHÁP AN TOÀN: Ép kiểu gián tiếp qua Number để triệt tiêu lỗi ClassCastException
+                    long auctionId = -1;
+                    if (data[0] instanceof Number) {
+                        auctionId = ((Number) data[0]).longValue();
+                    } else {
+                        auctionId = Long.parseLong(data[0].toString());
+                    }
+
+                    int hours = 0;
+                    if (data[1] instanceof Number) {
+                        hours = ((Number) data[1]).intValue();
+                    } else {
+                        hours = Integer.parseInt(data[1].toString());
+                    }
+
+                    System.out.println("⏳ [PROCESS] Tiến hành gia hạn thêm " + hours + " giờ cho Auction ID: " + auctionId);
+
+                    AuctionDAO auctionDAO = new AuctionDAO();
+                    AuctionDTO existing = auctionDAO.findById(auctionId);
+
+                    if (existing == null) {
+                        return Response.error("Không tìm thấy phiên đấu giá tương ứng.");
+                    }
+
+                    // Thực hiện cộng thêm số giờ yêu cầu vào mốc thời gian cũ
+                    existing.setEndTime(existing.getEndTime().plusHours(hours));
+
+                    // Ghi nhận thay đổi xuống Database
+                    boolean ok = auctionDAO.update(existing);
+
+                    if (ok) {
+                        System.out.println("🎉 [SUCCESS] Gia hạn thành công phiên ID " + auctionId + ". Thời gian mới: " + existing.getEndTime());
+                        return Response.ok(null);
+                    } else {
+                        return Response.error("Lỗi cập nhật thời gian mới vào Database.");
+                    }
+
+                } catch (Exception e) {
+                    System.err.println("❌ Lỗi nghiêm trọng tại case EXTEND_AUCTION: " + e.getMessage());
+                    e.printStackTrace();
+                    return Response.error("Lỗi Server: " + e.getMessage());
+                }
             }
 
-            // 🔥 ĐÃ FIX LUỒNG: Đổi từ writeObject sang lệnh return Response chuẩn chỉnh cho hàm!
             case "GET_ALL_APPROVAL_AUCTIONS": {
                 AuctionDAO auctionDAO = new AuctionDAO();
                 List<com.auction.common.dto.AuctionDTO> dtos = auctionDAO.findAll();
@@ -707,7 +863,17 @@ public class ClientHandler extends Thread {
 
             case "ADMIN_REJECT_AUCTION": {
                 try {
-                    Long auctionId = ((Number) req.getData()).longValue();
+                    Object raw = req.getData();
+                    Long auctionId;
+                    if (raw instanceof Object[]) {
+                        // Client gửi Object[] {auctionId, reason}
+                        Object[] data = (Object[]) raw;
+                        auctionId = ((Number) data[0]).longValue();
+                        // reason = (String) data[1]; // có thể dùng sau nếu cần lưu lý do
+                    } else {
+                        // Fallback: gửi thẳng id
+                        auctionId = ((Number) raw).longValue();
+                    }
                     server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
                     boolean success = auctionDAO.updateStatus(auctionId, "REJECTED");
                     if (success) {
@@ -750,6 +916,10 @@ public class ClientHandler extends Thread {
 
             java.util.Map<Long, String> imageMap = new java.util.HashMap<>();
             java.util.List<com.auction.common.dto.ItemImageDTO> allImages = imageDAO.getAll(); // Sử dụng hàm lấy hết dữ liệu ảnh
+
+            // Nạp tổng số lần đặt giá của TẤT CẢ phiên cùng lúc (1 query thay vì N queries)
+            server.repository.BidDAO bidDAO = new server.repository.BidDAO();
+            java.util.Map<Long, Integer> bidCountMap = bidDAO.countAllGroupedByAuction();
 
             if (allImages != null) {
                 for (com.auction.common.dto.ItemImageDTO imgDto : allImages) {
@@ -852,6 +1022,7 @@ public class ClientHandler extends Thread {
                 } catch (Exception e) {
                     auction.setStatus(AuctionStatus.RUNNING);
                 }
+                auction.setBidCount(bidCountMap.getOrDefault(dto.getId(), 0));
 
                 result.add(auction);
             }

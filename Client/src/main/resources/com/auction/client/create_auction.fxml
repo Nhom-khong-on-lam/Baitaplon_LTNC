@@ -70,13 +70,13 @@
                 <!-- Start Price + Reserve Price -->
                 <HBox spacing="14">
                     <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="START PRICE ($) *" styleClass="form-label"/>
+                        <Label text="GIÁ KHỞI ĐIỂM (VND) *" styleClass="form-label"/>
                         <TextField fx:id="fieldStartPrice" styleClass="form-input"
                                    promptText="0.00"/>
                         <Label fx:id="msgPrice" styleClass="form-error"/>
                     </VBox>
                     <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="RESERVE PRICE ($)" styleClass="form-label"/>
+                        <Label text="GIÁ DỰ PHÒNG (VND)" styleClass="form-label"/>
                         <TextField fx:id="fieldReservePrice" styleClass="form-input"
                                    promptText="Optional minimum price"/>
                         <Label styleClass="form-hint"

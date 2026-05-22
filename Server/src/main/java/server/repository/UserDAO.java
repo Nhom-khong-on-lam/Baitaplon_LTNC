@@ -152,14 +152,16 @@ public class UserDAO {
 
     // --- UPDATE ---
     public boolean update(UserDTO user) {
-        String sql = "UPDATE user SET email = ?, systemRole = ?, accountStatus = ?, password = ? WHERE id = ?";
+        String sql = "UPDATE user SET username = ?, email = ?, systemRole = ?, accountStatus = ?, password = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, user.getEmail());
-            ps.setString(2, user.getSystemRole());
-            ps.setString(3, user.getAccountStatus());
-            ps.setString(4, user.getPassword());
-            ps.setLong(5, user.getId());
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getSystemRole());
+            ps.setString(4, user.getAccountStatus());
+            ps.setString(5, user.getPassword());
+            ps.setLong(6, user.getId());
+
             boolean updated = ps.executeUpdate() > 0;
             if (updated) LOGGER.info("UPDATE SUCCESS: Đã cập nhật User ID=" + user.getId());
             return updated;

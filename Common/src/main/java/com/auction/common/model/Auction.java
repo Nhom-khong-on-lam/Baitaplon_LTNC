@@ -23,6 +23,7 @@ public class Auction extends BaseEntity {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private AuctionStatus status;
+    private int bidCount = -1; // -1 = chưa được set từ Server (dùng bidHistory.size() làm dự phòng)
 
     // Constructor
     public Auction(Item item, User seller, LocalDateTime endTime) {
@@ -109,7 +110,13 @@ public class Auction extends BaseEntity {
     }
     public Item getItem() { return item; }
     public User getSeller() { return seller; }
-    public int getBidCount(){ return bidHistory.size();}
+    public int getBidCount() {
+        // Nếu Server đã cung cấp số thực, dùng nó
+        if (bidCount >= 0) return bidCount;
+        // Fallback về local history nếu có
+        return bidHistory.size();
+    }
+    public void setBidCount(int count) { this.bidCount = count; }
     public String getTitle(){return item.getName();}
     public String getDescription(){return item.getDescription();}
     public String getCategory(){return item.getCategory();}
@@ -178,6 +185,8 @@ public class Auction extends BaseEntity {
             case CANCELLED -> "Cancelled";
             case FINISHED -> "Ended";
             case PAID -> "Sold & Paid";
+            case PENDING_APPROVAL -> "Pending";
+            case REJECTED -> "Rejected";
             default -> "Processing";
         };
     }
@@ -185,9 +194,9 @@ public class Auction extends BaseEntity {
         if (this.status == null) return "badge-default";
         return switch (this.status) {
             case RUNNING -> "badge-success";  // Màu xanh lá
-            case OPEN -> "badge-warning";     // Màu vàng/cam
+            case OPEN, PENDING_APPROVAL -> "badge-warning";
             case FINISHED, PAID -> "badge-secondary"; // Màu xám
-            case CANCELLED -> "badge-danger"; // Màu đỏ
+            case CANCELLED, REJECTED -> "badge-danger";
             default -> "badge-default";
         };
     }

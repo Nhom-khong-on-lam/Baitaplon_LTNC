@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class AdminAuctionsController {
 
-    @FXML private Button tabAll, tabLive, tabEnding, tabFinished;
+    @FXML private Button tabAll, tabLive, tabFinished;
     @FXML private Label totalLabel;
     @FXML private TextField searchField;
 
@@ -82,17 +82,6 @@ public class AdminAuctionsController {
     }
 
     @FXML
-    public void showEnding() {
-        currentTab = "ENDING";
-        setActiveTab(tabEnding);
-        loadTable(allAuctions.stream()
-                .filter(a -> a.getStatus() == AuctionStatus.RUNNING
-                        && a.getEndTime().isAfter(LocalDateTime.now())
-                        && a.getEndTime().isBefore(LocalDateTime.now().plusHours(1)))
-                .collect(Collectors.toList()));
-    }
-
-    @FXML
     public void showFinished() {
         currentTab = "FINISHED";
         setActiveTab(tabFinished);
@@ -106,7 +95,6 @@ public class AdminAuctionsController {
     private void refreshCurrentTab() {
         switch (currentTab) {
             case "LIVE"     -> showLive();
-            case "ENDING"   -> showEnding();
             case "FINISHED" -> showFinished();
             default         -> showAll();
         }
@@ -185,7 +173,7 @@ public class AdminAuctionsController {
 
         colBids.setCellValueFactory(c ->
                 new SimpleStringProperty(
-                        String.valueOf(c.getValue().getBidHistory().size())));
+                        String.valueOf(c.getValue().getBidCount())));
 
         colStatus.setCellValueFactory(c -> {
             Auction a = c.getValue();
@@ -283,7 +271,7 @@ public class AdminAuctionsController {
     }
 
     private void setActiveTab(Button tab) {
-        List.of(tabAll, tabLive, tabEnding, tabFinished)
+        List.of(tabAll, tabLive, tabFinished)
                 .forEach(b -> b.getStyleClass().setAll("btn-secondary"));
         tab.getStyleClass().setAll("btn-primary");
     }
@@ -362,15 +350,39 @@ public class AdminAuctionsController {
 
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-
+                // 🚀 Chạy luồng ngầm để gọi mạng, giữ ứng dụng mượt mà không đơ UI
                 new Thread(() -> {
-                    auctionService.deleteAuction(auction.getId());
+                    try {
+                        // Gọi sang service để bắn gói tin lên Server xử lý
+                        auctionService.deleteAuction(auction.getId());
 
-                    javafx.application.Platform.runLater(() -> {
-                        allAuctions.removeIf(a -> a.getId().equals(auction.getId()));
-                        refreshCurrentTab();
-                        showInfo("Auction deleted.");
-                    });
+                        // Sau khi Server thực thi chuỗi SQL sạch sẽ, đưa lệnh về luồng UI chính
+                        javafx.application.Platform.runLater(() -> {
+                            // 1. Xóa phần tử khỏi danh sách tổng đang giữ trong bộ nhớ RAM Client
+                            if (allAuctions != null) {
+                                allAuctions.removeIf(a -> a.getId().equals(auction.getId()));
+                            }
+
+                            // 2. Ép TableView xóa dòng hiển thị của đối tượng đó ngay lập tức
+                            auctionsTable.getItems().removeIf(a -> a.getId().equals(auction.getId()));
+
+                            // 3. Tính toán và vẽ lại giao diện theo Tab hiện tại (Live/Finished/All)
+                            refreshCurrentTab();
+
+                            // 4. Cập nhật lại số lượng thông báo tổng ở nhãn Text
+                            if (totalLabel != null && auctionsTable.getItems() != null) {
+                                totalLabel.setText(allAuctions.size() + " auctions");
+                            }
+
+                            showInfo("✓ Auction and its item have been deleted successfully from database.");
+                        });
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        javafx.application.Platform.runLater(() -> {
+                            showError("Failed to delete. Connection lost or database constraint error.");
+                        });
+                    }
                 }).start();
             }
         });
@@ -427,6 +439,5 @@ public class AdminAuctionsController {
     public void setTotalLabel(Label label)   { this.totalLabel = label; }
     public void setTabAll(Button button)     { this.tabAll = button; }
     public void setTabLive(Button button)    { this.tabLive = button; }
-    public void setTabEnding(Button button)  { this.tabEnding = button; }
     public void setTabFinished(Button button){ this.tabFinished = button; }
 }

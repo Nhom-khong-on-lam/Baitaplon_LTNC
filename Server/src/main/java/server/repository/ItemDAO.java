@@ -1,24 +1,18 @@
 package server.repository;
-
-
 import com.auction.common.dto.ItemDTO;
 import server.database.DBConnection;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemDAO {
-
     // 1. Lấy tất cả sản phẩm
     public List<ItemDTO> getAll() {
         List<ItemDTO> list = new ArrayList<>();
         String sql = "SELECT * FROM item ORDER BY created_at DESC";
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) {
                 list.add(mapResultSetToDTO(rs));
             }
@@ -33,7 +27,6 @@ public class ItemDAO {
         String sql = "INSERT INTO item (name, description, starting_price, category, brand_make, model, artist, production_year) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
             ps.setString(1, item.getName());
             ps.setString(2, item.getDescription());
             ps.setDouble(3, item.getStartingPrice());
@@ -41,13 +34,11 @@ public class ItemDAO {
             ps.setString(5, item.getBrandMake());
             ps.setString(6, item.getModel());
             ps.setString(7, item.getArtist());
-
             if (item.getProductionYear() != null) {
                 ps.setInt(8, item.getProductionYear());
             } else {
                 ps.setNull(8, Types.INTEGER);
             }
-
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -56,18 +47,17 @@ public class ItemDAO {
                 }
             }
         } catch (SQLException e) {
+
             System.err.println("LỖI trong ItemDAO.insert(): " + e.getMessage());
             e.printStackTrace();
         }
         return -1;
     }
-
     // 3. Tìm kiếm sản phẩm theo ID
     public ItemDTO getById(long id) {
         String sql = "SELECT * FROM item WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -79,7 +69,6 @@ public class ItemDAO {
         }
         return null;
     }
-
     // Helper map dữ liệu
     private ItemDTO mapResultSetToDTO(ResultSet rs) throws SQLException {
         ItemDTO item = new ItemDTO();
@@ -92,10 +81,26 @@ public class ItemDAO {
         item.setModel(rs.getString("model"));
         item.setArtist(rs.getString("artist"));
         item.setProductionYear(rs.getInt("production_year"));
-
         Timestamp ts = rs.getTimestamp("created_at");
         if (ts != null) item.setCreatedAt(ts.toLocalDateTime());
-
         return item;
     }
+    public boolean delete(long id) {
+        String sql = "DELETE FROM item WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                System.out.println("🗑[DB SUCCESS] Đã xóa Item ID=" + id + " thành công khỏi bảng item.");
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ LỖI trong ItemDAO.delete(): " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

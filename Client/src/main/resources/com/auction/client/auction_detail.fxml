@@ -95,13 +95,18 @@
                         </VBox>
                     </HBox>
                 </VBox>
+                <!-- Auction Result Box (Hidden by default) -->
+                <VBox fx:id="resultBox" styleClass="section-card" spacing="8" alignment="CENTER" managed="false" visible="false">
+                    <Label fx:id="resultTitle" text="KẾT QUẢ PHIÊN ĐẤU GIÁ" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+                    <Label fx:id="resultMsg" style="-fx-font-size: 14px;" wrapText="true" textAlignment="CENTER"/>
+                </VBox>
 
                 <!-- Place Bid form -->
                 <VBox styleClass="section-card" spacing="12">
                     <Label text="PLACE YOUR BID" styleClass="section-title"/>
 
                     <TextField fx:id="bidAmountField" styleClass="form-input"
-                               promptText="Enter bid amount ($)"
+                               promptText="Nhập số tiền đặt giá (VND)"
                                style="-fx-font-size:16px; -fx-pref-height:50px;"/>
 
                     <HBox spacing="6">
@@ -134,11 +139,11 @@
 
                     <HBox spacing="10">
                         <VBox spacing="5" HBox.hgrow="ALWAYS">
-                            <Label text="Giới hạn tối đa ($)" styleClass="stat-label"/>
+                            <Label text="Giới hạn tối đa (VND)" styleClass="stat-label"/>
                             <TextField fx:id="autoBidLimitField" promptText="Vd: 5000" styleClass="form-input"/>
                         </VBox>
                         <VBox spacing="5" HBox.hgrow="ALWAYS">
-                            <Label text="Bước nhảy ($)" styleClass="stat-label"/>
+                            <Label text="Bước nhảy (VND)" styleClass="stat-label"/>
                             <TextField fx:id="autoBidStepField" promptText="Vd: 50" styleClass="form-input"/>
                         </VBox>
                     </HBox>

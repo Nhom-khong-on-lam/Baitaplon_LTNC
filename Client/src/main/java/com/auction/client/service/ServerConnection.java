@@ -1,7 +1,7 @@
 package com.auction.client.service;
 
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 
 public class ServerConnection {
     private static ServerConnection instance;
@@ -9,26 +9,103 @@ public class ServerConnection {
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
-    // ĐỊA CHỈ VÀ CỔNG CỦA SERVER ĐÂY NÈ!
-    private final String HOST = "127.0.0.1";
-    private final int PORT = 8080; // Phải khớp với 8080 của Server
+    // Biến static lưu lại IP Server sau khi quét được để không phải quét lại khi đổi tab
+    private static String discoveredServerIp = null;
 
-    private ServerConnection() {}
+    private final int TCP_PORT = 8080;
+    private final int UDP_PORT = 8888;
 
-    public static ServerConnection getInstance() {
-        if (instance == null) instance = new ServerConnection();
+    private ServerConnection() {
+        if (discoveredServerIp == null) {
+            discoverServerIP();  // chờ tối đa 3 giây
+        }
+        connectToServer();
+    }
+
+    public static synchronized ServerConnection getInstance() {
+        if (instance == null) {
+            instance = new ServerConnection();
+        }
         return instance;
     }
 
-    public Object sendRequest(Object request) throws IOException, ClassNotFoundException {
-        // Mỗi lần gửi, Client sẽ nhìn vào PORT 8080 để đi
-        try (Socket tempSocket = new Socket(HOST, PORT);
-             ObjectOutputStream tempOut = new ObjectOutputStream(tempSocket.getOutputStream());
-             ObjectInputStream tempIn = new ObjectInputStream(tempSocket.getInputStream())) {
+    // 📡 Hàm bắt sóng UDP để lấy IP thật của máy Server trong mạng LAN
+    private void discoverServerIP() {
+        System.out.println("🔍 [UDP Client] Đang quét tìm Server trong mạng LAN...");
+        try (DatagramSocket udpSocket = new DatagramSocket(UDP_PORT)) {
+            udpSocket.setSoTimeout(3000); // Đợi tối đa 3 giây, quá hạn coi như lỗi
 
-            tempOut.writeObject(request);
-            tempOut.flush();
-            return tempIn.readObject();
+            byte[] buffer = new byte[1024];
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+            // Đứng đợi gói tin UDP từ Server bắn ra
+            udpSocket.receive(packet);
+
+            String message = new String(packet.getData(), 0, packet.getLength()).trim();
+            if ("AUCTION_SERVER_IP_HERE".equals(message)) {
+                // Hốt lấy IP của máy Server gửi đến
+                discoveredServerIp = packet.getAddress().getHostAddress();
+                System.out.println("🟢 [UDP Client] Tìm thấy IP Server mạng LAN: " + discoveredServerIp);
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ [UDP Client] Không tìm thấy Server LAN qua UDP, chuyển về mặc định localhost.");
+        }
+        discoveredServerIp = "127.0.0.1"; // Phương án dự phòng nếu chạy cùng 1 máy
+    }
+
+    // 🔌 Hàm mở đúng 1 ống TCP duy nhất bằng IP LAN đã quét được
+    private synchronized void connectToServer() {
+        try {
+            if (socket != null && !socket.isClosed()) return;
+
+            this.socket = new Socket(discoveredServerIp, TCP_PORT);
+            this.out = new ObjectOutputStream(socket.getOutputStream());
+            this.in = new ObjectInputStream(socket.getInputStream());
+            System.out.println("🟢 [TCP Client] Đã thông suốt ống TCP duy nhất tới Server!");
+        } catch (IOException e) {
+            System.err.println("❌ [TCP Client] Lỗi kết nối Socket: " + e.getMessage());
+        }
+    }
+
+    // Gửi thông tin chuyển tab, login trên ĐÚNG 1 ống TCP
+    public Object sendRequest(Object request) throws IOException, ClassNotFoundException {
+        if (socket == null || socket.isClosed()) {
+            connectToServer();
+        }
+
+        synchronized (this) {
+            try {
+                out.writeObject(request);
+                out.flush();
+                out.reset();
+                return in.readObject();
+            } catch (IOException e) {
+                System.err.println("❌ [TCP Client] Đứt đường truyền, đang thiết lập lại ống...");
+                closeConnection();
+                connectToServer();
+                throw e;
+            }
+        }
+    }
+    // THÊM hàm này — gọi khi app khởi động, chạy ngầm
+    public static void connectAsync(Runnable onDone) {
+        new Thread(() -> {
+            getInstance(); // chạy discovery + connect ngầm
+            if (onDone != null) onDone.run();
+        }).start();
+    }
+
+    public synchronized void closeConnection() {
+        try {
+            if (out != null) out.close();
+            if (in != null) in.close();
+            if (socket != null && !socket.isClosed()) socket.close();
+            System.out.println("🧹 [Client] Đã đóng Socket sau khi Log Out.");
+        } catch (IOException e) {
+            System.err.println("❌ [Client] Lỗi dọn dẹp Socket: " + e.getMessage());
+        } finally {
+            socket = null; out = null; in = null;
         }
     }
 }
