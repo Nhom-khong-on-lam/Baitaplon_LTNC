@@ -70,7 +70,7 @@ public class AutoBidDAO {
     public List<AutoBidDTO> getActiveConfigsForAuction(Long auctionId) {
         List<AutoBidDTO> configs = new ArrayList<>();
         // ✅ ĐÃ SỬA: Lấy theo maxPrice và stepIncrement
-        String sql = "SELECT * FROM auto_bid WHERE auction_id = ? AND active = 1 ORDER BY max_price DESC";
+        String sql = "SELECT * FROM auto_bid WHERE auction_id = ? AND active = 1 ORDER BY max_price DESC, registered_at ASC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
