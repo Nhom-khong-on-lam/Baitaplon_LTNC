@@ -310,12 +310,15 @@ public class AuctionDetailController {
                 if (res != null && res.isSuccess() && res.getData() instanceof Auction updatedAuction) {
                     List<BidTransaction> history = auctionService.getBidHistory(auction.getId());
                     javafx.application.Platform.runLater(() -> {
+                        int oldBidCount = this.auction.getBidCount();
+                        int newBidCount = (history != null) ? history.size() : updatedAuction.getBidCount();
+
                         // Cập nhật thông tin auction
                         this.auction.setCurrentPrice(updatedAuction.getCurrentPrice());
                         this.auction.setEndTime(updatedAuction.getEndTime());
                         this.auction.setStatus(updatedAuction.getStatus());
                         this.auction.setHighestBidder(updatedAuction.getHighestBidder());
-                        this.auction.setBidCount(updatedAuction.getBidCount());
+                        this.auction.setBidCount(newBidCount);
                         // Cập nhật hiển thị UI
                         updatePriceDisplay();
                         
@@ -354,12 +357,54 @@ public class AuctionDetailController {
                         
                         // Cập nhật biểu đồ và lịch sử bid
                         renderBidHistory(history);
+
+                        // THÔNG BÁO KHI CÓ NGƯỜI ĐẶT GIÁ MỚI
+                        if (newBidCount > oldBidCount && oldBidCount > 0) {
+                            int numNewBids = newBidCount - oldBidCount;
+                            if (history != null && !history.isEmpty()) {
+                                int toastOffset = 0;
+                                // Duyệt từ bid cũ nhất trong số các bid mới đến bid mới nhất
+                                for (int i = Math.min(numNewBids - 1, history.size() - 1); i >= 0; i--) {
+                                    BidTransaction bid = history.get(i);
+                                    if (bid.getBidder().getId() != currentUser.getId()) {
+                                        String bidType = bid.isAutoBid() ? "(Auto Bid)" : "";
+                                        String msg = "🔔 Có người vừa đặt giá mới!\n" + bid.getBidder().getUsername() + " đặt " + String.format("%,.0f", bid.getAmount()) + " " + bidType;
+                                        showToast(msg, toastOffset++);
+                                        SessionManager.get().addNotification("Có người vừa đặt giá mới: " + bid.getBidder().getUsername() + " đặt " + String.format("%,.0f", bid.getAmount()) + " " + bidType);
+                                    } else if (bid.isAutoBid()) {
+                                        String msg = "🤖 Auto Bid của bạn vừa tự động nâng giá!\nBạn đặt " + String.format("%,.0f", bid.getAmount());
+                                        showToast(msg, toastOffset++);
+                                        SessionManager.get().addNotification("Auto Bid của bạn vừa tự động nâng giá lên " + String.format("%,.0f", bid.getAmount()));
+                                    }
+                                }
+                            }
+                        }
                     });
                 }
             } catch (Exception ex) {
                 System.err.println("Lỗi đồng bộ dữ liệu phiên đấu giá: " + ex.getMessage());
             }
         }).start();
+    }
+
+    private void showToast(String message, int offsetIndex) {
+        javafx.stage.Popup popup = new javafx.stage.Popup();
+        popup.setAutoFix(true);
+        popup.setAutoHide(true);
+        popup.setHideOnEscape(true);
+
+        javafx.scene.control.Label label = new javafx.scene.control.Label(message);
+        label.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-padding: 15px 25px; -fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 5);");
+
+        popup.getContent().add(label);
+
+        if (bidAmountField.getScene() == null || bidAmountField.getScene().getWindow() == null) return;
+        javafx.stage.Window window = bidAmountField.getScene().getWindow();
+        
+        popup.show(window, window.getX() + window.getWidth() - 360, window.getY() + 80 + (offsetIndex * 80));
+
+        javafx.animation.Timeline timeline = new javafx.animation.Timeline(new javafx.animation.KeyFrame(javafx.util.Duration.seconds(4), evt -> popup.hide()));
+        timeline.play();
     }
     @FXML
     private void handleSetAutoBid() {

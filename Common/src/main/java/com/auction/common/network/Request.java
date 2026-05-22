@@ -45,6 +45,7 @@ public class Request implements Serializable {
     // User / Profile
     public static final String GET_PROFILE     = "GET_PROFILE";
     public static final String UPDATE_PROFILE  = "UPDATE_PROFILE";
+    public static final String GET_NOTIFICATIONS = "GET_NOTIFICATIONS";
 
     // Admin
     public static final String ADMIN_GET_USERS    = "ADMIN_GET_USERS";

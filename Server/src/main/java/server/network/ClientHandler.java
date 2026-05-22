@@ -423,6 +423,8 @@ public class ClientHandler extends Thread {
                     bidDAO.insert(bidDto);
 
                     System.out.println("💰 [BID SUCCESS] Người dùng [" + bidder.getUsername() + "] đặt giá thành công " + bidAmount + " tại phòng " + auctionId);
+                    
+                    createBidNotifications(auctionId, bidder.getId(), bidAmount, false);
 
                     // ====================================================================
                     // 🚀 CHUỖI PHẢN ỨNG CHẠY NỀN: Kích hoạt Robot AutoBid nâng giá đè lên luôn
@@ -501,6 +503,13 @@ public class ClientHandler extends Thread {
                 AuctionDAO auctionDAO = new AuctionDAO();
                 java.util.List<AuctionDTO> dtos = auctionDAO.findBySeller(sellerId);
                 return Response.ok(toClientAuctions(dtos, userDAO));
+            }
+
+            case Request.GET_NOTIFICATIONS: {
+                Long uid = (Long) req.getData();
+                server.repository.NotificationDAO notifDAO = new server.repository.NotificationDAO();
+                java.util.List<com.auction.common.dto.NotificationDTO> list = notifDAO.findByUserId(uid);
+                return Response.ok(list);
             }
 
             case Request.GET_MY_BIDS: {
@@ -1117,6 +1126,8 @@ public class ClientHandler extends Thread {
 
                     out.println("🤖 [AUTOBID REALTIME] Robot tự động nâng giá cho User ID [" + config.getBidderId() + "] lên " + nextPrice + " tại phòng " + auctionId);
 
+                    createBidNotifications(auctionId, config.getBidderId(), nextPrice, true);
+
                     // 🔄 CHUỖI PHẢN ỨNG ĐỆ QUY: Tự động gọi lại chính nó với mức giá mới
                     // Đảm bảo nếu trong phòng có nhiều robot cài AutoBid đè nhau, chúng sẽ tự nâng giá qua lại liên tục
                     triggerAutoBidsLoop(auctionId, nextPrice, config.getBidderId(), auctionDAO, bidDAO);
@@ -1130,6 +1141,52 @@ public class ClientHandler extends Thread {
         } catch (Exception e) {
             System.err.println("Lỗi nghiêm trọng trong chuỗi xử lý AutoBid chạy ngầm:");
             e.printStackTrace();
+        }
+    }
+
+    private void createBidNotifications(long auctionId, long bidderId, double amount, boolean isAutoBid) {
+        try {
+            server.repository.BidDAO bidDAO = new server.repository.BidDAO();
+            server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
+            server.repository.NotificationDAO notificationDAO = new server.repository.NotificationDAO();
+            server.repository.UserDAO uDAO = new server.repository.UserDAO();
+            server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
+            
+            com.auction.common.dto.AuctionDTO auction = auctionDAO.findById(auctionId);
+            if (auction == null) return;
+            
+            com.auction.common.dto.ItemDTO item = itemDAO.getById(auction.getItemId());
+            String title = (item != null) ? item.getName() : "Phòng #" + auctionId;
+
+            com.auction.common.dto.UserDTO bidder = uDAO.findById(bidderId);
+            String bidderName = (bidder != null) ? bidder.getUsername() : "Ai đó";
+
+            java.util.List<Long> involvedUsers = bidDAO.getDistinctBiddersByAuction(auctionId);
+            if (!involvedUsers.contains(auction.getSellerId())) {
+                involvedUsers.add(auction.getSellerId());
+            }
+
+            for (Long uid : involvedUsers) {
+                if (uid == bidderId && !isAutoBid) continue;
+
+                com.auction.common.dto.NotificationDTO notif = new com.auction.common.dto.NotificationDTO();
+                notif.setUserId(uid);
+                notif.setRelatedAuctionId(auctionId);
+                notif.setRead(false);
+                notif.setType("BID_PLACED");
+                
+                if (uid == bidderId && isAutoBid) {
+                    notif.setTitle("Auto Bid tự động nâng giá");
+                    notif.setMessage("Hệ thống vừa tự động đặt " + String.format("%,.0f", amount) + " VND cho phiên đấu giá " + title);
+                } else {
+                    String typeStr = isAutoBid ? " (Auto Bid)" : "";
+                    notif.setTitle("Có người vừa đặt giá mới");
+                    notif.setMessage(bidderName + " vừa đặt " + String.format("%,.0f", amount) + " VND cho phiên đấu giá " + title + typeStr);
+                }
+                notificationDAO.insert(notif);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tạo thông báo đặt giá: " + e.getMessage());
         }
     }
 }

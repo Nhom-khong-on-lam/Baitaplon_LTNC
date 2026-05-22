@@ -280,4 +280,17 @@ public class AuctionService {
         }
         return new ArrayList<>();
     }
+
+    // ── NOTIFICATIONS ────────────────────────────────────────────────────────
+    public List<com.auction.common.dto.NotificationDTO> getNotifications(Long userId) {
+        try {
+            Response res = send(new Request(Request.GET_NOTIFICATIONS, userId));
+            if (res != null && res.isSuccess() && res.getData() instanceof List) {
+                return (List<com.auction.common.dto.NotificationDTO>) res.getData();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
 }

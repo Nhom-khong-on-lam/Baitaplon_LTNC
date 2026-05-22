@@ -123,4 +123,20 @@ public class BidDAO {
         }
         return map;
     }
+
+    /** Lấy danh sách ID của những người đã từng đặt giá trong một phiên đấu giá */
+    public java.util.List<Long> getDistinctBiddersByAuction(long auctionId) {
+        java.util.List<Long> list = new java.util.ArrayList<>();
+        String sql = "SELECT DISTINCT bidder_id FROM bid WHERE auction_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, auctionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(rs.getLong(1));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi lấy danh sách bidder", e);
+        }
+        return list;
+    }
 }

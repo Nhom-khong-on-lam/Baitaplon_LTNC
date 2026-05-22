@@ -149,7 +149,39 @@ public class MainController {
 
     @FXML
     public void handleNotifications() {
-        // TODO: hiện notification panel
+        ContextMenu menu = new ContextMenu();
+        menu.getStyleClass().add("context-menu");
+
+        com.auction.client.service.AuctionService auctionService = new com.auction.client.service.AuctionService();
+        java.util.List<com.auction.common.dto.NotificationDTO> notifs = auctionService.getNotifications(SessionManager.get().getUser().getId());
+        
+        if (notifs == null || notifs.isEmpty()) {
+            MenuItem emptyItem = new MenuItem("Không có thông báo nào");
+            emptyItem.setDisable(true);
+            menu.getItems().add(emptyItem);
+        } else {
+            MenuItem titleItem = new MenuItem("Thông báo gần đây");
+            titleItem.setStyle("-fx-font-weight: bold; -fx-text-fill: #2b6cb0;");
+            titleItem.setDisable(true);
+            menu.getItems().add(titleItem);
+            menu.getItems().add(new SeparatorMenuItem());
+            
+            for (com.auction.common.dto.NotificationDTO notif : notifs) {
+                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss dd/MM");
+                String timeStr = notif.getCreatedAt() != null ? notif.getCreatedAt().format(formatter) : "";
+                String singleLineMsg = timeStr + " - " + notif.getMessage();
+                MenuItem item = new MenuItem(singleLineMsg);
+                if (!notif.isRead()) {
+                    item.setStyle("-fx-font-weight: bold;");
+                }
+                menu.getItems().add(item);
+            }
+        }
+
+        if (topbarAvatar.getScene() == null) return;
+        double x = topbarAvatar.localToScreen(0, topbarAvatar.getHeight() + 6).getX() - 200;
+        double y = topbarAvatar.localToScreen(0, topbarAvatar.getHeight() + 6).getY();
+        menu.show(topbarAvatar, x, y);
     }
 
     @FXML
