@@ -30,6 +30,8 @@ public class ProfileController {
     @FXML private TextField     editUsername, editEmail;
     @FXML private PasswordField editOldPass, editNewPass;
     @FXML private Label         editMsg;
+    // banking
+    @FXML private TextField     editBankName, editAccountNumber, editCardholderName;
 
     // ── Won list ─────────────────────────────────────────────
     @FXML private VBox wonList;
@@ -54,6 +56,9 @@ public class ProfileController {
         infoStatus.setText(user.getAccountStatus().toString());
         editUsername.setText(user.getUsername());
         editEmail.setText(user.getEmail());
+        if (editBankName != null)      editBankName.setText(user.getBankName() != null ? user.getBankName() : "");
+        if (editAccountNumber != null) editAccountNumber.setText(user.getAccountNumber() != null ? user.getAccountNumber() : "");
+        if (editCardholderName != null) editCardholderName.setText(user.getCardholderName() != null ? user.getCardholderName() : "");
 
         // Mở luồng phụ để tải các con số thống kê và list từ Server
         new Thread(() -> {
@@ -152,6 +157,17 @@ public class ProfileController {
                 currentUser.setUsername(newUsername);
                 currentUser.setEmail(newEmail);
 
+                // Cập nhật thông tin ngân hàng nếu có
+                String newBankName = (editBankName != null) ? editBankName.getText().trim() : null;
+                String newAccount  = (editAccountNumber != null) ? editAccountNumber.getText().trim() : null;
+                String newCardholder = (editCardholderName != null) ? editCardholderName.getText().trim() : null;
+                if (newBankName != null || newAccount != null || newCardholder != null) {
+                    currentUser.setBankName(newBankName);
+                    currentUser.setAccountNumber(newAccount);
+                    currentUser.setCardholderName(newCardholder);
+                    auctionService.updateBankInfo(currentUser.getId(), newBankName, newAccount, newCardholder);
+                }
+
                 // Gửi gói tin cập nhật User DTO lên Server qua đường ống Long-lived Socket
                 authService.updateUser(currentUser);
 
@@ -196,6 +212,9 @@ public class ProfileController {
         editEmail.setDisable(false);
         editOldPass.setDisable(false);
         editNewPass.setDisable(false);
+        if (editBankName != null)       editBankName.setDisable(false);
+        if (editAccountNumber != null)  editAccountNumber.setDisable(false);
+        if (editCardholderName != null) editCardholderName.setDisable(false);
     }
 
     /** Build danh sách phiên đấu giá thắng */

@@ -111,6 +111,22 @@
                         <PasswordField fx:id="editNewPass" styleClass="form-input"/>
                     </VBox>
 
+                    <Separator/>
+                    <Label text="🏦 Thông Tin Ngân Hàng (Nhận thanh toán)" styleClass="section-title"
+                           style="-fx-font-size:13px; -fx-text-fill:#1a365d;"/>
+                    <VBox spacing="6">
+                        <Label text="TÊN NGÂN HÀNG" styleClass="form-label"/>
+                        <TextField fx:id="editBankName" styleClass="form-input" promptText="VD: Vietcombank, BIDV, Techcombank..."/>
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label text="SỐ TÀI KHOẢN" styleClass="form-label"/>
+                        <TextField fx:id="editAccountNumber" styleClass="form-input" promptText="Nhập số tài khoản..."/>
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label text="TÊN CHỦ THẺ" styleClass="form-label"/>
+                        <TextField fx:id="editCardholderName" styleClass="form-input" promptText="Tên in trên thẻ ngân hàng..."/>
+                    </VBox>
+
                     <Label fx:id="editMsg" styleClass="form-error"/>
 
                     <HBox spacing="10">

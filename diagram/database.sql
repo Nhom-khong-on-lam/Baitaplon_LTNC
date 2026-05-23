@@ -9,7 +9,10 @@ CREATE TABLE user(
     email VARCHAR(200),
     systemRole ENUM('USER','ADMIN') DEFAULT 'USER',
     accountStatus ENUM('ACTIVE', 'SUSPENDED', 'BANNED') DEFAULT 'ACTIVE',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    account_number VARCHAR(50) DEFAULT NULL,
+    bank_name VARCHAR(100) DEFAULT NULL,
+    cardholder_name VARCHAR(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE item (
@@ -154,3 +157,9 @@ ALTER TABLE auto_bid
 
 ALTER TABLE auto_bid
     CHANGE step_increment stepIncrement DOUBLE;
+
+-- Add banking columns to existing user table (run if upgrading existing DB)
+ALTER TABLE user
+    ADD COLUMN IF NOT EXISTS account_number VARCHAR(50) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS bank_name VARCHAR(100) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS cardholder_name VARCHAR(200) DEFAULT NULL;

@@ -233,6 +233,32 @@ public class MyBidsController {
             viewBtn.setOnAction(e -> openDetail(a)); // Vẫn gọi hàm mở phòng chi tiết bình thường
 
             right.getChildren().addAll(resultLbl, viewBtn);
+
+            // Nếu thắng cuộc → kiểm tra trạng thái để hiện nút thanh toán
+            if (won) {
+                String auctionStatus = a.getStatus() != null ? a.getStatus().name() : "";
+                boolean isPaid = "PAID".equalsIgnoreCase(auctionStatus);
+
+                if (isPaid) {
+                    Label paidBadge = new Label("✓ Đã thanh toán");
+                    paidBadge.setStyle("-fx-background-color:#d1fae5; -fx-text-fill:#065f46;" +
+                            "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:4 10;" +
+                            "-fx-background-radius:20;");
+                    right.getChildren().add(paidBadge);
+                } else {
+                    Button payBtn = new Button("💳 Thanh toán");
+                    payBtn.setStyle("-fx-background-color:#10b981; -fx-text-fill:white;" +
+                            "-fx-font-weight:bold; -fx-font-size:12px; -fx-cursor:hand;" +
+                            "-fx-background-radius:8; -fx-padding:6 14;");
+                    payBtn.setOnAction(e -> {
+                        PaymentDialogHelper.showPaymentDialog(currentUser, a, () -> {
+                            // Sau khi thanh toán xong, reload lại tab
+                            javafx.application.Platform.runLater(this::showAll);
+                        });
+                    });
+                    right.getChildren().add(payBtn);
+                }
+            }
         }
 
         row.getChildren().addAll(dot, thumb, info, right);

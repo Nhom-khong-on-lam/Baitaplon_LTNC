@@ -423,7 +423,7 @@ public class ClientHandler extends Thread {
                     bidDAO.insert(bidDto);
 
                     System.out.println("💰 [BID SUCCESS] Người dùng [" + bidder.getUsername() + "] đặt giá thành công " + bidAmount + " tại phòng " + auctionId);
-                    
+
                     createBidNotifications(auctionId, bidder.getId(), bidAmount, false);
 
                     // ====================================================================
@@ -900,6 +900,112 @@ public class ClientHandler extends Thread {
                 }
             }
 
+            // ── PAYMENT ──────────────────────────────────────────────────────
+
+            case "GET_PAYMENT_DETAIL": {
+                try {
+                    Long auctionId = (Long) req.getData();
+                    AuctionDAO auctionDAO = new AuctionDAO();
+                    AuctionDTO auction = auctionDAO.findById(auctionId);
+                    if (auction == null) return Response.error("Không tìm thấy phiên đấu giá.");
+
+                    server.repository.PaymentDAO paymentDAO = new server.repository.PaymentDAO();
+                    com.auction.common.dto.PaymentDTO payment = paymentDAO.getByAuctionId(auctionId);
+
+                    // Nếu chưa có bản ghi payment (auction vừa kết thúc), tự tạo một PENDING
+                    if (payment == null) {
+                        if (auction.getHighestBidderId() == null) {
+                            return Response.error("Phiên này không có người đấu giá thắng cuộc.");
+                        }
+                        payment = new com.auction.common.dto.PaymentDTO();
+                        payment.setAuctionId(auctionId);
+                        payment.setBuyerId(auction.getHighestBidderId());
+                        payment.setSellerId(auction.getSellerId());
+                        payment.setAmount(auction.getCurrentPrice());
+                        payment.setStatus("PENDING");
+                        payment.setCreatedAt(java.time.LocalDateTime.now());
+                        boolean inserted = paymentDAO.insert(payment);
+                        if (!inserted) return Response.error("Không thể khởi tạo hóa đơn.");
+                        // Fetch lại để lấy id
+                        payment = paymentDAO.getByAuctionId(auctionId);
+                        if (payment == null) return Response.error("Lỗi nội bộ: không fetch lại được payment.");
+                    }
+
+                    if ("COMPLETED".equalsIgnoreCase(payment.getStatus())) {
+                        return Response.error("Đơn hàng này đã được thanh toán.");
+                    }
+
+                    // Gắn thông tin ngân hàng của Seller vào DTO
+                    UserDTO seller = userDAO.findByIdLight(payment.getSellerId());
+                    if (seller != null) {
+                        payment.setSellerBankName(seller.getBankName());
+                        payment.setSellerAccountNumber(seller.getAccountNumber());
+                        payment.setSellerCardholderName(seller.getCardholderName());
+                    }
+
+                    return Response.ok(payment);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return Response.error("Lỗi Server khi tải thông tin thanh toán: " + e.getMessage());
+                }
+            }
+
+            case "CREATE_PAYMENT": {
+                try {
+                    com.auction.common.dto.PaymentDTO p = (com.auction.common.dto.PaymentDTO) req.getData();
+                    if (p == null || p.getAuctionId() == null) return Response.error("Dữ liệu thanh toán không hợp lệ.");
+
+                    server.repository.PaymentDAO paymentDAO = new server.repository.PaymentDAO();
+                    com.auction.common.dto.PaymentDTO existing = paymentDAO.getByAuctionId(p.getAuctionId());
+
+                    boolean ok;
+                    if (existing != null) {
+                        // Cập nhật trạng thái payment thành COMPLETED
+                        ok = paymentDAO.updateStatus(existing.getId(), "COMPLETED");
+                    } else {
+                        p.setStatus("COMPLETED");
+                        p.setCreatedAt(java.time.LocalDateTime.now());
+                        ok = paymentDAO.insert(p);
+                    }
+
+                    if (!ok) return Response.error("Lưu thanh toán thất bại.");
+
+                    // Cập nhật trạng thái phiên đấu giá thành PAID
+                    AuctionDAO auctionDAO = new AuctionDAO();
+                    AuctionDTO auction = auctionDAO.findById(p.getAuctionId());
+                    if (auction != null) {
+                        auction.setStatus("PAID");
+                        auctionDAO.update(auction);
+                    }
+
+                    return Response.ok("Thanh toán thành công!");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return Response.error("Lỗi Server khi xử lý thanh toán: " + e.getMessage());
+                }
+            }
+
+            case "UPDATE_BANK_INFO": {
+                try {
+                    Object[] data = (Object[]) req.getData();
+                    Long userId = (Long) data[0];
+                    String bankName = (String) data[1];
+                    String accountNumber = (String) data[2];
+                    String cardholderName = (String) data[3];
+
+                    UserDTO user = userDAO.findById(userId);
+                    if (user == null) return Response.error("Không tìm thấy người dùng.");
+
+                    user.setBankName(bankName);
+                    user.setAccountNumber(accountNumber);
+                    user.setCardholderName(cardholderName);
+                    boolean ok = userDAO.update(user);
+                    return ok ? Response.ok(null) : Response.error("Cập nhật thông tin ngân hàng thất bại.");
+                } catch (Exception e) {
+                    return Response.error("Lỗi Server: " + e.getMessage());
+                }
+            }
+
             default:
                 out.println("WARNING: Unhandled command: " + req.getAction());
                 return Response.error("Unknown command: " + req.getAction());
@@ -1072,6 +1178,11 @@ public class ClientHandler extends Thread {
                 u.setAccountStatus(status);
             } catch (IllegalArgumentException ignored) {}
         }
+
+        // Map banking fields
+        u.setAccountNumber(dto.getAccountNumber());
+        u.setBankName(dto.getBankName());
+        u.setCardholderName(dto.getCardholderName());
 
         return u;
     }

@@ -66,4 +66,17 @@ public class PaymentDAO {
         if (ts != null) p.setCreatedAt(ts.toLocalDateTime());
         return p;
     }
+
+    public boolean updateStatus(Long paymentId, String newStatus) {
+        String sql = "UPDATE payment SET status = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newStatus);
+            ps.setLong(2, paymentId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi updateStatus Payment: " + e.getMessage());
+            return false;
+        }
+    }
 }

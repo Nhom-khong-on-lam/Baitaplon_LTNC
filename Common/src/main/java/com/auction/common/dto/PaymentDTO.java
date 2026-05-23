@@ -10,6 +10,10 @@ public class PaymentDTO {
     private Double amount;
     private String status;
     private LocalDateTime createdAt;
+    // Seller banking info (populated at GET_PAYMENT_DETAIL time)
+    private String sellerBankName;
+    private String sellerAccountNumber;
+    private String sellerCardholderName;
 
     public PaymentDTO() {}
 
@@ -27,4 +31,13 @@ public class PaymentDTO {
     public void setStatus(String status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getSellerBankName() { return sellerBankName; }
+    public void setSellerBankName(String sellerBankName) { this.sellerBankName = sellerBankName; }
+
+    public String getSellerAccountNumber() { return sellerAccountNumber; }
+    public void setSellerAccountNumber(String sellerAccountNumber) { this.sellerAccountNumber = sellerAccountNumber; }
+
+    public String getSellerCardholderName() { return sellerCardholderName; }
+    public void setSellerCardholderName(String sellerCardholderName) { this.sellerCardholderName = sellerCardholderName; }
 }

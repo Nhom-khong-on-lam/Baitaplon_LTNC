@@ -248,7 +248,8 @@ public class Auction extends BaseEntity {
 
     // Kiểm tra xem User hiện tại có phải người thắng cuộc khi kết thúc không
     public boolean isUserWon(Long userId) {
-        return status == AuctionStatus.FINISHED && isUserWinning(userId);
+        return (status == AuctionStatus.FINISHED || status == AuctionStatus.PAID)
+                && isUserWinning(userId);
     }
 
     // Lấy số tiền mà User hiện tại đã đặt (để hiển thị "Your bid: $...")

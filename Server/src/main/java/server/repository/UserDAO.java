@@ -36,6 +36,11 @@ public class UserDAO {
             user.setBidCount(rs.getInt("bid_count"));
         } catch (SQLException ignore) {}
 
+        // Banking fields (nullable — wrap in try/catch in case column absent)
+        try { user.setAccountNumber(rs.getString("account_number")); } catch (SQLException ignore) {}
+        try { user.setBankName(rs.getString("bank_name")); } catch (SQLException ignore) {}
+        try { user.setCardholderName(rs.getString("cardholder_name")); } catch (SQLException ignore) {}
+
         return user;
     }
 
@@ -46,7 +51,7 @@ public class UserDAO {
         String sql = "INSERT INTO user (username, password, email, systemRole, accountStatus, created_at) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) { // Bắt buộc phải có RETURN_GENERATED_KEYS
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
@@ -152,7 +157,8 @@ public class UserDAO {
 
     // --- UPDATE ---
     public boolean update(UserDTO user) {
-        String sql = "UPDATE user SET username = ?, email = ?, systemRole = ?, accountStatus = ?, password = ? WHERE id = ?";
+        String sql = "UPDATE user SET username = ?, email = ?, systemRole = ?, accountStatus = ?, password = ?," +
+                     " account_number = ?, bank_name = ?, cardholder_name = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
@@ -160,7 +166,10 @@ public class UserDAO {
             ps.setString(3, user.getSystemRole());
             ps.setString(4, user.getAccountStatus());
             ps.setString(5, user.getPassword());
-            ps.setLong(6, user.getId());
+            ps.setString(6, user.getAccountNumber());
+            ps.setString(7, user.getBankName());
+            ps.setString(8, user.getCardholderName());
+            ps.setLong(9, user.getId());
 
             boolean updated = ps.executeUpdate() > 0;
             if (updated) LOGGER.info("UPDATE SUCCESS: Đã cập nhật User ID=" + user.getId());

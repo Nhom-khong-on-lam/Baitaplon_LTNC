@@ -4,6 +4,7 @@ package com.auction.client.service;
 
 import com.auction.client.controller.SessionManager;
 import com.auction.common.dto.AutoBidDTO;
+import com.auction.common.dto.PaymentDTO;
 import com.auction.common.model.Auction;
 import com.auction.common.model.BidTransaction;
 import com.auction.common.model.DashboardData;
@@ -292,5 +293,38 @@ public class AuctionService {
             e.printStackTrace();
         }
         return new ArrayList<>();
+    }
+
+    public PaymentDTO getPaymentByAuctionId(Long id) {
+        try {
+            Request req = new Request("GET_PAYMENT_DETAIL", id);
+            Response res = send(req);
+            if (res != null && res.isSuccess() && res.getData() instanceof PaymentDTO) {
+                return (PaymentDTO) res.getData();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Response createPayment(PaymentDTO payment) {
+        try {
+            Request req = new Request("CREATE_PAYMENT", payment);
+            return send(req);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.error("Lỗi kết nối khi thanh toán: " + e.getMessage());
+        }
+    }
+
+    public Response updateBankInfo(Long userId, String bankName, String accountNumber, String cardholderName) {
+        try {
+            Object[] data = {userId, bankName, accountNumber, cardholderName};
+            return send(new Request("UPDATE_BANK_INFO", data));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.error("Lỗi kết nối: " + e.getMessage());
+        }
     }
 }

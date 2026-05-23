@@ -17,6 +17,9 @@ public class UserDTO implements Serializable {
     private String accountStatus;
     private LocalDateTime createdAt;
     private int bidCount;
+    private String accountNumber;
+    private String bankName;
+    private String cardholderName;
 
     // 1. Constructor mặc định
     public UserDTO() {
@@ -66,6 +69,15 @@ public class UserDTO implements Serializable {
 
     public int getBidCount() { return bidCount; }
     public void setBidCount(int bidCount) { this.bidCount = bidCount; }
+
+    public String getAccountNumber() { return accountNumber; }
+    public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
+
+    public String getBankName() { return bankName; }
+    public void setBankName(String bankName) { this.bankName = bankName; }
+
+    public String getCardholderName() { return cardholderName; }
+    public void setCardholderName(String cardholderName) { this.cardholderName = cardholderName; }
 
     @Override
     public String toString() {
