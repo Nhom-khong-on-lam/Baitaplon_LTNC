@@ -5,29 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyBidsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyBidsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/ProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/ProfileController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuctionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuctionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/profile.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/profile.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/dto/PaymentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/dto/PaymentDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/dto/UserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/dto/UserDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" beforeDir="false" afterPath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/dto/PaymentDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/dto/PaymentDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/dto/UserDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/dto/UserDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/PaymentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/PaymentDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/AuctionServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/AuctionServer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/PaymentDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/PaymentDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/UserDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diagram/database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/diagram/database.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
