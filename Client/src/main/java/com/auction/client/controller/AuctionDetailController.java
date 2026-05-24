@@ -260,7 +260,9 @@ public class AuctionDetailController {
                 countdownTimeline.stop();
                 placeBidBtn.setDisable(true);
                 detailStatusPill.setText("Ended");
-                if (auction.getSeller().getId() == currentUser.getId()) {
+
+                // 🚀 ĐÃ SỬA: Thay dấu == bằng .equals() để nhận diện chính xác 100% ID của Người bán
+                if (auction.getSeller() != null && auction.getSeller().getId().equals(currentUser.getId())) {
                     String msg = "Phiên đấu giá của bạn đã kết thúc.";
                     if (auction.getHighestBidder() != null) {
                         msg += "\nNgười thắng: " + auction.getHighestBidder().getUsername();
@@ -278,7 +280,6 @@ public class AuctionDetailController {
                     showAuctionResult(msg, "#dc2626", "#fef2f2");
                 }
                 return;
-
             }
 
             // Cập nhật text hiển thị HH:mm:ss

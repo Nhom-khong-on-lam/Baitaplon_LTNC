@@ -152,6 +152,9 @@ public class MainController {
         ContextMenu menu = new ContextMenu();
         menu.getStyleClass().add("context-menu");
 
+        // 1. Ép cố định chiều rộng của ContextMenu bên ngoài là 280px (Không bị phình to bề ngang)
+        menu.setStyle("-fx-max-width: 280px; -fx-pref-width: 280px;");
+
         com.auction.client.service.AuctionService auctionService = new com.auction.client.service.AuctionService();
         java.util.List<com.auction.common.dto.NotificationDTO> notifs = auctionService.getNotifications(SessionManager.get().getUser().getId());
 
@@ -160,22 +163,60 @@ public class MainController {
             emptyItem.setDisable(true);
             menu.getItems().add(emptyItem);
         } else {
+            // Tiêu đề nhỏ gọn đặt ở trên cùng bảng thông báo
             MenuItem titleItem = new MenuItem("Thông báo gần đây");
-            titleItem.setStyle("-fx-font-weight: bold; -fx-text-fill: #2b6cb0;");
+            titleItem.setStyle("-fx-font-weight: bold; -fx-text-fill: #2b6cb0; -fx-font-size: 11px;");
             titleItem.setDisable(true);
             menu.getItems().add(titleItem);
             menu.getItems().add(new SeparatorMenuItem());
 
+            // 2. TẠO KHUNG CHỨA THÔNG BÁO GỌN GÀNG (Sử dụng VBox)
+            javafx.scene.layout.VBox listContainer = new javafx.scene.layout.VBox(4);
+            // Thiết lập padding và màu nền trắng cho danh sách
+            listContainer.setStyle("-fx-padding: 4; -fx-background-color: white;");
+
             for (com.auction.common.dto.NotificationDTO notif : notifs) {
-                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss dd/MM");
+                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm dd/MM");
                 String timeStr = notif.getCreatedAt() != null ? notif.getCreatedAt().format(formatter) : "";
-                String singleLineMsg = timeStr + " - " + notif.getMessage();
-                MenuItem item = new MenuItem(singleLineMsg);
+
+                // Nhãn hiển thị thời gian bằng chữ nhỏ xám
+                javafx.scene.control.Label timeLabel = new javafx.scene.control.Label(timeStr);
+                timeLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #a0aec0;");
+
+                // Nhãn hiển thị nội dung tin nhắn, ép chữ thu nhỏ (11px) và tự động ngắt dòng
+                javafx.scene.control.Label msgLabel = new javafx.scene.control.Label(notif.getMessage());
+                msgLabel.setWrapText(true); // Tự động ngắt dòng đi xuống khi chạm biên vùng chữ
+                msgLabel.setPrefWidth(235); // Giới hạn chiều rộng tối đa của cột chữ
+                msgLabel.setMaxWidth(235);
+
                 if (!notif.isRead()) {
-                    item.setStyle("-fx-font-weight: bold;");
+                    msgLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #1a202c;");
+                } else {
+                    msgLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #4a5568;");
                 }
-                menu.getItems().add(item);
+
+                // Gom thời gian và nội dung xếp dọc vào 1 hàng dòng thông báo
+                javafx.scene.layout.VBox row = new javafx.scene.layout.VBox(1, timeLabel, msgLabel);
+                // Khoảng cách đệm khít lại và tạo đường gạch mờ mỏng phân cách giữa các thông báo
+                row.setStyle("-fx-padding: 4 2 5 2; -fx-border-color: #f7fafc; -fx-border-width: 0 0 1 0;");
+                listContainer.getChildren().add(row);
             }
+
+            // 3. TẠO THANH CUỘN (ScrollPane): Bọc listContainer vào trong thanh cuộn
+            javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(listContainer);
+            scrollPane.setFitToWidth(true);
+
+            // Ép chiều cao bảng thông báo luôn cố định ở mức 240px (Nhiều thông báo tự bật thanh cuộn lên để lăn chuột)
+            scrollPane.setPrefHeight(240);
+            scrollPane.setMaxHeight(240);
+            scrollPane.setPrefWidth(265);
+            scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
+
+            // Nhúng nguyên khối ScrollPane này vào một CustomMenuItem duy nhất để đưa vào ContextMenu
+            javafx.scene.control.CustomMenuItem scrollableLayout = new javafx.scene.control.CustomMenuItem(scrollPane);
+            scrollableLayout.setHideOnClick(false); // Khi người dùng kéo thanh cuộn hoặc lăn chuột, bảng không bị ẩn đột ngột
+
+            menu.getItems().add(scrollableLayout);
         }
 
         if (topbarAvatar.getScene() == null) return;

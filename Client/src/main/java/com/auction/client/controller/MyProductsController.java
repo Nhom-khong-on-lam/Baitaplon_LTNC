@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * MyProductsController — Quản lý sản phẩm đấu giá của người bán.
- * Dùng TableView với các cột đầy đủ, filter theo trạng thái độc lập.
+ * ĐÃ ĐƯỢC THÊM CƠ CHẾ NẠP NGẦM TRẠNG THÁI PAYMENT TỪ DATABASE ĐỂ ĐỒNG BỘ VĨNH VIỄN KHI REFRESH/SIGN OUT.
  */
 public class MyProductsController {
 
@@ -48,8 +48,8 @@ public class MyProductsController {
             if (c.getValue() == null) return null;
             return new javafx.beans.property.SimpleObjectProperty<>(c.getValue().getPaymentStatus());
         });
-        // 🌟 THAY THẾ ĐOẠN CELL FACTORY CỦA colPaymentStatus TRONG MyProductsController.java
 
+        // 🌟 ĐỒNG BỘ: Kiểm tra cờ RAM tập trung từ SessionManager để đổi màu COMPLETED lập tức
         colPaymentStatus.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(com.auction.common.enums.PaymentStatus item, boolean empty) {
@@ -63,51 +63,34 @@ public class MyProductsController {
                 badge.setPadding(new javafx.geometry.Insets(4, 8, 4, 8));
                 badge.setStyle("-fx-background-radius: 4; -fx-font-size: 11px; -fx-font-weight: bold;");
 
-                // 🌟 TRƯỜNG HỢP 1: BẢNG payment ĐÃ CÓ DỮ LIỆU (Được load lên qua LEFT JOIN chuẩn)
-                if (item != null) {
-                    switch (item) {
-                        case PENDING:
-                            badge.setText("PENDING");
-                            badge.setStyle(badge.getStyle() + "-fx-background-color: #fef7e0; -fx-text-fill: #b06000;");
-                            break;
-                        case COMPLETED:
-                            badge.setText("COMPLETED");
-                            badge.setStyle(badge.getStyle() + "-fx-background-color: #e6f4ea; -fx-text-fill: #137333;");
-                            break;
-                        case FAILED:
-                            badge.setText("FAILED");
-                            badge.setStyle(badge.getStyle() + "-fx-background-color: #fce8e6; -fx-text-fill: #c5221f;");
-                            break;
-                        default:
-                            badge.setText(item.toString());
-                            badge.setStyle(badge.getStyle() + "-fx-background-color: #f1f3f4; -fx-text-fill: #3c4043;");
-                            break;
-                    }
+                // 🚀 ƯU TIÊN KIỂM TRA TRẠNG THÁI: Nếu cờ RAM cục bộ HOẶC data thuộc tính Payment từ DB trả về là COMPLETED
+                if (SessionManager.get().isAuctionPaidLocally(auction.getId())
+                        || item == com.auction.common.enums.PaymentStatus.COMPLETED) {
+                    badge.setText("COMPLETED");
+                    badge.setStyle("-fx-background-color: #e6f4ea; -fx-text-fill: #137333;");
                 }
-                // 🌟 TRƯỜNG HỢP 2: BẢNG payment TRẢ VỀ NULL (Do database cũ hoặc chưa kịp cập nhật)
+                // Nếu DB trả về trạng thái PENDING rõ ràng
+                else if (item == com.auction.common.enums.PaymentStatus.PENDING) {
+                    badge.setText("PENDING");
+                    badge.setStyle("-fx-background-color: #fef7e0; -fx-text-fill: #b06000;");
+                }
+                // Xử lý các trường hợp còn lại dựa theo trạng thái của Auction
                 else {
                     String actStatus = auction.getStatus() != null ? auction.getStatus().name() : "";
 
-                    // Kiểm tra xem phiên đấu giá thực sự đã khép lại chưa (bao gồm cả trạng thái FINISHED hoặc PAID)
-                    if ("FINISHED".equalsIgnoreCase(actStatus) || "PAID".equalsIgnoreCase(actStatus)) {
+                    if ("FINISHED".equalsIgnoreCase(actStatus)) {
                         if (auction.getBidCount() == 0) {
-                            badge.setText("No Buyers"); // Thực sự kết thúc mà không có ai đặt giá
-                            badge.setStyle(badge.getStyle() + "-fx-background-color: #f1f3f4; -fx-text-fill: #70757a;");
+                            badge.setText("No Buyers");
+                            badge.setStyle("-fx-background-color: #f1f3f4; -fx-text-fill: #70757a;");
                         } else {
-                            // Nếu trạng thái của phiên đấu giá vốn dĩ đã là PAID, hiển thị luôn chữ COMPLETED màu xanh
-                            if ("PAID".equalsIgnoreCase(actStatus)) {
-                                badge.setText("COMPLETED");
-                                badge.setStyle(badge.getStyle() + "-fx-background-color: #e6f4ea; -fx-text-fill: #137333;");
-                            } else {
-                                // Ngược lại nếu mới chỉ FINISHED và có người mua, chắc chắn là đang chờ tiền PENDING
-                                badge.setText("PENDING");
-                                badge.setStyle(badge.getStyle() + "-fx-background-color: #fef7e0; -fx-text-fill: #b06000;");
-                            }
+                            // Nếu đã kết thúc, có người mua mà chưa có thông tin COMPLETED thì hiển thị PENDING tạm thời trước khi luồng ngầm nạp xong
+                            badge.setText("PENDING");
+                            badge.setStyle("-fx-background-color: #fef7e0; -fx-text-fill: #b06000;");
                         }
                     } else {
-                        // Phiên đấu giá đang diễn ra (Live, Pending_Approval...) thì không cần hiển thị trạng thái tiền bạc
+                        // Đang diễn ra (Live) thì để dấu gạch ngang
                         badge.setText("—");
-                        badge.setStyle(badge.getStyle() + "-fx-text-fill: #70757a; -fx-background-color: transparent;");
+                        badge.setStyle("-fx-text-fill: #70757a; -fx-background-color: transparent;");
                     }
                 }
 
@@ -115,7 +98,6 @@ public class MyProductsController {
                 setAlignment(Pos.CENTER);
             }
         });
-
 
         // 4. Cấu hình định dạng cho toàn bộ cột cũ
         setupColumns();
@@ -147,30 +129,37 @@ public class MyProductsController {
         }).start();
     }
 
-    // ── Tab handlers ──────────────────────────────────────────
-    @FXML public void showAll()      { setActiveTab(tabAll);      loadTable(myProducts); }
-    @FXML public void showLive()     { setActiveTab(tabLive);
-        loadTable(myProducts.stream().filter(Auction::isLive).collect(Collectors.toList())); }
-    @FXML public void showPending()  {
+    // ── Tab handlers — Ép refresh giao diện khi đổi tab nhằm quét lại dữ liệu mới nhất ──
+    @FXML public void showAll() {
+        setActiveTab(tabAll);
+        loadTable(myProducts);
+    }
+
+    @FXML public void showLive() {
+        setActiveTab(tabLive);
+        loadTable(myProducts.stream().filter(Auction::isLive).collect(Collectors.toList()));
+    }
+
+    @FXML public void showPending() {
         setActiveTab(tabPending);
         loadTable(myProducts.stream()
                 .filter(a -> a.getStatus() != null && "PENDING_APPROVAL".equalsIgnoreCase(a.getStatus().name()))
                 .collect(Collectors.toList()));
     }
+
     @FXML public void showFinished() {
         setActiveTab(tabFinished);
-        // Lọc tất cả các sản phẩm không còn Live (Bao gồm cả FINISHED và PAID)
         loadTable(myProducts.stream().filter(a -> !a.isLive()).collect(Collectors.toList()));
     }
+
     @FXML public void goToCreate() {
         MainController main = (MainController) productTable
                 .getScene().lookup("#mainRoot").getUserData();
         main.navCreate();
     }
 
-    // ── Setup columns ─────────────────────────────────────────
+    // ── Setup các cột hiển thị ─────────────────────────────────────────
     private void setupColumns() {
-        // Title column
         colTitle.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTitle()));
         colTitle.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String title, boolean empty) {
@@ -181,7 +170,6 @@ public class MyProductsController {
             }
         });
 
-        // Category
         colCategory.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCategory()));
         colCategory.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String cat, boolean empty) {
@@ -194,7 +182,6 @@ public class MyProductsController {
             }
         });
 
-        // Start price
         colStart.setCellValueFactory(c -> {
             if (c.getValue() != null && c.getValue().getItem() != null) {
                 return new SimpleStringProperty("$" + String.format("%,.0f", c.getValue().getItem().getStartingPrice()));
@@ -202,7 +189,6 @@ public class MyProductsController {
             return new SimpleStringProperty("$0");
         });
 
-        // Current bid
         colCurrent.setCellValueFactory(c ->
                 new SimpleStringProperty("$" + String.format("%,.0f", c.getValue().getCurrentPrice())));
         colCurrent.setCellFactory(col -> new TableCell<>() {
@@ -214,11 +200,8 @@ public class MyProductsController {
             }
         });
 
-        // Bids count
-        colBids.setCellValueFactory(c ->
-                new SimpleStringProperty(String.valueOf(c.getValue().getBidCount())));
+        colBids.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getBidCount())));
 
-        // Status badge - Sửa đổi các case đồng bộ khít với hàm getStatusLabel() của class Auction
         colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatusLabel()));
         colStatus.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String status, boolean empty) {
@@ -227,10 +210,10 @@ public class MyProductsController {
 
                 Label pill = new Label(status);
                 String styleClass = switch (status) {
-                    case "Live"               -> "pill-running";   // Màu xanh lá
-                    case "Pending"            -> "pill-pending";   // Màu vàng cam
-                    case "Finished"           -> "pill-finished";  // Màu xám (Cho cả phiên đã trả tiền hoặc hết giờ)
-                    case "Cancelled", "Rejected" -> "pill-ending"; // Màu đỏ
+                    case "Live"               -> "pill-running";
+                    case "Pending"            -> "pill-pending";
+                    case "Finished"           -> "pill-finished";
+                    case "Cancelled", "Rejected" -> "pill-ending";
                     default                   -> "pill-finished";
                 };
 
@@ -240,11 +223,8 @@ public class MyProductsController {
             }
         });
 
-        // End time
-        colEnds.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getEndTimeFormatted()));
+        colEnds.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEndTimeFormatted()));
 
-        // Action buttons
         colAction.setCellFactory(col -> new TableCell<Auction,String>() {
             private final Button viewBtn = new Button("View");
             private final Button editBtn = new Button("Edit");
@@ -282,8 +262,31 @@ public class MyProductsController {
     }
 
     private void loadTable(List<Auction> list) {
+        if (list == null) return;
+
+        // 🚀 THẦN THÁNH: Tạo luồng ngầm tự động liên hệ Server quét trạng thái hóa đơn gốc thực tế từ Database
+        new Thread(() -> {
+            try {
+                for (Auction auction : list) {
+                    // Nếu là phiên kết thúc FINISHED và có lượt đấu giá, tiến hành check trạng thái Payment từ DB
+                    if (auction.getStatus() != null && "FINISHED".equalsIgnoreCase(auction.getStatus().name()) && auction.getBidCount() > 0) {
+                        com.auction.common.dto.PaymentDTO p = auctionService.getPaymentByAuctionId(auction.getId());
+                        if (p != null && "COMPLETED".equalsIgnoreCase(p.getStatus())) {
+                            // Gán thẳng trạng thái COMPLETED vào model để hiển thị màu xanh chuẩn chỉ vĩnh viễn
+                            auction.setPaymentStatus(com.auction.common.enums.PaymentStatus.COMPLETED);
+                        }
+                    }
+                }
+                // Đồng bộ cập nhật lại đồ họa UI một lần duy nhất sau khi nạp xong dữ liệu DB thực
+                javafx.application.Platform.runLater(() -> productTable.refresh());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
         ObservableList<Auction> obs = FXCollections.observableArrayList(list);
         productTable.setItems(obs);
+        productTable.refresh(); // Ép TableView xóa cache đồ họa cũ
     }
 
     private void setActiveTab(Button tab) {

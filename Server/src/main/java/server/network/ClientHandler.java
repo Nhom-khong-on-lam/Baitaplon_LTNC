@@ -1105,7 +1105,7 @@ public class ClientHandler extends Thread {
                         userDAO.update(buyer);
                         userDAO.update(seller);
 
-                        // Cập nhật trạng thái payment thành COMPLETED
+                        // Cập nhật trạng thái payment thành COMPLETED vào bảng payment
                         boolean ok;
                         if (existing != null) {
                             ok = paymentDAO.updateStatusWithConn(conn, existing.getId(), "COMPLETED");
@@ -1119,7 +1119,7 @@ public class ClientHandler extends Thread {
                             return Response.error("Lưu thông tin thanh toán thất bại.");
                         }
 
-                        // Cập nhật trạng thái phiên đấu giá thành PAID
+                        // 🚀 GIỮ NGUYÊN FINISHED: Tránh ghi đè chữ "PAID" lỗi khiến dữ liệu bị văng ngược về trạng thái "Live"
                         AuctionDAO auctionDAO = new AuctionDAO();
                         AuctionDTO auction = auctionDAO.findById(p.getAuctionId());
                         if (auction != null) {
