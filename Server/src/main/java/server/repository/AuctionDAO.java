@@ -43,14 +43,21 @@ public class AuctionDAO {
         return -1;
     }
 
-    // ── FIND BY ID ────────────────────────────────────────────────────────────
+    // ── FIND BY ID (Đã nâng cấp thông minh lấy giá đỉnh thực tế từ bảng BID) ──
     public AuctionDTO findById(long id) {
-        String sql = "SELECT * FROM auction WHERE id = ?";
+        String sql = "SELECT a.*, " +
+                "COALESCE((SELECT MAX(amount) FROM bid WHERE auction_id = a.id), a.current_price) AS real_current_price " +
+                "FROM auction a WHERE a.id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return mapRow(rs);
+                if (rs.next()) {
+                    AuctionDTO dto = mapRow(rs);
+                    // Ép đè giá trị thực tế cao nhất vào DTO để tránh bị ghi đè giá cũ khi UPDATE
+                    dto.setCurrentPrice(rs.getDouble("real_current_price"));
+                    return dto;
+                }
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "findById auction ERROR id=" + id, e);
@@ -62,8 +69,9 @@ public class AuctionDAO {
     // 🌟 SỬA TẠI AuctionDAO.java (SERVER) - Hàm findAll()
     public List<AuctionDTO> findAll() {
         List<AuctionDTO> list = new ArrayList<>();
-        // Bổ sung LEFT JOIN sang bảng payment để luồng đồng bộ không bị mất trạng thái thanh toán
-        String sql = "SELECT a.*, p.status AS payment_status " +
+        // Bổ sung Subquery lấy giá đỉnh thực tế và LEFT JOIN để giữ trạng thái thanh toán
+        String sql = "SELECT a.*, p.status AS payment_status, " +
+                "COALESCE((SELECT MAX(amount) FROM bid WHERE auction_id = a.id), a.current_price) AS real_current_price " +
                 "FROM auction a " +
                 "LEFT JOIN payment p ON a.id = p.auction_id " +
                 "ORDER BY a.start_time DESC";
@@ -71,7 +79,11 @@ public class AuctionDAO {
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) list.add(mapRow(rs));
+            while (rs.next()) {
+                AuctionDTO dto = mapRow(rs);
+                dto.setCurrentPrice(rs.getDouble("real_current_price")); // Ép giá đỉnh thực tế vào DTO
+                list.add(dto);
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "findAll auction ERROR", e);
         }
@@ -81,25 +93,41 @@ public class AuctionDAO {
     // ── FIND ACTIVE (status = RUNNING và chưa hết hạn) ───────────────────────
     public List<AuctionDTO> findActive() {
         List<AuctionDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM auction WHERE status = 'RUNNING' AND end_time > NOW() ORDER BY end_time ASC";
+        // Bổ sung Subquery lấy giá cược cao nhất thực tế cho các phiên đang active
+        String sql = "SELECT a.*, " +
+                "COALESCE((SELECT MAX(amount) FROM bid WHERE auction_id = a.id), a.current_price) AS real_current_price " +
+                "FROM auction a " +
+                "WHERE a.status = 'RUNNING' AND a.end_time > NOW() ORDER BY a.end_time ASC";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) list.add(mapRow(rs));
+            while (rs.next()) {
+                AuctionDTO dto = mapRow(rs);
+                dto.setCurrentPrice(rs.getDouble("real_current_price")); // Ép giá đỉnh thực tế vào DTO
+                list.add(dto);
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "findActive auction ERROR", e);
         }
         return list;
     }
 
-    // ── FIND PUBLIC (status = RUNNING hoặc FINISHED) ───────────────────────
+    // ── FIND PUBLIC (status = RUNNING hoặc FINISHED hoặc LIVE) ───────────────────────
     public List<AuctionDTO> findPublic() {
         List<AuctionDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM auction WHERE status IN ('RUNNING', 'FINISHED') ORDER BY end_time DESC";
+        // Thêm trạng thái 'LIVE' để khi gia hạn xong trang chủ vẫn load được phòng, đồng thời nạp giá đỉnh thực tế
+        String sql = "SELECT a.*, " +
+                "COALESCE((SELECT MAX(amount) FROM bid WHERE auction_id = a.id), a.current_price) AS real_current_price " +
+                "FROM auction a " +
+                "WHERE a.status IN ('RUNNING', 'FINISHED', 'LIVE') ORDER BY a.end_time DESC";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) list.add(mapRow(rs));
+            while (rs.next()) {
+                AuctionDTO dto = mapRow(rs);
+                dto.setCurrentPrice(rs.getDouble("real_current_price")); // Ép giá đỉnh thực tế vào DTO
+                list.add(dto);
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "findPublic auction ERROR", e);
         }

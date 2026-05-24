@@ -7,15 +7,10 @@
     <list default="true" id="071b1bbc-fd7f-4036-ac4a-076e2aa301a3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionDetailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AuctionDetailController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyBidsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyBidsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyProductsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/MyProductsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/SessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/SessionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" beforeDir="false" afterPath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -246,7 +241,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PaymentDAOTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserSessionDAOTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Server" />
       <extension name="coverage">
         <pattern>
@@ -255,7 +250,7 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.auction" />
-      <option name="MAIN_CLASS_NAME" value="com.auction.PaymentDAOTest" />
+      <option name="MAIN_CLASS_NAME" value="com.auction.UserSessionDAOTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -266,16 +261,16 @@
       <item itemvalue="Application.Launcher" />
       <item itemvalue="Application.MainApp" />
       <item itemvalue="Database Script.database.sql" />
+      <item itemvalue="JUnit.UserSessionDAOTest" />
       <item itemvalue="JUnit.ItemDAOTest.testInsertItem" />
-      <item itemvalue="JUnit.PaymentDAOTest" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Launcher" />
         <item itemvalue="Application.AuctionServer" />
+        <item itemvalue="JUnit.UserSessionDAOTest" />
         <item itemvalue="Application.MainApp" />
         <item itemvalue="JUnit.ItemDAOTest.testInsertItem" />
-        <item itemvalue="JUnit.PaymentDAOTest" />
       </list>
     </recent_temporary>
   </component>
@@ -361,6 +356,7 @@
       <workItem from="1779461363107" duration="4197000" />
       <workItem from="1779465740473" duration="432000" />
       <workItem from="1779595044380" duration="9505000" />
+      <workItem from="1779665350540" duration="366000" />
     </task>
     <servers />
   </component>

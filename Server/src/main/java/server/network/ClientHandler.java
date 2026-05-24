@@ -721,7 +721,6 @@ public class ClientHandler extends Thread {
                         return Response.error("Dữ liệu yêu cầu gia hạn không đầy đủ.");
                     }
 
-                    // 🚀 GIẢI PHÁP AN TOÀN: Ép kiểu gián tiếp qua Number để triệt tiêu lỗi ClassCastException
                     long auctionId = -1;
                     if (data[0] instanceof Number) {
                         auctionId = ((Number) data[0]).longValue();
@@ -739,20 +738,29 @@ public class ClientHandler extends Thread {
                     System.out.println("⏳ [PROCESS] Tiến hành gia hạn thêm " + hours + " giờ cho Auction ID: " + auctionId);
 
                     AuctionDAO auctionDAO = new AuctionDAO();
-                    AuctionDTO existing = auctionDAO.findById(auctionId);
+                    com.auction.common.dto.AuctionDTO existing = auctionDAO.findById(auctionId);
 
                     if (existing == null) {
                         return Response.error("Không tìm thấy phiên đấu giá tương ứng.");
                     }
 
-                    // Thực hiện cộng thêm số giờ yêu cầu vào mốc thời gian cũ
-                    existing.setEndTime(existing.getEndTime().plusHours(hours));
+                    // Tính toán thời gian kết thúc mới
+                    java.time.LocalDateTime newEndTime = existing.getEndTime().plusHours(hours);
 
-                    // Ghi nhận thay đổi xuống Database
-                    boolean ok = auctionDAO.update(existing);
+                    // 🚀 GIẢI PHÁP DU KÍCH: Chạy lệnh UPDATE cô lập, chỉ sửa thời gian và trạng thái
+                    // Tuyệt đối không chạm vào cột current_price hay highest_bidder_id trong DB!
+                    String directSql = "UPDATE auction SET end_time = ?, status = 'LIVE' WHERE id = ?";
+                    boolean ok = false;
+
+                    try (java.sql.Connection conn = server.database.DBConnection.getConnection();
+                         java.sql.PreparedStatement ps = conn.prepareStatement(directSql)) {
+                        ps.setTimestamp(1, java.sql.Timestamp.valueOf(newEndTime));
+                        ps.setLong(2, auctionId);
+                        ok = ps.executeUpdate() > 0;
+                    }
 
                     if (ok) {
-                        System.out.println("🎉 [SUCCESS] Gia hạn thành công phiên ID " + auctionId + ". Thời gian mới: " + existing.getEndTime());
+                        System.out.println("🎉 [SUCCESS] Gia hạn thành công phiên ID " + auctionId + ". Thời gian mới: " + newEndTime);
                         return Response.ok(null);
                     } else {
                         return Response.error("Lỗi cập nhật thời gian mới vào Database.");

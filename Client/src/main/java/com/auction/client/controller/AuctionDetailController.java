@@ -261,23 +261,42 @@ public class AuctionDetailController {
                 placeBidBtn.setDisable(true);
                 detailStatusPill.setText("Ended");
 
-                // 🚀 ĐÃ SỬA: Thay dấu == bằng .equals() để nhận diện chính xác 100% ID của Người bán
-                if (auction.getSeller() != null && auction.getSeller().getId().equals(currentUser.getId())) {
-                    String msg = "Phiên đấu giá của bạn đã kết thúc.";
-                    if (auction.getHighestBidder() != null) {
-                        msg += "\nNgười thắng: " + auction.getHighestBidder().getUsername();
+                Long curUserId = currentUser.getId();
+                String curUsername = currentUser.getUsername();
+                String winnerName = (auction.getHighestBidder() != null) ? auction.getHighestBidder().getUsername() : "";
+
+                // 1. TRƯỜNG HỢP LÀ NGƯỜI BÁN (Chủ sản phẩm) -> 🔵 MÀU XANH NƯỚC BIỂN
+                if (auction.getSeller() != null && auction.getSeller().getId().equals(curUserId)) {
+                    String msg;
+                    if (!winnerName.isEmpty()) {
+                        msg = "🎉 Chúc mừng! Bạn đã BÁN THÀNH CÔNG sản phẩm này!\nNgười mua thắng cuộc: " + winnerName;
+                    } else {
+                        msg = "Phiên đấu giá của bạn đã kết thúc.\nKhông có người mua.";
+                    }
+                    showAuctionResult(msg, "#1e40af", "#dbeafe");
+                }
+                // 2. TRƯỜNG HỢP LÀ NGƯỜI ĐÃ TRÚNG ĐẤU GIÁ (Người thắng cuộc) -> 🟢 MÀU XANH LÁ CÂY
+                else if (!winnerName.isEmpty() && winnerName.equals(curUsername)) {
+                    showAuctionResult("🎉 Chúc mừng! Bạn đã THẮNG CUỘC phiên đấu giá này!", "#16a34a", "#f0fdf4");
+                }
+                // 3. TRƯỜNG HỢP CÓ THAM GIA ĐẶT GIÁ NHƯNG THUA CUỘC -> 🔴 MÀU ĐỎ
+                // Chỉ những ai thực sự có lịch sử đặt giá và mức giá lớn hơn 0 mới bị tính là Thua cuộc
+                else if (auction.getUserBidAmount(curUserId) > 0) {
+                    String msg = "Bạn đã THUA CUỘC.";
+                    if (!winnerName.isEmpty()) {
+                        msg += "\nNgười thắng cuộc: " + winnerName;
+                    }
+                    showAuctionResult(msg, "#dc2626", "#fef2f2");
+                }
+                // 4. TRƯỜNG HỢP CÒN LẠI: CHỈ BẤM VÀO XEM (Người xem vãng lai như 'nhims') -> 🔵 MÀU XANH NƯỚC BIỂN
+                else {
+                    String msg = "Phiên đấu giá đã kết thúc.";
+                    if (!winnerName.isEmpty()) {
+                        msg += "\nNgười chiến thắng: " + winnerName;
                     } else {
                         msg += "\nKhông có người mua.";
                     }
-                    showAuctionResult(msg, "#718096", "#f7fafc");
-                } else if (auction.getHighestBidder() != null && auction.getHighestBidder().getUsername().equals(currentUser.getUsername())) {
-                    showAuctionResult("Chúc mừng bạn đã THẮNG CUỘC!", "#16a34a", "#f0fdf4");
-                } else {
-                    String msg = "Bạn đã THUA CUỘC.";
-                    if (auction.getHighestBidder() != null) {
-                        msg += "\nNgười thắng: " + auction.getHighestBidder().getUsername();
-                    }
-                    showAuctionResult(msg, "#dc2626", "#fef2f2");
+                    showAuctionResult(msg, "#1e40af", "#dbeafe");
                 }
                 return;
             }
@@ -314,12 +333,24 @@ public class AuctionDetailController {
                         int oldBidCount = this.auction.getBidCount();
                         int newBidCount = (history != null) ? history.size() : updatedAuction.getBidCount();
 
-                        // Cập nhật thông tin auction
-                        this.auction.setCurrentPrice(updatedAuction.getCurrentPrice());
+                        // 🚀 CHỐNG GHI ĐÈ SAI GIÁ: Chỉ cập nhật nếu giá từ server lớn hơn giá hiện tại trên UI
+                        if (updatedAuction.getCurrentPrice() > this.auction.getCurrentPrice()) {
+                            this.auction.setCurrentPrice(updatedAuction.getCurrentPrice());
+                        }
+
+                        // 🚀 BẢO LƯU THÔNG TIN NGƯỜI ĐẶT GIÁ CAO NHẤT: Tránh bị gán về null khi gia hạn
+                        if (updatedAuction.getHighestBidder() != null) {
+                            this.auction.setHighestBidder(updatedAuction.getHighestBidder());
+                        } else if (history != null && !history.isEmpty()) {
+                            // Nếu server trả về null nhưng lịch sử cược vẫn có, tự lấy người đặt giá cao nhất từ lịch sử cược
+                            this.auction.setHighestBidder(history.get(0).getBidder());
+                        }
+
+                        // Cập nhật các thông tin thời gian và trạng thái hoạt động mới
                         this.auction.setEndTime(updatedAuction.getEndTime());
                         this.auction.setStatus(updatedAuction.getStatus());
-                        this.auction.setHighestBidder(updatedAuction.getHighestBidder());
                         this.auction.setBidCount(newBidCount);
+
                         // Cập nhật hiển thị UI
                         updatePriceDisplay();
 
@@ -356,7 +387,7 @@ public class AuctionDetailController {
                             }
                         }
 
-                        // Cập nhật biểu đồ và lịch sử bid
+                        // Cập nhật biểu đồ và lịch sử bid từ mảng lịch sử gốc (đảm bảo không bao giờ bị mất danh sách cũ)
                         renderBidHistory(history);
 
                         // THÔNG BÁO KHI CÓ NGƯỜI ĐẶT GIÁ MỚI
@@ -583,6 +614,42 @@ public class AuctionDetailController {
                 }).start();
             }
         });
+    }
+    // ── Gia hạn thời gian / Reset phiên đấu giá ─────────────────────────────────────────────
+    @FXML
+    private void handleExtendAuctionClick() {
+        if (this.auction == null) return;
+
+        // Ví dụ: Bấm nút thì gia hạn thêm 2 giờ (Bạn có thể đổi thành số khác tùy ý)
+        int hoursToExtend = 2;
+
+        // Đóng gói mảng Object chuẩn cấu trúc: [0] là ID phiên, [1] là số giờ (Khớp với Server ép kiểu Number)
+        Object[] payload = new Object[] { this.auction.getId(), hoursToExtend };
+
+        // Tạo luồng ngầm gửi dữ liệu lên Server để tránh treo đơ giao diện UI chính
+        new Thread(() -> {
+            try {
+                // Tạo Request sử dụng hằng số EXTEND_AUCTION có sẵn
+                com.auction.common.network.Request req = new com.auction.common.network.Request(com.auction.common.network.Request.EXTEND_AUCTION, payload);
+
+                // Gửi qua ServerConnection giống y hệt như cơ chế AutoBid của bạn
+                com.auction.common.network.Response res = (com.auction.common.network.Response) com.auction.client.service.ServerConnection.getInstance().sendRequest(req);
+
+                // Nhận kết quả từ Server trả về và xử lý giao diện an toàn
+                javafx.application.Platform.runLater(() -> {
+                    if (res != null && res.isSuccess()) {
+                        showBidSuccess("⏳ Đã gia hạn thời gian phiên đấu giá thêm " + hoursToExtend + " giờ thành công!");
+
+                        // Cho phép nút bấm pulse nhẹ một cái tạo hiệu ứng trực quan
+                        System.out.println("🎉 [CLIENT SUCCESS] Phiên " + this.auction.getId() + " đã được Server mở lại trạng thái LIVE.");
+                    } else {
+                        showBidError(res != null ? res.getMessage() : "Gia hạn thất bại: Mất kết nối Server!");
+                    }
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }).start();
     }
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
