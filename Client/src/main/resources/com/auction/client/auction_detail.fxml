@@ -183,19 +183,19 @@
             </HBox>
 
             <LineChart fx:id="priceChart" prefHeight="260" legendVisible="false" createSymbols="true"
-                        horizontalGridLinesVisible="true" verticalGridLinesVisible="true"
-                        style="-fx-padding: 10px 20px 10px 5px;">
-            <xAxis>
-                <CategoryAxis fx:id="xAxis" label="Trục Ox: Thời gian" animated="false"
-                              tickLabelRotation="-25" tickLabelsVisible="true" tickMarkVisible="true"
-                              tickLabelFill="#1e293b"/>
-            </xAxis>
-            <yAxis>
-                <NumberAxis fx:id="yAxis" label="Trục Oy: Mức giá (VND)" animated="false" forceZeroInRange="false"
-                            tickLabelsVisible="true" tickMarkVisible="true"
-                            tickLabelFill="#1e293b"/>
-            </yAxis>
-        </LineChart>
+                       horizontalGridLinesVisible="true" verticalGridLinesVisible="true"
+                       style="-fx-padding: 10px 20px 10px 5px;">
+                <xAxis>
+                    <CategoryAxis fx:id="xAxis" label="Trục Ox: Thời gian" animated="false"
+                                  tickLabelRotation="-25" tickLabelsVisible="true" tickMarkVisible="true"
+                                  tickLabelFill="#1e293b"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="yAxis" label="Trục Oy: Mức giá (VND)" animated="false" forceZeroInRange="false"
+                                tickLabelsVisible="true" tickMarkVisible="true"
+                                tickLabelFill="#1e293b"/>
+                </yAxis>
+            </LineChart>
 
             <ScrollPane fitToWidth="true" prefHeight="180"
                         style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0;">

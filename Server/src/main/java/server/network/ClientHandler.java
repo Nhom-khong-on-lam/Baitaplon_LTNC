@@ -9,6 +9,7 @@ import com.auction.common.enums.SystemRole;
 import com.auction.common.model.*;
 import com.auction.common.network.Request;
 import com.auction.common.network.Response;
+import server.database.DBConnection;
 import server.repository.*;
 
 import java.io.EOFException;
@@ -772,14 +773,69 @@ public class ClientHandler extends Thread {
             }
 
             case Request.END_AUCTION_EARLY: {
-                Long auctionId = (Long) req.getData();
+                // 1. Ép kiểu dữ liệu an toàn tránh lỗi ClassCast từ Client gửi lên
+                Long auctionId = null;
+                if (req.getData() instanceof Number) {
+                    auctionId = ((Number) req.getData()).longValue();
+                } else {
+                    auctionId = Long.valueOf(req.getData().toString());
+                }
+
                 AuctionDAO auctionDAO = new AuctionDAO();
-                AuctionDTO existing = auctionDAO.findById(auctionId);
-                if (existing == null) return Response.error("Auction not found.");
-                existing.setStatus("FINISHED");
-                existing.setEndTime(java.time.LocalDateTime.now());
-                boolean ok = auctionDAO.update(existing);
-                return ok ? Response.ok(null) : Response.error("Failed to end auction.");
+
+                // 🌟 ĐỌC DỮ LIỆU HIỆN TẠI: Lấy thông tin phiên đấu giá trước khi đóng sổ để biết ai đang dẫn đầu
+                com.auction.common.dto.AuctionDTO existing = auctionDAO.findById(auctionId);
+                if (existing == null) {
+                    return Response.error("Không tìm thấy phiên đấu giá.");
+                }
+
+                // 2. Ép thời gian kết thúc (endTime) về HIỆN TẠI
+                String sqlTime = "UPDATE auction SET end_time = ? WHERE id = ?";
+                try (Connection conn = DBConnection.getConnection();
+                     PreparedStatement ps = conn.prepareStatement(sqlTime)) {
+
+                    ps.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+                    ps.setLong(2, auctionId);
+                    ps.executeUpdate();
+
+                } catch (SQLException e) {
+                    System.err.println("Cảnh báo: Không thể cập nhật end_time: " + e.getMessage());
+                }
+
+                // 3. ĐỔI TRẠNG THÁI SANG FINISHED bằng hàm có sẵn của bạn
+                boolean ok = auctionDAO.updateStatus(auctionId, "FINISHED");
+
+                // 4. 🚀 TỰ ĐỘNG THÊM VÀO BẢNG PAYMENT NẾU CÓ NGƯỜI ĐẶT GIÁ (HỢP NHẤT LOGIC)
+                if (ok) {
+                    // Kiểm tra xem phiên đấu giá này có ai đặt giá thắng cuộc không (highest_bidder_id != null)
+                    if (existing.getHighestBidderId() != null) {
+                        server.repository.PaymentDAO paymentDAO = new server.repository.PaymentDAO();
+
+                        // Kiểm tra trước dưới DB xem hóa đơn cho phiên này đã tồn tại chưa để tránh bị insert trùng lặp
+                        if (paymentDAO.getByAuctionId(auctionId) == null) {
+                            com.auction.common.dto.PaymentDTO newPayment = new com.auction.common.dto.PaymentDTO();
+                            newPayment.setAuctionId(auctionId);
+                            newPayment.setBuyerId(existing.getHighestBidderId());
+                            newPayment.setSellerId(existing.getSellerId());
+                            newPayment.setAmount(existing.getCurrentPrice());
+                            newPayment.setStatus("PENDING"); // Luôn mặc định là PENDING để chờ người thắng vào trả tiền
+
+                            // Gọi hàm insert xịn trong PaymentDAO của bạn để đẩy xuống database
+                            boolean isPaymentCreated = paymentDAO.insert(newPayment);
+                            if (isPaymentCreated) {
+                                System.out.println("🎉 [Server] Đã tạo thành công hóa đơn PENDING cho Buyer ID: "
+                                        + existing.getHighestBidderId() + " tại Auction ID: " + auctionId);
+                            } else {
+                                System.err.println("❌ [Server] Lỗi: Không thể insert hóa đơn vào bảng payment.");
+                            }
+                        }
+                    }
+
+                    // Trả kết quả thành công về cho Client JavaFX
+                    return Response.ok(null);
+                } else {
+                    return Response.error("Database refused to update status to FINISHED.");
+                }
             }
             case Request.GET_BID_HISTORY: {
                 Long targetAuctionId = (Long) req.getData();
@@ -809,7 +865,7 @@ public class ClientHandler extends Thread {
                     }
                 }
                 return Response.ok(transactions);
-        }
+            }
             // BỔ SUNG VÀO TRONG HÀM handleRequest(Request req) CỦA ClientHandler.java
             case "DELETE_USER": {
                 Long userId = (Long) req.getData();
@@ -846,6 +902,70 @@ public class ClientHandler extends Thread {
                     return Response.ok(clientAuctions);
                 } catch (Exception e) {
                     return Response.error("Lỗi lấy danh sách đã duyệt: " + e.getMessage());
+                }
+            }
+            // ── THÊM VÀO CUỐI SWITCH CASE TRƯỚC DEFAULT ──────────────────────
+
+            // ── THÊM CASE NÀY VÀO TRONG SWITCH (REQUEST.GETCOMMAND()) CỦA CLIENTHANDLER ──
+            case "TOP_UP_BALANCE": {
+                try {
+                    // 1. Ép kiểu về mảng Object[] đúng như luồng Client truyền sang
+                    Object[] data = (Object[]) req.getData();
+
+                    // 2. Bóc tách chính xác UserId (Long) và Số tiền nạp (Double)
+                    Long userId = ((Number) data[0]).longValue();
+                    Double amount = ((Number) data[1]).doubleValue();
+
+                    System.out.println("💰 [Server] Đang xử lý yêu cầu nạp tiền cho User ID: " + userId + " | Số tiền: " + amount);
+
+                    // 3. Tìm thông tin UserDTO hiện tại trong Database thông qua userDAO
+                    UserDTO userDto = userDAO.findById(userId);
+                    if (userDto == null) {
+                        return Response.error("Không tìm thấy tài khoản người dùng trên hệ thống!");
+                    }
+
+                    // 4. Cộng dồn số tiền nạp vào số dư hiện tại trong cơ sở dữ liệu
+                    double newBalance = userDto.getBalance() + amount;
+                    userDto.setBalance(newBalance);
+
+                    // 5. Gọi câu lệnh UPDATE của UserDAO để ghi nhận số dư mới xuống DB
+                    boolean success = userDAO.update(userDto);
+
+                    if (success) {
+                        System.out.println("✅ [Server] Nạp tiền THÀNH CÔNG! Tài khoản: " + userDto.getUsername() + " | Số dư mới: " + newBalance + " VND");
+                        // Trả số dư mới tinh (newBalance) về để Client vẽ lại giao diện
+                        return Response.ok(newBalance);
+                    } else {
+                        return Response.error("Lỗi hệ thống: Không thể lưu số dư mới vào Cơ sở dữ liệu.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return Response.error("Lỗi xử lý nạp tiền phía Server: " + e.getMessage());
+                }
+            }
+
+            case "UPDATE_FINANCIAL_PROFILE": {
+                try {
+                    Object[] data = (Object[]) req.getData();
+                    Long userId = ((Number) data[0]).longValue();
+                    String bankName = (String) data[1];
+                    String accountNumber = (String) data[2];
+
+                    UserDTO user = userDAO.findById(userId);
+                    if (user == null) return Response.error("Không tìm thấy người dùng.");
+
+                    // Cập nhật thông tin liên kết ngân hàng
+                    user.setBankName(bankName);
+                    user.setAccountNumber(accountNumber);
+
+                    boolean ok = userDAO.update(user);
+                    if (ok) {
+                        return Response.ok("Cập nhật thông tin tài chính thành công!");
+                    } else {
+                        return Response.error("Lỗi cập nhật dữ liệu ngân hàng.");
+                    }
+                } catch (Exception e) {
+                    return Response.error("Lỗi Server: " + e.getMessage());
                 }
             }
 
@@ -902,6 +1022,8 @@ public class ClientHandler extends Thread {
 
             // ── PAYMENT ──────────────────────────────────────────────────────
 
+            // ── PAYMENT ──────────────────────────────────────────────────────
+
             case "GET_PAYMENT_DETAIL": {
                 try {
                     Long auctionId = (Long) req.getData();
@@ -923,27 +1045,28 @@ public class ClientHandler extends Thread {
                         payment.setSellerId(auction.getSellerId());
                         payment.setAmount(auction.getCurrentPrice());
                         payment.setStatus("PENDING");
-                        payment.setCreatedAt(java.time.LocalDateTime.now());
+
                         boolean inserted = paymentDAO.insert(payment);
                         if (!inserted) return Response.error("Không thể khởi tạo hóa đơn.");
-                        // Fetch lại để lấy id
+
+                        // Fetch lại để lấy id chuẩn từ DB
                         payment = paymentDAO.getByAuctionId(auctionId);
                         if (payment == null) return Response.error("Lỗi nội bộ: không fetch lại được payment.");
                     }
 
-                    if ("COMPLETED".equalsIgnoreCase(payment.getStatus())) {
-                        return Response.error("Đơn hàng này đã được thanh toán.");
-                    }
+                    // 🌟 SỬA TẠI ĐÂY: XÓA BỎ ĐOẠN QUĂNG RESPONSE.ERROR VÔ LÝ!
+                    // Thay vào đó, cứ cho chạy tiếp xuống dưới để trả về Object kèm theo trạng thái "COMPLETED"
+                    // cho Client tự biết đường mà xử lý đóng Popup hoặc ẩn nút.
 
-                    // Gắn thông tin ngân hàng của Seller vào DTO
-                    UserDTO seller = userDAO.findByIdLight(payment.getSellerId());
+                    // Gắn thông tin ngân hàng của Seller vào DTO phục vụ Client hiển thị lên UI Dialog
+                    UserDTO seller = userDAO.findById(payment.getSellerId());
                     if (seller != null) {
                         payment.setSellerBankName(seller.getBankName());
                         payment.setSellerAccountNumber(seller.getAccountNumber());
-                        payment.setSellerCardholderName(seller.getCardholderName());
+                        payment.setSellerCardholderName(seller.getCardholderName() != null ? seller.getCardholderName() : seller.getUsername());
                     }
 
-                    return Response.ok(payment);
+                    return Response.ok(payment); // Luôn trả về dữ liệu thành công
                 } catch (Exception e) {
                     e.printStackTrace();
                     return Response.error("Lỗi Server khi tải thông tin thanh toán: " + e.getMessage());
@@ -955,30 +1078,58 @@ public class ClientHandler extends Thread {
                     com.auction.common.dto.PaymentDTO p = (com.auction.common.dto.PaymentDTO) req.getData();
                     if (p == null || p.getAuctionId() == null) return Response.error("Dữ liệu thanh toán không hợp lệ.");
 
+                    // 1. Kiểm tra ví tiền của người mua (Buyer) và người bán (Seller) xem có đủ điều kiện không
+                    UserDTO buyer = userDAO.findById(p.getBuyerId());
+                    UserDTO seller = userDAO.findById(p.getSellerId());
+
+                    if (buyer == null || seller == null) {
+                        return Response.error("Giao dịch thất bại: Thực thể tài khoản không hợp lệ.");
+                    }
+
+                    if (buyer.getBalance() < p.getAmount()) {
+                        return Response.error("Số dư tài khoản ví AURUM không đủ! Vui lòng nạp thêm tiền tại trang Profile.");
+                    }
+
                     server.repository.PaymentDAO paymentDAO = new server.repository.PaymentDAO();
                     com.auction.common.dto.PaymentDTO existing = paymentDAO.getByAuctionId(p.getAuctionId());
 
-                    boolean ok;
-                    if (existing != null) {
+                    // 2. Mở Database Transaction cô lập tài chính
+                    try (Connection conn = server.database.DBConnection.getConnection()) {
+                        conn.setAutoCommit(false); // Bắt đầu chuỗi lệnh nguyên tử
+
+                        // Trừ tiền người mua, cộng tiền người bán trực tiếp trên bộ nhớ DTO
+                        buyer.setBalance(buyer.getBalance() - p.getAmount());
+                        seller.setBalance(seller.getBalance() + p.getAmount());
+
+                        // Đồng bộ số dư mới xuống cơ sở dữ liệu bảng user
+                        userDAO.update(buyer);
+                        userDAO.update(seller);
+
                         // Cập nhật trạng thái payment thành COMPLETED
-                        ok = paymentDAO.updateStatus(existing.getId(), "COMPLETED");
-                    } else {
-                        p.setStatus("COMPLETED");
-                        p.setCreatedAt(java.time.LocalDateTime.now());
-                        ok = paymentDAO.insert(p);
+                        boolean ok;
+                        if (existing != null) {
+                            ok = paymentDAO.updateStatusWithConn(conn, existing.getId(), "COMPLETED");
+                        } else {
+                            p.setStatus("COMPLETED");
+                            ok = paymentDAO.insertWithConn(conn, p);
+                        }
+
+                        if (!ok) {
+                            conn.rollback();
+                            return Response.error("Lưu thông tin thanh toán thất bại.");
+                        }
+
+                        // Cập nhật trạng thái phiên đấu giá thành PAID
+                        AuctionDAO auctionDAO = new AuctionDAO();
+                        AuctionDTO auction = auctionDAO.findById(p.getAuctionId());
+                        if (auction != null) {
+                            auction.setStatus("FINISHED");
+                            auctionDAO.update(auction);
+                        }
+
+                        conn.commit(); // ✅ Xác nhận hoàn tất chuỗi giao dịch ví thành công tuyệt đối!
+                        return Response.ok("Thanh toán thành công!");
                     }
-
-                    if (!ok) return Response.error("Lưu thanh toán thất bại.");
-
-                    // Cập nhật trạng thái phiên đấu giá thành PAID
-                    AuctionDAO auctionDAO = new AuctionDAO();
-                    AuctionDTO auction = auctionDAO.findById(p.getAuctionId());
-                    if (auction != null) {
-                        auction.setStatus("PAID");
-                        auctionDAO.update(auction);
-                    }
-
-                    return Response.ok("Thanh toán thành công!");
                 } catch (Exception e) {
                     e.printStackTrace();
                     return Response.error("Lỗi Server khi xử lý thanh toán: " + e.getMessage());
@@ -1262,10 +1413,10 @@ public class ClientHandler extends Thread {
             server.repository.NotificationDAO notificationDAO = new server.repository.NotificationDAO();
             server.repository.UserDAO uDAO = new server.repository.UserDAO();
             server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
-            
+
             com.auction.common.dto.AuctionDTO auction = auctionDAO.findById(auctionId);
             if (auction == null) return;
-            
+
             com.auction.common.dto.ItemDTO item = itemDAO.getById(auction.getItemId());
             String title = (item != null) ? item.getName() : "Phòng #" + auctionId;
 
@@ -1285,7 +1436,7 @@ public class ClientHandler extends Thread {
                 notif.setRelatedAuctionId(auctionId);
                 notif.setRead(false);
                 notif.setType("BID_PLACED");
-                
+
                 if (uid == bidderId && isAutoBid) {
                     notif.setTitle("Auto Bid tự động nâng giá");
                     notif.setMessage("Hệ thống vừa tự động đặt " + String.format("%,.0f", amount) + " VND cho phiên đấu giá " + title);

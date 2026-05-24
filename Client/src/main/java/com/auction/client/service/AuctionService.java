@@ -208,8 +208,9 @@ public class AuctionService {
         return res != null && res.isSuccess();
     }
 
-    public void endAuctionEarly(Long auctionId) {
-        send(new Request(Request.END_AUCTION_EARLY, auctionId));
+    public boolean endAuctionEarly(Long auctionId) {
+        Response res = send(new Request(Request.END_AUCTION_EARLY, auctionId));
+        return res != null && res.isSuccess();
     }
     // ── Helper ───────────────────────────────────────────────────────────────
     private Response send(Request request) {
@@ -325,6 +326,15 @@ public class AuctionService {
         } catch (Exception e) {
             e.printStackTrace();
             return Response.error("Lỗi kết nối: " + e.getMessage());
+        }
+    }
+    public Response topUpBalance(Long userId, double amount) {
+        try {
+            Object[] data = {userId, amount};
+            return send(new Request("TOP_UP_BALANCE", data));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.error("Lỗi kết nối nạp tiền: " + e.getMessage());
         }
     }
 }

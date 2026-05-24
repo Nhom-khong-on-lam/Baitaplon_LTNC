@@ -3,13 +3,36 @@ package server.repository;
 import com.auction.common.dto.PaymentDTO;
 import server.database.DBConnection;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PaymentDAO {
 
+    // Lấy thông tin hóa đơn theo auctionId
+    public PaymentDTO getByAuctionId(long auctionId) {
+        String sql = "SELECT * FROM payment WHERE auction_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, auctionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    PaymentDTO p = new PaymentDTO();
+                    p.setId(rs.getLong("id"));
+                    p.setAuctionId(rs.getLong("auction_id"));
+                    p.setBuyerId(rs.getLong("buyer_id"));
+                    p.setSellerId(rs.getLong("seller_id"));
+                    p.setAmount(rs.getDouble("amount"));
+                    p.setStatus(rs.getString("status"));
+                    return p;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Insert thông tin hóa đơn thông thường
     public boolean insert(PaymentDTO p) {
-        String sql = "INSERT INTO payment (auction_id, buyer_id, seller_id, amount, status, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO payment (auction_id, buyer_id, seller_id, amount, status) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, p.getAuctionId());
@@ -17,66 +40,33 @@ public class PaymentDAO {
             ps.setLong(3, p.getSellerId());
             ps.setDouble(4, p.getAmount());
             ps.setString(5, p.getStatus());
-            ps.setTimestamp(6, Timestamp.valueOf(p.getCreatedAt()));
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi insert Payment: " + e.getMessage());
-            return false;
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Cập nhật trạng thái dùng chung Connection phục vụ Transaction dòng tiền
+    public boolean updateStatusWithConn(Connection conn, long paymentId, String status) throws SQLException {
+        String sql = "UPDATE payment SET status = ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setLong(2, paymentId);
+            return ps.executeUpdate() > 0;
         }
     }
 
-    public List<PaymentDTO> getAll() {
-        List<PaymentDTO> list = new ArrayList<>();
-        String sql = "SELECT id, auction_id, buyer_id, seller_id, amount, status, created_at FROM payment";
-        try (Connection conn = DBConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(mapResultSetToDTO(rs));
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return list;
-    }
-
-    public PaymentDTO getByAuctionId(Long auctionId) {
-        String sql = "SELECT id, auction_id, buyer_id, seller_id, amount, status, created_at FROM payment WHERE auction_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-            ps.setLong(1, auctionId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToDTO(rs);
-                }
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return null;
-    }
-
-    private PaymentDTO mapResultSetToDTO(ResultSet rs) throws SQLException {
-        PaymentDTO p = new PaymentDTO();
-        p.setId(rs.getLong("id"));
-        p.setAuctionId(rs.getLong("auction_id"));
-        p.setBuyerId(rs.getLong("buyer_id"));
-        p.setSellerId(rs.getLong("seller_id"));
-        p.setAmount(rs.getDouble("amount"));
-        p.setStatus(rs.getString("status"));
-
-        Timestamp ts = rs.getTimestamp("created_at");
-        if (ts != null) p.setCreatedAt(ts.toLocalDateTime());
-        return p;
-    }
-
-    public boolean updateStatus(Long paymentId, String newStatus) {
-        String sql = "UPDATE payment SET status = ? WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, newStatus);
-            ps.setLong(2, paymentId);
+    // Tạo hóa đơn mới dùng chung Connection phục vụ Transaction dòng tiền
+    public boolean insertWithConn(Connection conn, PaymentDTO p) throws SQLException {
+        String sql = "INSERT INTO payment (auction_id, buyer_id, seller_id, amount, status) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, p.getAuctionId());
+            ps.setLong(2, p.getBuyerId());
+            ps.setLong(3, p.getSellerId());
+            ps.setDouble(4, p.getAmount());
+            ps.setString(5, p.getStatus());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Lỗi updateStatus Payment: " + e.getMessage());
-            return false;
         }
     }
 }

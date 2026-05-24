@@ -41,14 +41,16 @@ public class UserDAO {
         try { user.setBankName(rs.getString("bank_name")); } catch (SQLException ignore) {}
         try { user.setCardholderName(rs.getString("cardholder_name")); } catch (SQLException ignore) {}
 
+        // 🚀 BỔ SUNG: Đọc dữ liệu số dư từ Database lên RAM
+        try { user.setBalance(rs.getDouble("balance")); } catch (SQLException ignore) {}
+
         return user;
     }
 
     // --- CREATE ---
-    // --- CREATE (ĐÃ CHUẨN HÓA CHO TIDB SEQUENCE) ---
     public long insert(UserDTO user) {
-        // Dùng câu lệnh INSERT tiêu chuẩn của MySQL, bỏ cột id ra để AUTO_INCREMENT tự tăng
-        String sql = "INSERT INTO user (username, password, email, systemRole, accountStatus, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        // Mặc định nạp tiền lúc tạo tài khoản mới nếu có
+        String sql = "INSERT INTO user (username, password, email, systemRole, accountStatus, created_at, balance) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -61,9 +63,9 @@ public class UserDAO {
 
             LocalDateTime createdAt = (user.getCreatedAt() != null) ? user.getCreatedAt() : LocalDateTime.now();
             ps.setTimestamp(6, Timestamp.valueOf(createdAt));
+            ps.setDouble(7, user.getBalance()); // Thêm balance cho insert công bằng
 
             if (ps.executeUpdate() > 0) {
-                // Lấy lại ID tự động sinh ra từ MySQL để trả về cho Client log in
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         long generatedId = rs.getLong(1);
@@ -83,7 +85,7 @@ public class UserDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, userId);
-            return ps.executeUpdate() > 0; // Trả về true nếu có dòng bị xóa trong DB
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Lỗi SQL khi xóa User: " + e.getMessage());
             return false;
@@ -103,7 +105,6 @@ public class UserDAO {
         }
     }
 
-    // --- CÓ ĐỦ CẢ HÀM FIND_BY_FIELD CHO ĐOẠN "UPDATE_PASSWORD" CỦA BẠN ---
     public UserDTO findByField(String fieldName, Object value) {
         String sql = "SELECT u.*, (SELECT COUNT(DISTINCT auction_id) FROM bid b WHERE b.bidder_id = u.id) AS bid_count " +
                 "FROM user u WHERE u." + fieldName + " = ?";
@@ -119,7 +120,6 @@ public class UserDAO {
         return null;
     }
 
-    // --- GIỮ NGUYÊN TẤT CẢ CÁC HÀM GỐC KHÁC KHÔNG THAY ĐỔI TÊN ---
     public UserDTO findById(long id) {
         return findByField("id", id);
     }
@@ -145,7 +145,6 @@ public class UserDAO {
         return users;
     }
 
-    // --- HÀM KIỂM TRA TỒN TẠI (isExisted) GIỮ NGUYÊN ---
     public boolean isExisted(String fieldName, String value) {
         if ("username".equalsIgnoreCase(fieldName)) {
             return findByUsername(value) != null;
@@ -155,10 +154,11 @@ public class UserDAO {
         return false;
     }
 
-    // --- UPDATE ---
+    // --- UPDATE (BỔ SUNG QUYẾT ĐỊNH CHO BIẾN BALANCE ĐỂ LƯU ĐƯỢC TIỀN) ---
     public boolean update(UserDTO user) {
+        // 🚀 Đã thêm "balance = ?" vào trước khối WHERE và đẩy tham số ID xuống vị trí số 10
         String sql = "UPDATE user SET username = ?, email = ?, systemRole = ?, accountStatus = ?, password = ?," +
-                     " account_number = ?, bank_name = ?, cardholder_name = ? WHERE id = ?";
+                " account_number = ?, bank_name = ?, cardholder_name = ?, balance = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
@@ -169,10 +169,11 @@ public class UserDAO {
             ps.setString(6, user.getAccountNumber());
             ps.setString(7, user.getBankName());
             ps.setString(8, user.getCardholderName());
-            ps.setLong(9, user.getId());
+            ps.setDouble(9, user.getBalance()); // 🚀 Ghi số dư mới vào DB
+            ps.setLong(10, user.getId());       // Vị trí id đổi từ số 9 sang số 10
 
             boolean updated = ps.executeUpdate() > 0;
-            if (updated) LOGGER.info("UPDATE SUCCESS: Đã cập nhật User ID=" + user.getId());
+            if (updated) LOGGER.info("UPDATE SUCCESS: Đã cập nhật User ID=" + user.getId() + " | Số dư mới: " + user.getBalance());
             return updated;
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "UPDATE ERROR: Lỗi cập nhật User ID=" + user.getId(), e);
@@ -180,7 +181,6 @@ public class UserDAO {
         return false;
     }
 
-    // --- DELETE ---
     public boolean delete(long id) {
         String sql = "DELETE FROM user WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -194,9 +194,10 @@ public class UserDAO {
         }
         return false;
     }
-    // Thêm vào UserDAO.java — dùng cho toClientAuctions, không cần bid_count
+
     public UserDTO findByIdLight(long id) {
-        String sql = "SELECT id, username, password, email, systemRole, accountStatus, created_at FROM user WHERE id = ?";
+        // Bổ sung balance vào luôn cho hàm tìm kiếm nhanh này tránh lỗi không đồng bộ số dư
+        String sql = "SELECT id, username, password, email, systemRole, accountStatus, created_at, balance FROM user WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
@@ -210,12 +211,13 @@ public class UserDAO {
                     user.setEmail(rs.getString("email"));
                     user.setSystemRole(rs.getString("systemRole"));
                     user.setAccountStatus(rs.getString("accountStatus"));
+                    user.setBalance(rs.getDouble("balance")); // 🚀 Đọc balance
 
                     Timestamp ts = rs.getTimestamp("created_at");
                     if (ts != null) {
                         user.setCreatedAt(ts.toLocalDateTime());
                     }
-                    user.setBidCount(0); // Mặc định là 0 để tránh mapRow lỗi cột
+                    user.setBidCount(0);
                     return user;
                 }
             }

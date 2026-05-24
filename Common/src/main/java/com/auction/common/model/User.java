@@ -19,6 +19,7 @@ public class User extends BaseEntity implements Serializable {
     private String accountNumber;
     private String bankName;
     private String cardholderName;
+    private Double balance = 0.0;
 
     public User(Long id, String username, String passwordHash, String email, SystemRole systemRole) {
         super(id);
@@ -88,4 +89,12 @@ public class User extends BaseEntity implements Serializable {
 
     public String getCardholderName() { return cardholderName; }
     public void setCardholderName(String cardholderName) { this.cardholderName = cardholderName; }
+
+    public Double getBalance() {
+        return this.balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
 }

@@ -154,7 +154,7 @@ public class MainController {
 
         com.auction.client.service.AuctionService auctionService = new com.auction.client.service.AuctionService();
         java.util.List<com.auction.common.dto.NotificationDTO> notifs = auctionService.getNotifications(SessionManager.get().getUser().getId());
-        
+
         if (notifs == null || notifs.isEmpty()) {
             MenuItem emptyItem = new MenuItem("Không có thông báo nào");
             emptyItem.setDisable(true);
@@ -165,7 +165,7 @@ public class MainController {
             titleItem.setDisable(true);
             menu.getItems().add(titleItem);
             menu.getItems().add(new SeparatorMenuItem());
-            
+
             for (com.auction.common.dto.NotificationDTO notif : notifs) {
                 java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss dd/MM");
                 String timeStr = notif.getCreatedAt() != null ? notif.getCreatedAt().format(formatter) : "";

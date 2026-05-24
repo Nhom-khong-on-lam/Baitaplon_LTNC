@@ -59,9 +59,15 @@ public class AuctionDAO {
     }
 
     // ── FIND ALL ──────────────────────────────────────────────────────────────
+    // 🌟 SỬA TẠI AuctionDAO.java (SERVER) - Hàm findAll()
     public List<AuctionDTO> findAll() {
         List<AuctionDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM auction ORDER BY start_time DESC";
+        // Bổ sung LEFT JOIN sang bảng payment để luồng đồng bộ không bị mất trạng thái thanh toán
+        String sql = "SELECT a.*, p.status AS payment_status " +
+                "FROM auction a " +
+                "LEFT JOIN payment p ON a.id = p.auction_id " +
+                "ORDER BY a.start_time DESC";
+
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -101,9 +107,15 @@ public class AuctionDAO {
     }
 
     // ── FIND BY SELLER ────────────────────────────────────────────────────────
+    // ── FIND BY SELLER (Đã cập nhật LEFT JOIN để lấy trạng thái thanh toán) ────────
     public List<AuctionDTO> findBySeller(long sellerId) {
         List<AuctionDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM auction WHERE seller_id = ? ORDER BY start_time DESC";
+        // 🌟 Thực hiện LEFT JOIN để lấy cột status từ bảng payment
+        String sql = "SELECT a.*, p.status AS payment_status " +
+                "FROM auction a " +
+                "LEFT JOIN payment p ON a.id = p.auction_id " +
+                "WHERE a.seller_id = ? ORDER BY a.start_time DESC";
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, sellerId);
@@ -151,21 +163,81 @@ public class AuctionDAO {
     }
 
     // ── UPDATE ────────────────────────────────────────────────────────────────
+    // ── UPDATE (ĐÃ TỰ ĐỘNG SINH HÓA ĐƠN PENDING KHI KẾT THÚC PHIÊN) ────────────────
     public boolean update(AuctionDTO a) {
-        String sql = "UPDATE auction SET current_price=?, highest_bidder_id=?, end_time=?, status=? WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setDouble(1, a.getCurrentPrice());
-            if (a.getHighestBidderId() != null) ps.setLong(2, a.getHighestBidderId());
-            else ps.setNull(2, Types.BIGINT);
-            ps.setTimestamp(3, Timestamp.valueOf(a.getEndTime()));
-            ps.setString(4, a.getStatus());
-            ps.setLong(5, a.getId());
-            boolean ok = ps.executeUpdate() > 0;
-            if (ok) LOGGER.info("UPDATE auction SUCCESS: ID=" + a.getId());
-            return ok;
+        String updateAuctionSql = "UPDATE auction SET current_price=?, highest_bidder_id=?, end_time=?, status=? WHERE id=?";
+        String checkPaymentSql = "SELECT COUNT(*) FROM payment WHERE auction_id = ?";
+        String insertPaymentSql = "INSERT INTO payment (auction_id, user_id, amount, status, created_at) VALUES (?, ?, ?, 'PENDING', NOW())";
+
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false); // 🌟 BẬT TRANSACTION: Đảm bảo đồng bộ an toàn cả 2 bảng
+
+            // 1. Thực hiện cập nhật thông tin phiên đấu giá như bình thường
+            try (PreparedStatement ps = conn.prepareStatement(updateAuctionSql)) {
+                ps.setDouble(1, a.getCurrentPrice());
+                if (a.getHighestBidderId() != null && a.getHighestBidderId() > 0) {
+                    ps.setLong(2, a.getHighestBidderId());
+                } else {
+                    ps.setNull(2, Types.BIGINT);
+                }
+                ps.setTimestamp(3, Timestamp.valueOf(a.getEndTime()));
+                ps.setString(4, a.getStatus());
+                ps.setLong(5, a.getId());
+
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected == 0) {
+                    conn.rollback();
+                    return false;
+                }
+            }
+
+            // 2. TỰ ĐỘNG XỬ LÝ SINH HÓA ĐƠN KHI TRẠNG THÁI CHUYỂN SANG FINISHED
+            if ("FINISHED".equalsIgnoreCase(a.getStatus()) && a.getHighestBidderId() != null && a.getHighestBidderId() > 0) {
+
+                // Kiểm tra xem hóa đơn cho phiên đấu giá này đã được tạo trước đó chưa (tránh trùng lặp dữ liệu)
+                boolean isPaymentExist = false;
+                try (PreparedStatement psCheck = conn.prepareStatement(checkPaymentSql)) {
+                    psCheck.setLong(1, a.getId());
+                    try (ResultSet rs = psCheck.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            isPaymentExist = true;
+                        }
+                    }
+                }
+
+                // Nếu chưa từng có bản ghi hóa đơn, thực hiện INSERT trạng thái PENDING
+                if (!isPaymentExist) {
+                    try (PreparedStatement psInsert = conn.prepareStatement(insertPaymentSql)) {
+                        psInsert.setLong(1, a.getId());
+                        psInsert.setLong(2, a.getHighestBidderId()); // Người thắng cuộc phải trả tiền
+                        psInsert.setDouble(3, a.getCurrentPrice());  // Số tiền cuối cùng chốt phiên
+
+                        psInsert.executeUpdate();
+                        LOGGER.info("🌟 AUTO GENERATE INVOICE SUCCESS: Auction ID=" + a.getId() + " is now PENDING payment.");
+                    }
+                }
+            }
+
+            conn.commit(); // Hoàn tất giao dịch thành công cho cả 2 bảng
+            LOGGER.info("UPDATE auction SUCCESS: ID=" + a.getId());
+            return true;
+
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "UPDATE auction ERROR id=" + a.getId(), e);
+            LOGGER.log(Level.SEVERE, "UPDATE auction TRANSACTION ERROR id=" + a.getId(), e);
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Hủy bỏ toàn bộ thao tác nếu một trong hai câu lệnh SQL bị lỗi
+                    LOGGER.info("TRANSACTION ROLLBACK SUCCESS due to error.");
+                } catch (SQLException ex) {
+                    LOGGER.log(Level.SEVERE, "Rollback failed", ex);
+                }
+            }
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return false;
     }
@@ -241,21 +313,72 @@ public class AuctionDAO {
         return false;
     }
 
-    // ── MAP ROW ───────────────────────────────────────────────────────────────
-    private AuctionDTO mapRow(ResultSet rs) throws SQLException {
-        AuctionDTO a = new AuctionDTO();
-        a.setId(rs.getLong("id"));
-        a.setItemId(rs.getLong("item_id"));
-        a.setSellerId(rs.getLong("seller_id"));
+    // ── MAP ROW TRỰC TIẾP SANG MODEL AUCTION (Cập nhật bên Server) ───────────────
+    private com.auction.common.dto.AuctionDTO mapRow(java.sql.ResultSet rs) throws java.sql.SQLException {
+        com.auction.common.dto.AuctionDTO dto = new com.auction.common.dto.AuctionDTO();
 
-        long bidderId = rs.getLong("highest_bidder_id");
-        if (!rs.wasNull()) a.setHighestBidderId(bidderId);
+        dto.setId(rs.getLong("id"));
+        dto.setItemId(rs.getLong("item_id"));
+        dto.setSellerId(rs.getLong("seller_id"));
+        dto.setHighestBidderId(rs.getLong("highest_bidder_id"));
+        dto.setCurrentPrice(rs.getDouble("current_price"));
+        dto.setStatus(rs.getString("status"));
 
-        a.setCurrentPrice(rs.getDouble("current_price"));
-        a.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
-        a.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
-        a.setStatus(rs.getString("status"));
-        return a;
+        // Đọc các trường mở rộng phục vụ hiển thị trực tiếp từ SQL JOIN
+        try { dto.setItemName(rs.getString("item_name")); } catch (Exception e) {}
+        try { dto.setCategory(rs.getString("category")); } catch (Exception e) {}
+        try { dto.setSellerUsername(rs.getString("seller_username")); } catch (Exception e) {}
+
+        // Ép kiểu an toàn trường dữ liệu thời gian
+        try {
+            if (rs.getTimestamp("start_time") != null) {
+                dto.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+            }
+            if (rs.getTimestamp("end_time") != null) {
+                dto.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+            }
+        } catch (java.sql.SQLException e) {}
+
+        // 🌟 TRẠNG THÁI THANH TOÁN (Từ câu lệnh LEFT JOIN bảng payment)
+        try {
+            // Kiểm tra xem ResultSet hiện tại có chứa cột "payment_status" hay không
+            java.sql.ResultSetMetaData metaData = rs.getMetaData();
+            boolean hasPaymentStatusColumn = false;
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                if ("payment_status".equalsIgnoreCase(metaData.getColumnLabel(i))) {
+                    hasPaymentStatusColumn = true;
+                    break;
+                }
+            }
+
+            if (hasPaymentStatusColumn) {
+                String payStatusStr = rs.getString("payment_status");
+                if (payStatusStr != null) {
+                    String cleanStatus = payStatusStr.trim().toUpperCase();
+                    if ("PENDING".equals(cleanStatus) || "UNPAID".equals(cleanStatus)) {
+                        dto.setPaymentStatus(com.auction.common.enums.PaymentStatus.PENDING);
+                    } else if ("COMPLETED".equals(cleanStatus) || "SUCCESS".equals(cleanStatus) || "PAID".equals(cleanStatus)) {
+                        dto.setPaymentStatus(com.auction.common.enums.PaymentStatus.COMPLETED);
+                    } else if ("FAILED".equals(cleanStatus)) {
+                        dto.setPaymentStatus(com.auction.common.enums.PaymentStatus.FAILED);
+                    } else if ("REFUNDED".equals(cleanStatus)) {
+                        dto.setPaymentStatus(com.auction.common.enums.PaymentStatus.REFUNDED);
+                    } else {
+                        dto.setPaymentStatus(com.auction.common.enums.PaymentStatus.valueOf(cleanStatus));
+                    }
+                } else {
+                    dto.setPaymentStatus(null);
+                }
+            } else {
+                // Nếu hàm gọi không JOIN bảng payment, ta giữ nguyên giá trị paymentStatus hiện tại của DTO (không ép về null)
+                // Hoặc tạm thời để null nếu đây là lần khởi tạo đầu tiên
+                dto.setPaymentStatus(null);
+            }
+        } catch (Exception e) {
+            dto.setPaymentStatus(null);
+        }
+
+        return dto;
     }
     // ── THÊM VÀO ĐỂ GIẢI QUYẾT TRIỆT ĐỂ LỖI KHÔNG XÓA ĐƯỢC ITEM ──────────────────
 

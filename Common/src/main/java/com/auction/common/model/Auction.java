@@ -1,6 +1,7 @@
 package com.auction.common.model;
 
 import com.auction.common.enums.AuctionStatus;
+import com.auction.common.enums.PaymentStatus;
 import com.auction.common.model.BaseEntity;
 import com.auction.common.observer.Observer;
 
@@ -23,8 +24,50 @@ public class Auction extends BaseEntity {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private AuctionStatus status;
-    private int bidCount = -1; // -1 = chưa được set từ Server (dùng bidHistory.size() làm dự phòng)
+    private int bidCount = -1;
+    private PaymentStatus paymentStatus;
 
+    public Auction() {
+        // Constructor mặc định cho việc map dữ liệu từ DB hoặc phục vụ tuần tự hóa mạng
+    }
+    // 🌟 SỬA LẠI CONSTRUCTOR TRONG FILE Auction.java (CLIENT)
+    public Auction(com.auction.common.dto.AuctionDTO dto) {
+        this.id = dto.getId();
+        this.currentPrice = dto.getCurrentPrice() != null ? dto.getCurrentPrice() : 0.0;
+        this.startTime = dto.getStartTime();
+        this.endTime = dto.getEndTime();
+
+        if (dto.getStatus() != null) {
+            String serverStatus = dto.getStatus().trim().toUpperCase();
+            try {
+                // Nếu server trả về PAID, coi như phiên đấu giá đó đã FINISHED hoàn tất
+                if ("PAID".equals(serverStatus)) {
+                    this.status = com.auction.common.enums.AuctionStatus.FINISHED;
+                } else {
+                    this.status = com.auction.common.enums.AuctionStatus.valueOf(serverStatus);
+                }
+            } catch (IllegalArgumentException e) {
+                // Nếu có lỗi parse lạ, mặc định kiểm tra theo thời gian hết hạn
+                if (this.endTime != null && LocalDateTime.now().isAfter(this.endTime)) {
+                    this.status = com.auction.common.enums.AuctionStatus.FINISHED;
+                } else {
+                    this.status = com.auction.common.enums.AuctionStatus.RUNNING;
+                }
+            }
+        }
+
+        this.paymentStatus = dto.getPaymentStatus();
+
+        // Anonymous Class kế thừa từ Item
+        this.item = new Item() {
+            @Override
+            public String getCategory() {
+                return dto.getCategory();
+            }
+        };
+        this.item.setName(dto.getItemName());
+        this.item.setDescription("");
+    }
     // Constructor
     public Auction(Item item, User seller, LocalDateTime endTime) {
         this.item = item;
@@ -135,7 +178,8 @@ public class Auction extends BaseEntity {
         this.seller = seller;
     }
 
-
+    public PaymentStatus getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(PaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
     public void setBidHistory(List<BidTransaction> bidHistory) {
         this.bidHistory = bidHistory;
     }
@@ -180,14 +224,13 @@ public class Auction extends BaseEntity {
         if (this.status == null) return "Unknown";
 
         return switch (this.status) {
-            case OPEN -> "Open for Bids";
-            case RUNNING -> "Active Now";
-            case CANCELLED -> "Cancelled";
-            case FINISHED -> "Ended";
-            case PAID -> "Sold & Paid";
-            case PENDING_APPROVAL -> "Pending";
-            case REJECTED -> "Rejected";
-            default -> "Processing";
+            case OPEN, RUNNING      -> "Live";
+            case PENDING_APPROVAL   -> "Pending";
+            case REJECTED           -> "Rejected";
+            case CANCELLED          -> "Cancelled";
+            // Khi trạng thái phiên là FINISHED hoặc đã trả tiền PAID, đối với người bán nó đều hiển thị là "Finished"
+            case FINISHED            -> "Finished";
+            default                 -> "Finished";
         };
     }
     public String getStatusStyleClass() {
@@ -195,7 +238,7 @@ public class Auction extends BaseEntity {
         return switch (this.status) {
             case RUNNING -> "badge-success";  // Màu xanh lá
             case OPEN, PENDING_APPROVAL -> "badge-warning";
-            case FINISHED, PAID -> "badge-secondary"; // Màu xám
+            case FINISHED          -> "badge-secondary"; // Màu xám
             case CANCELLED, REJECTED -> "badge-danger";
             default -> "badge-default";
         };
@@ -248,8 +291,7 @@ public class Auction extends BaseEntity {
 
     // Kiểm tra xem User hiện tại có phải người thắng cuộc khi kết thúc không
     public boolean isUserWon(Long userId) {
-        return (status == AuctionStatus.FINISHED || status == AuctionStatus.PAID)
-                && isUserWinning(userId);
+        return (status == AuctionStatus.FINISHED) && isUserWinning(userId);
     }
 
     // Lấy số tiền mà User hiện tại đã đặt (để hiển thị "Your bid: $...")

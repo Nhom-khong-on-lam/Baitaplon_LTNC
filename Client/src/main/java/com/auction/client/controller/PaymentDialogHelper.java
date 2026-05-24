@@ -148,7 +148,7 @@ public class PaymentDialogHelper {
                         bankVal.setText(p.getSellerBankName() != null ? p.getSellerBankName() : "Chưa liên kết");
                         accountVal.setText(p.getSellerAccountNumber() != null ? p.getSellerAccountNumber() : "Chưa liên kết");
                         cardholderVal.setText(p.getSellerCardholderName() != null ? p.getSellerCardholderName() : "Chưa liên kết");
-                        
+
                         payBtn.setDisable(false);
                         cancelBtn.setDisable(false);
                         statusMsg.setVisible(false);
@@ -187,7 +187,7 @@ public class PaymentDialogHelper {
                         if (res != null && res.isSuccess()) {
                             statusMsg.setText("✓ Thanh toán thành công!");
                             statusMsg.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
-                            
+
                             javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.millis(800));
                             pause.setOnFinished(evt -> {
                                 dialog.close();

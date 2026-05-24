@@ -236,28 +236,55 @@ public class MyBidsController {
 
             // Nếu thắng cuộc → kiểm tra trạng thái để hiện nút thanh toán
             if (won) {
-                String auctionStatus = a.getStatus() != null ? a.getStatus().name() : "";
-                boolean isPaid = "PAID".equalsIgnoreCase(auctionStatus);
+                // Tạo một Container tạm thời để chứa Badge hoặc Nút bấm (tránh bị đơ giao diện khi đợi mạng)
+                StackPane paymentActionContainer = new StackPane();
+                right.getChildren().add(paymentActionContainer);
 
-                if (isPaid) {
-                    Label paidBadge = new Label("✓ Đã thanh toán");
-                    paidBadge.setStyle("-fx-background-color:#d1fae5; -fx-text-fill:#065f46;" +
-                            "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:4 10;" +
-                            "-fx-background-radius:20;");
-                    right.getChildren().add(paidBadge);
-                } else {
-                    Button payBtn = new Button("💳 Thanh toán");
-                    payBtn.setStyle("-fx-background-color:#10b981; -fx-text-fill:white;" +
-                            "-fx-font-weight:bold; -fx-font-size:12px; -fx-cursor:hand;" +
-                            "-fx-background-radius:8; -fx-padding:6 14;");
-                    payBtn.setOnAction(e -> {
-                        PaymentDialogHelper.showPaymentDialog(currentUser, a, () -> {
-                            // Sau khi thanh toán xong, reload lại tab
-                            javafx.application.Platform.runLater(this::showAll);
-                        });
+                // Khởi chạy luồng phụ gọi lên Server kiểm tra trạng thái hóa đơn thực tế
+                new Thread(() -> {
+                    // Gọi API ServerHandler của case "GET_PAYMENT_DETAIL" ta vừa sửa ở bước trước
+                    com.auction.common.dto.PaymentDTO payment = auctionService.getPaymentByAuctionId(a.getId());
+
+                    javafx.application.Platform.runLater(() -> {
+                        // 🌟 Kiểm tra: Nếu hóa đơn tồn tại VÀ trạng thái hóa đơn là COMPLETED
+                        if (payment != null && "COMPLETED".equalsIgnoreCase(payment.getStatus())) {
+
+                            // ĐÃ THANH TOÁN: Hiện badge xanh lịch sự, ẩn nút bấm đi
+                            Label paidBadge = new Label("✓ Đã thanh toán");
+                            paidBadge.setStyle("-fx-background-color:#d1fae5; -fx-text-fill:#065f46;" +
+                                    "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:4 10;" +
+                                    "-fx-background-radius:20;");
+                            paymentActionContainer.getChildren().setAll(paidBadge);
+
+                        } else {
+                            // CHƯA THANH TOÁN (Hoặc PENDING): Hiện nút Thanh toán màu xanh lá
+                            Button payBtn = new Button("💳 Thanh toán");
+                            payBtn.setStyle("-fx-background-color:#10b981; -fx-text-fill:white;" +
+                                    "-fx-font-weight:bold; -fx-font-size:12px; -fx-cursor:hand;" +
+                                    "-fx-background-radius:8; -fx-padding:6 14;");
+
+                            payBtn.setOnAction(e -> {
+                                PaymentDialogHelper.showPaymentDialog(currentUser, a, () -> {
+                                    // 🚀 1. ĐỒNG BỘ RAM CLIENT: Khấu trừ số dư của ví Client ngay lập tức
+                                    User sessionUser = SessionManager.get().getUser();
+                                    if (sessionUser != null) {
+                                        double newBalance = sessionUser.getBalance() - a.getCurrentPrice();
+                                        sessionUser.setBalance(newBalance);
+                                        SessionManager.get().login(sessionUser);
+                                        this.currentUser = sessionUser;
+                                    }
+
+                                    // 🚀 2. ĐỒNG BỘ GIAO DIỆN: Ép gọi lại hàm hiển thị để tải lại dữ liệu mới nhất từ Server
+                                    javafx.application.Platform.runLater(() -> {
+                                        // Gọi lại hàm khởi tạo ban đầu để kéo dữ liệu mới nhất từ DB về vẽ lại giao diện
+                                        this.initData(currentUser);
+                                    });
+                                });
+                            });
+                            paymentActionContainer.getChildren().setAll(payBtn);
+                        }
                     });
-                    right.getChildren().add(payBtn);
-                }
+                }).start();
             }
         }
 

@@ -1,5 +1,7 @@
 package com.auction.common.dto;
 
+import com.auction.common.enums.PaymentStatus;
+
 import java.time.LocalDateTime;
 
 public class AuctionDTO {
@@ -11,6 +13,10 @@ public class AuctionDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String status;
+    private PaymentStatus paymentStatus;
+    private String itemName;
+    private String category;
+    private String sellerUsername;
 
     public AuctionDTO() {}
 
@@ -37,4 +43,13 @@ public class AuctionDTO {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public PaymentStatus getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(com.auction.common.enums.PaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
+    public String getItemName() { return itemName; }
+    public void setItemName(String itemName) { this.itemName = itemName; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    public String getSellerUsername() { return sellerUsername; }
+    public void setSellerUsername(String sellerUsername) { this.sellerUsername = sellerUsername; }
 }

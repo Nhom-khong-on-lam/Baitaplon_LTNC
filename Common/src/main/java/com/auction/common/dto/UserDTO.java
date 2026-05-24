@@ -20,6 +20,7 @@ public class UserDTO implements Serializable {
     private String accountNumber;
     private String bankName;
     private String cardholderName;
+    private double balance;
 
     // 1. Constructor mặc định
     public UserDTO() {
@@ -79,6 +80,8 @@ public class UserDTO implements Serializable {
     public String getCardholderName() { return cardholderName; }
     public void setCardholderName(String cardholderName) { this.cardholderName = cardholderName; }
 
+    public double getBalance() { return balance; }
+    public void setBalance(double balance) { this.balance = balance; }
     @Override
     public String toString() {
         return "UserDTO{" + "username='" + username + "', role='" + systemRole + "'}";

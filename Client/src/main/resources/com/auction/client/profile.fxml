@@ -1,152 +1,164 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
 
-<!--
-  profile.fxml — Trang hồ sơ cá nhân.
-  Gồm: avatar, thông tin, form chỉnh sửa, lịch sử thắng.
--->
-<?import java.lang.String?>
 <?import java.net.URL?>
-<ScrollPane xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.auction.client.controller.ProfileController"
-            fitToWidth="true" styleClass="scroll-pane">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.ProfileController">
     <stylesheets>
-        <URL value="@global.css"/>
+        <URL value="@global.css" />
     </stylesheets>
+
     <VBox spacing="20" styleClass="content-area">
 
-        <!-- ── Profile Header Card ───────────────────────── -->
-        <HBox styleClass="section-card" spacing="24" alignment="CENTER_LEFT">
-            <!-- Avatar -->
+        <HBox alignment="CENTER_LEFT" spacing="24" styleClass="section-card">
             <StackPane>
-                <Label fx:id="profileAvatar" styleClass="profile-avatar-large" text="AU"/>
+                <Label fx:id="profileAvatar" styleClass="profile-avatar-large" text="AU" />
             </StackPane>
 
-            <!-- Info -->
             <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label fx:id="profileName" styleClass="profile-name" text="Username"/>
-                <HBox spacing="8" alignment="CENTER_LEFT">
-                    <Label fx:id="profileRoleBadge" styleClass="profile-role-badge" text="Member"/>
-                    <Label fx:id="profileJoined"
-                           style="-fx-font-size:12px; -fx-text-fill:#718096;"
-                           text="Joined January 2024"/>
+                <Label fx:id="profileName" styleClass="profile-name" text="Username" />
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label fx:id="profileRoleBadge" styleClass="profile-role-badge" text="Member" />
+                    <Label fx:id="profileJoined" style="-fx-font-size:12px; -fx-text-fill:#718096;" text="Joined January 2024" />
                 </HBox>
                 <HBox spacing="20" style="-fx-padding:8 0 0 0;">
                     <VBox alignment="CENTER" spacing="2">
-                        <Label fx:id="statBidsTotal" styleClass="stat-value"
-                               style="-fx-font-size:20px;" text="0"/>
-                        <Label text="Total Bids" styleClass="stat-label"/>
+                        <Label fx:id="statBidsTotal" style="-fx-font-size:20px;" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Total Bids" />
                     </VBox>
                     <VBox alignment="CENTER" spacing="2">
-                        <Label fx:id="statWon" styleClass="stat-value"
-                               style="-fx-font-size:20px; -fx-text-fill:#16a34a;" text="0"/>
-                        <Label text="Won" styleClass="stat-label"/>
+                        <Label fx:id="statWon" style="-fx-font-size:20px; -fx-text-fill:#16a34a;" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Won" />
                     </VBox>
                     <VBox alignment="CENTER" spacing="2">
-                        <Label fx:id="statListed" styleClass="stat-value"
-                               style="-fx-font-size:20px; -fx-text-fill:#7c3aed;" text="0"/>
-                        <Label text="Listed" styleClass="stat-label"/>
+                        <Label fx:id="statListed" style="-fx-font-size:20px; -fx-text-fill:#7c3aed;" styleClass="stat-value" text="0" />
+                        <Label styleClass="stat-label" text="Listed" />
                     </VBox>
                 </HBox>
             </VBox>
 
-            <!-- Edit button -->
-            <Button fx:id="editToggleBtn" text="✏ Edit Profile"
-                    styleClass="btn-secondary" onAction="#toggleEditMode"/>
+            <Button fx:id="editToggleBtn" onAction="#toggleEditMode" styleClass="btn-secondary" text="✏ Edit Profile" />
         </HBox>
 
-        <HBox spacing="20" alignment="TOP_LEFT">
+        <HBox alignment="TOP_LEFT" spacing="20">
 
-            <!-- ── Left: Info / Edit Form ────────────────── -->
-            <VBox styleClass="section-card" spacing="16" HBox.hgrow="ALWAYS">
+            <VBox spacing="16" styleClass="section-card" HBox.hgrow="ALWAYS">
 
-                <!-- View mode -->
                 <VBox fx:id="viewMode" spacing="14">
-                    <Label text="Account Information" styleClass="section-title"/>
+                    <Label styleClass="section-title" text="Account Information" />
 
                     <HBox spacing="0">
-                        <Label text="Username"  styleClass="profile-info-key"/>
-                        <Label fx:id="infoUsername" styleClass="profile-info-val"/>
+                        <Label styleClass="profile-info-key" text="Username" />
+                        <Label fx:id="infoUsername" styleClass="profile-info-val" />
                     </HBox>
                     <HBox spacing="0">
-                        <Label text="Email"     styleClass="profile-info-key"/>
-                        <Label fx:id="infoEmail" styleClass="profile-info-val"/>
+                        <Label styleClass="profile-info-key" text="Email" />
+                        <Label fx:id="infoEmail" styleClass="profile-info-val" />
+                    </HBox>
+                    <HBox spacing="0">
+                        <Label styleClass="profile-info-key" text="Account Status" />
+                        <Label fx:id="infoStatus" styleClass="pill-running" text="Active" />
+                    </HBox>
+                    <HBox spacing="0">
+                        <Label styleClass="profile-info-key" text="Role" />
+                        <Label fx:id="infoRole" styleClass="profile-info-val" />
                     </HBox>
 
+                    <Separator />
+                    <Label style="-fx-font-size:13px; -fx-text-fill:#4a5568;" styleClass="section-title" text="🏦 Ngân hàng liên kết" />
                     <HBox spacing="0">
-                        <Label text="Account Status" styleClass="profile-info-key"/>
-                        <Label fx:id="infoStatus" styleClass="pill-running" text="Active"/>
+                        <Label styleClass="profile-info-key" text="Ngân hàng" />
+                        <Label fx:id="infoBankName" styleClass="profile-info-val" text="Chưa liên kết" />
                     </HBox>
                     <HBox spacing="0">
-                        <Label text="Role"      styleClass="profile-info-key"/>
-                        <Label fx:id="infoRole"  styleClass="profile-info-val"/>
+                        <Label styleClass="profile-info-key" text="Số tài khoản" />
+                        <Label fx:id="infoAccountNumber" styleClass="profile-info-val" text="Chưa liên kết" />
                     </HBox>
+
+                    <VBox spacing="10" style="-fx-border-color: #e2e8f0; -fx-border-width: 1 0 0 0; -fx-padding: 15 0 0 0;">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Ví Balance:" />
+                            <Label fx:id="lblCurrentBalance" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #16a34a;" text="0 VND" />
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <TextField fx:id="txtTopUpAmount" promptText="Nhập số tiền nạp (VND)" style="-fx-pref-width: 150;" HBox.hgrow="ALWAYS" />
+                            <Button onAction="#handleTopUp" style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="💰 Top Up" />
+                        </HBox>
+                    </VBox>
                 </VBox>
 
-                <!-- Edit mode (hidden by default) -->
-                <VBox fx:id="editMode" spacing="14" visible="false" managed="false">
-                    <Label text="Edit Profile" styleClass="section-title"/>
+                <VBox fx:id="editMode" managed="false" spacing="14" visible="false">
+                    <Label styleClass="section-title" text="Edit Profile" />
 
                     <VBox spacing="6">
-                        <Label text="USERNAME" styleClass="form-label"/>
-                        <TextField fx:id="editUsername" styleClass="form-input"/>
+                        <Label styleClass="form-label" text="USERNAME" />
+                        <TextField fx:id="editUsername" styleClass="form-input" />
                     </VBox>
                     <VBox spacing="6">
-                        <Label text="EMAIL" styleClass="form-label"/>
-                        <TextField fx:id="editEmail" styleClass="form-input"/>
+                        <Label styleClass="form-label" text="EMAIL" />
+                        <TextField fx:id="editEmail" styleClass="form-input" />
                     </VBox>
 
-                    <Separator/>
-                    <Label text="Change Password" styleClass="section-title"
-                           style="-fx-font-size:13px;"/>
+                    <Separator />
+                    <Label style="-fx-font-size:13px;" styleClass="section-title" text="Change Password" />
                     <VBox spacing="6">
-                        <Label text="CURRENT PASSWORD" styleClass="form-label"/>
-                        <PasswordField fx:id="editOldPass" styleClass="form-input"/>
+                        <Label styleClass="form-label" text="CURRENT PASSWORD" />
+                        <PasswordField fx:id="editOldPass" styleClass="form-input" />
                     </VBox>
                     <VBox spacing="6">
-                        <Label text="NEW PASSWORD" styleClass="form-label"/>
-                        <PasswordField fx:id="editNewPass" styleClass="form-input"/>
-                    </VBox>
-
-                    <Separator/>
-                    <Label text="🏦 Thông Tin Ngân Hàng (Nhận thanh toán)" styleClass="section-title"
-                           style="-fx-font-size:13px; -fx-text-fill:#1a365d;"/>
-                    <VBox spacing="6">
-                        <Label text="TÊN NGÂN HÀNG" styleClass="form-label"/>
-                        <TextField fx:id="editBankName" styleClass="form-input" promptText="VD: Vietcombank, BIDV, Techcombank..."/>
-                    </VBox>
-                    <VBox spacing="6">
-                        <Label text="SỐ TÀI KHOẢN" styleClass="form-label"/>
-                        <TextField fx:id="editAccountNumber" styleClass="form-input" promptText="Nhập số tài khoản..."/>
-                    </VBox>
-                    <VBox spacing="6">
-                        <Label text="TÊN CHỦ THẺ" styleClass="form-label"/>
-                        <TextField fx:id="editCardholderName" styleClass="form-input" promptText="Tên in trên thẻ ngân hàng..."/>
+                        <Label styleClass="form-label" text="NEW PASSWORD" />
+                        <PasswordField fx:id="editNewPass" styleClass="form-input" />
                     </VBox>
 
-                    <Label fx:id="editMsg" styleClass="form-error"/>
+                    <Separator />
+                    <Label style="-fx-font-size:13px; -fx-text-fill:#1a365d;" styleClass="section-title" text="🏦 Thông Tin Ngân Hàng (Nhận thanh toán)" />
+                    <VBox spacing="6">
+                        <Label styleClass="form-label" text="TÊN NGÂN HÀNG" />
+                        <TextField fx:id="editBankName" promptText="VD: Vietcombank, BIDV, Techcombank..." styleClass="form-input" />
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label styleClass="form-label" text="SỐ TÀI KHOẢN" />
+                        <TextField fx:id="editAccountNumber" promptText="Nhập số tài khoản..." styleClass="form-input" />
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label styleClass="form-label" text="TÊN CHỦ THẺ" />
+                        <TextField fx:id="editCardholderName" promptText="Tên in trên thẻ ngân hàng..." styleClass="form-input" />
+                    </VBox>
+
+                    <Label fx:id="editMsg" styleClass="form-error" />
 
                     <HBox spacing="10">
-                        <Button text="Cancel"       styleClass="btn-secondary" onAction="#cancelEdit"/>
-                        <Button text="Save Changes" styleClass="btn-primary"   onAction="#handleSave"/>
+                        <Button onAction="#cancelEdit" styleClass="btn-secondary" text="Cancel" />
+                        <Button onAction="#handleSave" styleClass="btn-primary" text="Save Changes" />
                     </HBox>
                 </VBox>
             </VBox>
 
-            <!-- ── Right: Won Auctions ────────────────────── -->
-            <VBox styleClass="section-card" spacing="14" minWidth="280" maxWidth="310">
-                <Label text="🏆 Won Auctions" styleClass="section-title"/>
-                <VBox fx:id="wonList" spacing="10">
-                    <Label text="No won auctions yet."
-                           style="-fx-text-fill:#a0aec0; -fx-font-size:12px;"/>
-                </VBox>
+            <VBox maxWidth="310" minWidth="290" prefWidth="300" spacing="14" styleClass="section-card">
+                <Label styleClass="section-title" text="🏆 Won Auctions" />
+
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0; -fx-max-height: 400;" vbarPolicy="AS_NEEDED">
+                    <content>
+                        <VBox fx:id="wonList" spacing="10" style="-fx-background-color: transparent;">
+                            <Label style="-fx-text-fill:#a0aec0; -fx-font-size:12px;" text="No won auctions yet." />
+                        </VBox>
+                    </content>
+                </ScrollPane>
             </VBox>
 
         </HBox>
 
-        <Region minHeight="16"/>
+        <Region minHeight="16" />
     </VBox>
 </ScrollPane>

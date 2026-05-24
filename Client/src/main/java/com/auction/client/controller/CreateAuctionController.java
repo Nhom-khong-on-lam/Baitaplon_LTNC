@@ -22,7 +22,7 @@ public class CreateAuctionController {
 
     @FXML private Label    pageTitle;
     @FXML private TextField fieldTitle, fieldStartPrice, fieldReservePrice,
-             fieldStartTime, fieldEndTime;
+            fieldStartTime, fieldEndTime;
     @FXML private TextArea  fieldDesc;
     @FXML private ComboBox<String> fieldCategory, fieldCondition;
     @FXML private Label    msgTitle, msgDesc, msgCategory, msgPrice,

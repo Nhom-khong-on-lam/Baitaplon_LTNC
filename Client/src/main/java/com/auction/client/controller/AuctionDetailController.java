@@ -321,10 +321,10 @@ public class AuctionDetailController {
                         this.auction.setBidCount(newBidCount);
                         // Cập nhật hiển thị UI
                         updatePriceDisplay();
-                        
+
                         // Cập nhật status pill
                         detailStatusPill.setText(this.auction.getStatusLabel());
-                        
+
                         // Cập nhật nút Bid và TextField nếu phiên đấu giá đã kết thúc hoặc là của mình
                         boolean canBid = this.auction.isLive()
                                 && this.auction.getSeller().getId() != currentUser.getId();
@@ -354,7 +354,7 @@ public class AuctionDetailController {
                                 bidMsg.setTextFill(Color.web("#718096"));
                             }
                         }
-                        
+
                         // Cập nhật biểu đồ và lịch sử bid
                         renderBidHistory(history);
 
@@ -400,7 +400,7 @@ public class AuctionDetailController {
 
         if (bidAmountField.getScene() == null || bidAmountField.getScene().getWindow() == null) return;
         javafx.stage.Window window = bidAmountField.getScene().getWindow();
-        
+
         popup.show(window, window.getX() + window.getWidth() - 360, window.getY() + 80 + (offsetIndex * 80));
 
         javafx.animation.Timeline timeline = new javafx.animation.Timeline(new javafx.animation.KeyFrame(javafx.util.Duration.seconds(4), evt -> popup.hide()));

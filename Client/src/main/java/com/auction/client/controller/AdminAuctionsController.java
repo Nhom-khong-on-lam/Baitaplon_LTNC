@@ -87,7 +87,8 @@ public class AdminAuctionsController {
         setActiveTab(tabFinished);
         loadTable(allAuctions.stream()
                 .filter(a -> a.getStatus() == AuctionStatus.FINISHED
-                        || a.getStatus() == AuctionStatus.PAID
+                        || a.getStatus() == AuctionStatus.CANCELLED
+                        || a.getStatus() == AuctionStatus.REJECTED
                         || a.getEndTime().isBefore(LocalDateTime.now()))
                 .collect(Collectors.toList()));
     }
@@ -321,24 +322,49 @@ public class AdminAuctionsController {
     }
 
     private void handleEndEarly(Auction auction) {
+        if (auction == null) return;
+
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("End Auction Early");
-        confirm.setHeaderText("End \"" + auction.getItem().getName() + "\" now?");
+        confirm.setHeaderText("End \"" + (auction.getItem() != null ? auction.getItem().getName() : "Auction") + "\" now?");
         confirm.setContentText("The current highest bidder will win this auction.");
 
         confirm.showAndWait().ifPresent(result -> {
-            if (result == ButtonType.OK) {
+            // Sử dụng cách kiểm tra an toàn cho JavaFX Alert
+            if (result != ButtonType.OK) return;
 
-                // Chạy ngầm gọi mạng
-                new Thread(() -> {
-                    auctionService.endAuctionEarly(auction.getId());
+            new Thread(() -> {
+                try {
+                    // 🌟 Ép kiểu tường minh sang Long để tránh lệch pha dữ liệu giữa Client và Server
+                    Long idToSend = Long.valueOf(auction.getId());
+
+                    // Gọi dịch vụ và lấy kết quả trả về từ Server xem có thành công hay không
+                    boolean success = auctionService.endAuctionEarly(idToSend);
 
                     javafx.application.Platform.runLater(() -> {
-                        refreshCurrentTab();
-                        showInfo("Auction ended successfully.");
+                        if (success) {
+                            // 🌟 CẬP NHẬT TRỰC TIẾP RAM CLIENT: Chuyển trạng thái của đối tượng đang nằm trong bộ nhớ sang FINISHED
+                            auction.setStatus(AuctionStatus.FINISHED);
+
+                            // Đưa thời gian kết thúc về ngay thời điểm hiện tại
+                            auction.setEndTime(LocalDateTime.now());
+
+                            // Vẽ lại bảng dữ liệu dựa trên tab hiện tại (Phòng này sẽ tự động biến mất khỏi tab LIVE và nhảy sang tab FINISHED)
+                            refreshCurrentTab();
+
+                            showInfo("✓ Auction ended early successfully.");
+                        } else {
+                            showError("Server refused to end early. Maybe there are no bids or connection error.");
+                        }
                     });
-                }).start();
-            }
+
+                } catch (Exception e) {
+                    e.printStackTrace(); // In lỗi ra Console để bạn dễ debug
+                    javafx.application.Platform.runLater(() -> {
+                        showError("An error occurred: " + e.getMessage());
+                    });
+                }
+            }).start();
         });
     }
 
