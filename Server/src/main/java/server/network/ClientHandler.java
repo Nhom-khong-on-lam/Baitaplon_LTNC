@@ -602,17 +602,76 @@ public class ClientHandler extends Thread {
 
             case Request.UPDATE_AUCTION: {
                 Object[] data = (Object[]) req.getData();
-                Long auctionId = (Long) data[0];
+                Long auctionId    = (Long)   data[0];
+                String title      = (String) data[1];
+                String desc       = (String) data[2];
+                String category   = (String) data[3];
                 double startPrice = (Double) data[4];
                 java.time.LocalDateTime endTime = (java.time.LocalDateTime) data[5];
+                String imagePath  = (data.length > 6) ? (String) data[6] : null;
 
                 AuctionDAO auctionDAO = new AuctionDAO();
                 AuctionDTO existing = auctionDAO.findById(auctionId);
                 if (existing == null) return Response.error("Auction not found.");
-                existing.setCurrentPrice(startPrice);
+
+                // ── Kiểm tra điều kiện: chỉ cho sửa nếu PENDING_APPROVAL và chưa hết hạn
+                String currentStatus = existing.getStatus();
+                if (!"PENDING_APPROVAL".equalsIgnoreCase(currentStatus)) {
+                    return Response.error("Không thể chỉnh sửa: phiên đấu giá đã được duyệt hoặc đang diễn ra.");
+                }
+
+                existing.setCurrentPrice(startPrice);  // giữ lại dòng này
                 existing.setEndTime(endTime);
                 boolean ok = auctionDAO.update(existing);
-                return ok ? Response.ok(null) : Response.error("Failed to update auction.");
+                if (!ok) return Response.error("Failed to update auction.");
+
+                // ── Update bảng item (name, description, category)
+                try (java.sql.Connection conn = server.database.DBConnection.getConnection()) {
+                    long itemId = auctionDAO.getItemIdByAuctionId(auctionId);
+
+                    // 1. Update name, description, category vào bảng item
+                    String updateItemSql = "UPDATE item SET name=?, description=?, category=?, starting_price=? WHERE id=?";
+                    try (java.sql.PreparedStatement ps = conn.prepareStatement(updateItemSql)) {
+                        ps.setString(1, title);
+                        ps.setString(2, desc);
+                        ps.setString(3, category.toUpperCase());
+                        ps.setDouble(4, startPrice);
+                        ps.setLong(5, itemId);
+                        ps.executeUpdate();
+                    }
+
+                    // 2. Update ảnh vào bảng item_image (nếu user có upload ảnh mới)
+                    if (imagePath != null && !imagePath.isBlank()) {
+                        String checkSql = "SELECT COUNT(*) FROM item_image WHERE item_id=?";
+                        boolean hasImage = false;
+                        try (java.sql.PreparedStatement ps = conn.prepareStatement(checkSql)) {
+                            ps.setLong(1, itemId);
+                            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                                if (rs.next()) hasImage = rs.getInt(1) > 0;
+                            }
+                        }
+                        if (hasImage) {
+                            String updateImgSql = "UPDATE item_image SET image_url=? WHERE item_id=?";
+                            try (java.sql.PreparedStatement ps = conn.prepareStatement(updateImgSql)) {
+                                ps.setString(1, imagePath);
+                                ps.setLong(2, itemId);
+                                ps.executeUpdate();
+                            }
+                        } else {
+                            String insertImgSql = "INSERT INTO item_image (item_id, image_url) VALUES (?,?)";
+                            try (java.sql.PreparedStatement ps = conn.prepareStatement(insertImgSql)) {
+                                ps.setLong(1, itemId);
+                                ps.setString(2, imagePath);
+                                ps.executeUpdate();
+                            }
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+                return Response.ok(null);
             }
 
             case "DELETE_AUCTION": {
@@ -749,7 +808,8 @@ public class ClientHandler extends Thread {
 
                     // 🚀 GIẢI PHÁP DU KÍCH: Chạy lệnh UPDATE cô lập, chỉ sửa thời gian và trạng thái
                     // Tuyệt đối không chạm vào cột current_price hay highest_bidder_id trong DB!
-                    String directSql = "UPDATE auction SET end_time = ?, status = 'LIVE' WHERE id = ?";
+                    String directSql = "UPDATE auction SET end_time = ? WHERE id = ?";
+
                     boolean ok = false;
 
                     try (java.sql.Connection conn = server.database.DBConnection.getConnection();
@@ -1342,6 +1402,7 @@ public class ClientHandler extends Thread {
         u.setAccountNumber(dto.getAccountNumber());
         u.setBankName(dto.getBankName());
         u.setCardholderName(dto.getCardholderName());
+        u.setJoinedDate(dto.getCreatedAt());        // ← fix ngày tham gia
 
         return u;
     }

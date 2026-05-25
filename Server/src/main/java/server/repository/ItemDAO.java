@@ -24,7 +24,7 @@ public class ItemDAO {
 
     // 2. Thêm sản phẩm mới (Theo đúng các trường trong ERD)
     public long insert(ItemDTO item) {
-        String sql = "INSERT INTO item (name, description, starting_price, category, brand_make, model, artist, production_year) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO item (name, description, starting_price, category, brand_make, model, artist, production_year, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, item.getName());
@@ -98,6 +98,34 @@ public class ItemDAO {
             }
         } catch (SQLException e) {
             System.err.println("❌ LỖI trong ItemDAO.delete(): " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public boolean update(ItemDTO item) {
+        String sql = "UPDATE item SET name = ?, description = ?, starting_price = ?, category = ?, " +
+                "brand_make = ?, model = ?, artist = ?, production_year = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, item.getName());
+            ps.setString(2, item.getDescription());
+            ps.setDouble(3, item.getStartingPrice());
+            ps.setString(4, item.getCategory());
+            ps.setString(5, item.getBrandMake());
+            ps.setString(6, item.getModel());
+            ps.setString(7, item.getArtist());
+
+            if (item.getProductionYear() != null && item.getProductionYear() > 0) {
+                ps.setInt(8, item.getProductionYear());
+            } else {
+                ps.setNull(8, Types.INTEGER);
+            }
+
+            ps.setLong(9, item.getId());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;

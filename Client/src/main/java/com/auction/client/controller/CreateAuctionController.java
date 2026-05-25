@@ -154,9 +154,12 @@ public class CreateAuctionController {
                         category, condition, startPrice, reserve, increment,
                         start, end, finalImagePath);
             } else {
-                // Edit existing
+                // Edit existing — upload ảnh mới nếu người dùng có chọn file
+                if (selectedImageFile != null) {
+                    finalImagePath = com.auction.client.service.CloudinaryService.uploadImage(selectedImageFile);
+                }
                 auctionService.updateAuction(editingAuction.getId(), title, desc,
-                        category, startPrice, end);
+                        category, startPrice, end, finalImagePath); // thêm finalImagePath
             }
 
             // 4. Server chạy xong, báo luồng chính cập nhật lại UI

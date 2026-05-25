@@ -14,7 +14,7 @@ public class User extends BaseEntity implements Serializable {
     private String email;
     private SystemRole systemRole;
     private AccountStatus accountStatus;
-    private LocalDateTime joinedDate = LocalDateTime.now();
+    private LocalDateTime joinedDate ;
     private int bidCount;
     private String accountNumber;
     private String bankName;
@@ -64,6 +64,9 @@ public class User extends BaseEntity implements Serializable {
         // Định dạng ngày theo kiểu ngày/tháng/năm
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return joinedDate.format(formatter);
+    }
+    public void setJoinedDate(LocalDateTime joinedDate) {
+        this.joinedDate = joinedDate;
     }
 
     public void login() {}

@@ -25,7 +25,6 @@ public class AuctionsController {
     @FXML private ComboBox<String> sortBox;
     @FXML private Label      resultCount;
     @FXML private VBox       auctionListContainer;
-    @FXML private Button     gridViewBtn;
     @FXML private Button     listViewBtn;
     @FXML private Button     tabAll;
     @FXML private Button     tabLive;
@@ -188,7 +187,6 @@ public class AuctionsController {
     }
 
     @FXML public void switchToGrid() {
-        gridViewBtn.getStyleClass().setAll("btn-primary");
         listViewBtn.getStyleClass().setAll("btn-secondary");
 
         // Đổi VBox thành FlowPane hoặc dùng GridPane để hiện 2 cột
@@ -199,7 +197,6 @@ public class AuctionsController {
 
     @FXML public void switchToList() {
         listViewBtn.getStyleClass().setAll("btn-primary");
-        gridViewBtn.getStyleClass().setAll("btn-secondary");
     }
 
     /** Lọc và sắp xếp danh sách */

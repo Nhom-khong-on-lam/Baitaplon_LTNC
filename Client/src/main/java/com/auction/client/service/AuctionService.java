@@ -102,9 +102,9 @@ public class AuctionService {
     // ── UPDATE AUCTION ───────────────────────────────────────────────────────
     public Response updateAuction(Long auctionId, String title, String description,
                                   String category, double startPrice,
-                                  java.time.LocalDateTime endTime) {
+                                  java.time.LocalDateTime endTime, String imagePath) {
         try {
-            Object[] updateData = {auctionId, title, description, category, startPrice, endTime};
+            Object[] updateData = {auctionId, title, description, category, startPrice, endTime, imagePath};
             Request  request    = new Request(Request.UPDATE_AUCTION, updateData);
             attachToken(request);
             return (Response) connection.sendRequest(request);

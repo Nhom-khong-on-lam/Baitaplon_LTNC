@@ -253,10 +253,46 @@ public class MyProductsController {
                 if (empty) {
                     setGraphic(null);
                     setText(null);
-                } else {
-                    setAlignment(Pos.CENTER);
-                    setGraphic(box);
+                    return;
                 }
+
+                Auction a = getTableView().getItems().get(getIndex());
+                String status = a.getStatus() != null ? a.getStatus().name() : "";
+
+                boolean isRejected       = "REJECTED".equalsIgnoreCase(status);
+                boolean isPending        = "PENDING_APPROVAL".equalsIgnoreCase(status);
+                boolean isRunningOrDone  = !isPending && !isRejected; // RUNNING, FINISHED, LIVE...
+
+                // ── Nút View ──────────────────────────────────────────────
+                viewBtn.setVisible(!isRejected);
+                viewBtn.setManaged(!isRejected);
+
+                viewBtn.setOnAction(e -> {
+                    if (isPending) {
+                        new Alert(Alert.AlertType.INFORMATION,
+                                "Auction chưa được admin duyệt, vui lòng chờ.")
+                                .showAndWait();
+                    } else {
+                        openDetail(a);
+                    }
+                });
+
+                // ── Nút Edit ──────────────────────────────────────────────
+                editBtn.setVisible(!isRejected);
+                editBtn.setManaged(!isRejected);
+
+                editBtn.setOnAction(e -> {
+                    if (isRunningOrDone) {
+                        new Alert(Alert.AlertType.WARNING,
+                                "Không thể chỉnh sửa: Auction đã được duyệt hoặc đã kết thúc.")
+                                .showAndWait();
+                    } else {
+                        openEdit(a);
+                    }
+                });
+
+                setAlignment(Pos.CENTER);
+                setGraphic(box);
             }
         });
     }
