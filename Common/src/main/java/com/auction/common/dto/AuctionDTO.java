@@ -2,9 +2,10 @@ package com.auction.common.dto;
 
 import com.auction.common.enums.PaymentStatus;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class AuctionDTO {
+public class AuctionDTO implements Serializable {
     private Long id;
     private Long itemId;
     private Long sellerId;
@@ -18,6 +19,7 @@ public class AuctionDTO {
     private String category;
     private String sellerUsername;
     private Double reservePrice;
+    private static final long serialVersionUID = 1L;
 
     public AuctionDTO() {}
 

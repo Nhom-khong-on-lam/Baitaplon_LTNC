@@ -241,12 +241,36 @@ public class AuctionDetailController {
                             bidAmountField.clear();
                             updatePriceDisplay();
 
-                            // Instantly refresh the timeline pipeline
                             if (pollingService != null) pollingService.restart();
 
                             showBidSuccess("🎉 Bid placed successfully!");
                         } else {
-                            showBidError(res != null ? res.getMessage() : "Connection timeout!");
+                            // 1. Giữ nguyên Log thô ở Console để Developer dễ xem vết lỗi
+                            if (res != null && res.getMessage() != null) {
+                                System.err.println("🚨 [SYSTEM LOG]: " + res.getMessage());
+                            }
+
+                            // 2. Chuỗi thông báo mặc định thân thiện cho khách hàng
+                            String userFriendlyMsg = "Connection timeout or server processing error.";
+
+                            if (res != null && res.getMessage() != null) {
+                                String rawMsg = res.getMessage().toLowerCase(); // Chuyển hết về chữ thường
+
+                                // Quét toàn diện các từ khóa nhạy cảm liên quan đến lỗi hệ thống/mạng/mã hóa
+                                if (rawMsg.contains("serializable") ||
+                                        rawMsg.contains("aborted") ||
+                                        rawMsg.contains("connection") ||
+                                        rawMsg.contains("socket")) {
+
+                                    userFriendlyMsg = "System error: Data synchronization failed. Please try again later.";
+                                } else {
+                                    // Nếu là thông báo lỗi nghiệp vụ thông thường (ví dụ: "Giá cược thấp quá")
+                                    userFriendlyMsg = res.getMessage();
+                                }
+                            }
+
+                            // 3. Đẩy lên giao diện nhãn báo lỗi công cộng
+                            showBidError(userFriendlyMsg);
                         }
                     });
                 }).start();
@@ -270,9 +294,24 @@ public class AuctionDetailController {
                 Platform.runLater(() -> {
                     if (res != null && res.isSuccess()) {
                         showBidSuccess("⏳ Auction time successfully extended by " + hoursToExtend + " hours!");
-                        System.out.println("🎉 [CLIENT SUCCESS] Auction " + this.auction.getId() + " reset to LIVE.");
+                        System.out.println("🎉 [CLIENT SUCCESS] Auction " + this.auction.getId() + " has been reopened to LIVE status.");
                     } else {
-                        showBidError(res != null ? res.getMessage() : "Extension failed: Connection lost!");
+                        // 1. Ghi log chi tiết xuống Console của IDE
+                        if (res != null && res.getMessage() != null) {
+                            System.err.println("🚨 [DEBUG EXTEND ERROR]: " + res.getMessage());
+                        }
+
+                        // 2. Lọc thông báo thân thiện lên màn hình UI
+                        String userFriendlyMsg = "Failed to extend auction time. Server connection lost!";
+                        if (res != null && res.getMessage() != null) {
+                            String rawMsg = res.getMessage();
+                            if (rawMsg.contains("Exception")) {
+                                userFriendlyMsg = "System error: Extension failed due to internal data error.";
+                            } else {
+                                userFriendlyMsg = rawMsg;
+                            }
+                        }
+                        showBidError(userFriendlyMsg);
                     }
                 });
             } catch (Exception ex) {
@@ -284,7 +323,7 @@ public class AuctionDetailController {
     // ── 7. Auto-Bid Pipeline Engine ──────────────────────────────────────────
     @FXML
     private void handleSetAutoBid() {
-        if (isAutoBidActive) {
+        if (isAutoBidActive) { // Scenario: Cancel AutoBid Configuration
             AutoBidDTO dto = new AutoBidDTO();
             dto.setAuctionId(this.auction.getId());
             dto.setBidderId(currentUser.getId());
@@ -307,7 +346,10 @@ public class AuctionDetailController {
                             autoBidStepField.clear();
                             showBidSuccess("🎉 Auto-bid has been canceled.");
                         } else {
-                            showBidError(res != null ? res.getMessage() : "Lost connection!");
+                            if (res != null && res.getMessage() != null) {
+                                System.err.println("🚨 [DEBUG CANCEL AUTOBID ERROR]: " + res.getMessage());
+                            }
+                            showBidError("Failed to cancel auto-bid. Connection error!");
                         }
                     });
                 } catch (Exception ex) { ex.printStackTrace(); }
@@ -315,6 +357,7 @@ public class AuctionDetailController {
             return;
         }
 
+        // Scenario: Setup New AutoBid Configuration
         String maxTxt = autoBidLimitField.getText().trim();
         String stepTxt = autoBidStepField.getText().trim();
         if (maxTxt.isEmpty() || stepTxt.isEmpty()) { showBidError("Please fill in all AutoBid fields!"); return; }
@@ -346,7 +389,22 @@ public class AuctionDetailController {
                             autoBidStepField.setDisable(true);
                             showBidSuccess("🚀 Auto-bid has been successfully activated!");
                         } else {
-                            showBidError(res != null ? res.getMessage() : "Refused by server.");
+                            // 1. Ghi log chi tiết xuống Console của IDE
+                            if (res != null && res.getMessage() != null) {
+                                System.err.println("🚨 [DEBUG SET AUTOBID ERROR]: " + res.getMessage());
+                            }
+
+                            // 2. Lọc thông báo thân thiện lên màn hình UI
+                            String userFriendlyMsg = "Auto-bid configuration refused by server.";
+                            if (res != null && res.getMessage() != null) {
+                                String rawMsg = res.getMessage();
+                                if (rawMsg.contains("Exception")) {
+                                    userFriendlyMsg = "System error: Failed to save auto-bid configuration.";
+                                } else {
+                                    userFriendlyMsg = rawMsg;
+                                }
+                            }
+                            showBidError(userFriendlyMsg);
                         }
                     });
                 } catch (Exception ex) { ex.printStackTrace(); }
