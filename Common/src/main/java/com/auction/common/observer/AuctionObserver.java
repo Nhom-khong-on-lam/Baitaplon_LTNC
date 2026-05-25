@@ -1,6 +1,5 @@
 package com.auction.common.observer;
 
-
 import com.auction.common.model.Auction;
 
 public class AuctionObserver implements Observer{

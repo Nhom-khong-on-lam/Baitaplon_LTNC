@@ -37,7 +37,6 @@ public class ProfileController {
     // ── Won list ─────────────────────────────────────────────
     @FXML private VBox wonList;
 
-    // 🚀 BỔ SUNG THÊM 2 DÒNG NÀY:
     @FXML private Label         lblCurrentBalance; // Label hiển thị số dư ví (ví dụ đặt ở vùng View hoặc Edit)
     @FXML private TextField     txtTopUpAmount;    // Ô nhập số tiền cần nạp thêm
 
@@ -55,7 +54,7 @@ public class ProfileController {
             if (sessionUser != null) {
                 this.currentUser = sessionUser;
 
-                // 🌟 THỦ THUẬT DU KÍCH: Gọi lệnh nạp thêm "0 VND" lên Server để ép Server
+                // Gọi lệnh nạp thêm "0 VND" lên Server để ép Server
                 // đọc trực tiếp số dư thực tế trong Database rồi trả về cho Client.
                 new Thread(() -> {
                     try {
@@ -85,7 +84,7 @@ public class ProfileController {
     }
 
     public void initData(User user) {
-        // 🚀 ĐỒNG BỘ: Bốc ngay dữ liệu mới nhất, đầy đủ nhất từ SessionManager toàn cục ra dùng
+        // ĐỒNG BỘ: Bốc ngay dữ liệu mới nhất, đầy đủ nhất từ SessionManager toàn cục ra dùng
         User sessionUser = SessionManager.get().getUser();
         if (sessionUser != null) {
             this.currentUser = sessionUser;
@@ -126,7 +125,7 @@ public class ProfileController {
 
         if (editCardholderName != null) editCardholderName.setText(currentUser.getCardholderName() != null ? currentUser.getCardholderName() : "");
 
-        // 🚀 CẬP NHẬT CHUẨN XÁC: Vẽ số dư lấy từ luồng SessionManager lên màn hình
+        // CẬP NHẬT CHUẨN XÁC: Vẽ số dư lấy từ luồng SessionManager lên màn hình
         if (lblCurrentBalance != null) {
             lblCurrentBalance.setText(String.format("%,.0f VND", currentUser.getBalance()));
         }
@@ -196,7 +195,7 @@ public class ProfileController {
         // Lưu lại Email gốc để phục vụ đổi mật khẩu trước khi bị ghi đè thông tin mới
         final String originalEmail = currentUser.getEmail();
 
-        // 2. 🚀 [TẠO LUỒNG PHỤ NGẦM] - Đẩy việc gọi mạng qua Socket xuống đây để app không bị đơ
+        // 2. [TẠO LUỒNG PHỤ NGẦM] - Đẩy việc gọi mạng qua Socket xuống đây để app không bị đơ
         new Thread(() -> {
             try {
                 // Kiểm tra và đổi mật khẩu (nếu có nhập)
@@ -232,15 +231,15 @@ public class ProfileController {
                 currentUser.setAccountNumber(newAccount);
                 currentUser.setCardholderName(newCardholder);
 
-                // 🚀 CHUYỂN DỮ LIỆU ĐI: Chỉ giữ lại duy nhất 2 dòng này
+                // CHUYỂN DỮ LIỆU ĐI: Chỉ giữ lại duy nhất 2 dòng này
                 auctionService.updateBankInfo(currentUser.getId(), newBankName, newAccount, newCardholder);
                 authService.updateUser(currentUser);
-                // 3. 🎉 [CẬP NHẬT GIAO DIỆN CHÍNH THỨC] - Đưa về Luồng UI để vẽ lại màn hình
+                // 3. [CẬP NHẬT GIAO DIỆN CHÍNH THỨC] - Đưa về Luồng UI để vẽ lại màn hình
                 javafx.application.Platform.runLater(() -> {
                     // Làm mới lại bộ nhớ Session hiện tại
                     SessionManager.get().login(currentUser);
 
-                    // 🚀 ĐỔI CHỮ HIỂN THỊ TRÊN PROFILE NGAY LẬP TỨC KHÔNG CẦN CHUYỂN TAB
+                    // ĐỔI CHỮ HIỂN THỊ TRÊN PROFILE NGAY LẬP TỨC KHÔNG CẦN CHUYỂN TAB
                     profileName.setText(newUsername);
                     infoUsername.setText(newUsername);
                     infoEmail.setText(newEmail);

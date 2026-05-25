@@ -1,7 +1,5 @@
 package com.auction.client.manager;
 
-
-
 import com.auction.common.model.Auction;
 import com.auction.common.model.User;
 

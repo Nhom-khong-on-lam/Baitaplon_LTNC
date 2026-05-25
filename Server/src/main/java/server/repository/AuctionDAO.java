@@ -16,8 +16,9 @@ public class AuctionDAO {
 
     // ── INSERT ────────────────────────────────────────────────────────────────
     public long insert(AuctionDTO a) {
-        String sql = "INSERT INTO auction (item_id, seller_id, current_price, start_time, end_time, status) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO auction (item_id, seller_id, current_price, start_time, end_time, status, reserve_price) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -27,6 +28,11 @@ public class AuctionDAO {
             ps.setTimestamp(4, Timestamp.valueOf(a.getStartTime()));
             ps.setTimestamp(5, Timestamp.valueOf(a.getEndTime()));
             ps.setString(6, a.getStatus() != null ? a.getStatus() : "PENDING_APPROVAL");
+
+            // Ép kiểu tường minh bằng cách kiểm tra nếu lấy ra bị lỗi thì gán cứng số, hoặc in ra log ngay tại đây
+            double rPrice = a.getReservePrice();
+            System.out.println("📶 [DAO SQL Check] Giá trị chuẩn bị nạp vào dấu hỏi chấm số 7 là: " + rPrice);
+            ps.setDouble(7, rPrice);
 
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -66,7 +72,7 @@ public class AuctionDAO {
     }
 
     // ── FIND ALL ──────────────────────────────────────────────────────────────
-    // 🌟 SỬA TẠI AuctionDAO.java (SERVER) - Hàm findAll()
+    // SỬA TẠI AuctionDAO.java (SERVER) - Hàm findAll()
     public List<AuctionDTO> findAll() {
         List<AuctionDTO> list = new ArrayList<>();
         // Bổ sung Subquery lấy giá đỉnh thực tế và LEFT JOIN để giữ trạng thái thanh toán
@@ -138,7 +144,7 @@ public class AuctionDAO {
     // ── FIND BY SELLER (Đã cập nhật LEFT JOIN để lấy trạng thái thanh toán) ────────
     public List<AuctionDTO> findBySeller(long sellerId) {
         List<AuctionDTO> list = new ArrayList<>();
-        // 🌟 Thực hiện LEFT JOIN để lấy cột status từ bảng payment
+        // Thực hiện LEFT JOIN để lấy cột status từ bảng payment
         String sql = "SELECT a.*, p.status AS payment_status " +
                 "FROM auction a " +
                 "LEFT JOIN payment p ON a.id = p.auction_id " +
@@ -200,7 +206,7 @@ public class AuctionDAO {
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
-            conn.setAutoCommit(false); // 🌟 BẬT TRANSACTION: Đảm bảo đồng bộ an toàn cả 2 bảng
+            conn.setAutoCommit(false); // BẬT TRANSACTION: Đảm bảo đồng bộ an toàn cả 2 bảng
 
             // 1. Thực hiện cập nhật thông tin phiên đấu giá như bình thường
             try (PreparedStatement ps = conn.prepareStatement(updateAuctionSql)) {
@@ -264,7 +270,11 @@ public class AuctionDAO {
             }
         } finally {
             if (conn != null) {
-                try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return false;
@@ -351,11 +361,21 @@ public class AuctionDAO {
         dto.setHighestBidderId(rs.getLong("highest_bidder_id"));
         dto.setCurrentPrice(rs.getDouble("current_price"));
         dto.setStatus(rs.getString("status"));
+        dto.setReservePrice(rs.getDouble("reserve_price"));
 
         // Đọc các trường mở rộng phục vụ hiển thị trực tiếp từ SQL JOIN
-        try { dto.setItemName(rs.getString("item_name")); } catch (Exception e) {}
-        try { dto.setCategory(rs.getString("category")); } catch (Exception e) {}
-        try { dto.setSellerUsername(rs.getString("seller_username")); } catch (Exception e) {}
+        try {
+            dto.setItemName(rs.getString("item_name"));
+        } catch (Exception e) {
+        }
+        try {
+            dto.setCategory(rs.getString("category"));
+        } catch (Exception e) {
+        }
+        try {
+            dto.setSellerUsername(rs.getString("seller_username"));
+        } catch (Exception e) {
+        }
 
         // Ép kiểu an toàn trường dữ liệu thời gian
         try {
@@ -365,9 +385,10 @@ public class AuctionDAO {
             if (rs.getTimestamp("end_time") != null) {
                 dto.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
             }
-        } catch (java.sql.SQLException e) {}
+        } catch (java.sql.SQLException e) {
+        }
 
-        // 🌟 TRẠNG THÁI THANH TOÁN (Từ câu lệnh LEFT JOIN bảng payment)
+        // TRẠNG THÁI THANH TOÁN (Từ câu lệnh LEFT JOIN bảng payment)
         try {
             // Kiểm tra xem ResultSet hiện tại có chứa cột "payment_status" hay không
             java.sql.ResultSetMetaData metaData = rs.getMetaData();

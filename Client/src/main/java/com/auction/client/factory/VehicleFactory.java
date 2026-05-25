@@ -1,6 +1,5 @@
 package com.auction.client.factory;
 
-
 import com.auction.common.model.Item;
 import com.auction.common.model.Vehicle;
 

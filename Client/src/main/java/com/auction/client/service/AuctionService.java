@@ -1,7 +1,5 @@
 package com.auction.client.service;
 
-
-
 import com.auction.client.controller.SessionManager;
 import com.auction.common.dto.AutoBidDTO;
 import com.auction.common.dto.PaymentDTO;
@@ -26,6 +24,7 @@ public class AuctionService {
     private static List<Auction> cachedActiveAuctions = new ArrayList<>();
     private static boolean isFirstLoadDone = false;
     private static DashboardData cachedDashboardData = null;
+
     // ── GET ALL AUCTIONS ─────────────────────────────────────────────────────
     public List<Auction> getAllAuctions() {
         Response res = send(new Request(Request.GET_AUCTIONS));
@@ -35,17 +34,14 @@ public class AuctionService {
         return new ArrayList<>();
     }
     public List<Auction> getActiveAuctionsCached() {
-        return cachedActiveAuctions; // Bốc trực tiếp từ RAM trả về ngay lập tức (0ms)
+        return cachedActiveAuctions;
     }
     public DashboardData getDashboardDataCached() {
         return cachedDashboardData;
     }
 
-
     public void refreshActiveAuctionsFromServer() {
         try {
-            // 🚀 SỬA: Đổi từ "GET_ACTIVE_AUCTIONS" thành Request.GET_AUCTIONS (hoặc "GET_AUCTIONS")
-            // Để luồng chạy ngầm đồng bộ lấy toàn bộ sản phẩm giống hệt như lúc bạn gõ Tìm kiếm
             Request req = new Request(Request.GET_AUCTIONS, null);
             Response res = send(req);
 
@@ -85,8 +81,10 @@ public class AuctionService {
                                   java.time.LocalDateTime endTime,
                                   String imagePath) {
         try {
+            // KHÔNG gửi cả cục Object User nữa để tránh lệch byte mạng Socket
+            // Thay vào đó chỉ gửi ID của User (Kiểu Long cực kỳ an toàn)
             Object[] auctionData = {
-                    owner, title, description, category, condition,
+                    owner.getId(), title, description, category, condition,
                     startPrice, reservePrice, increment,
                     startTime, endTime, imagePath
             };
@@ -102,9 +100,9 @@ public class AuctionService {
     // ── UPDATE AUCTION ───────────────────────────────────────────────────────
     public Response updateAuction(Long auctionId, String title, String description,
                                   String category, double startPrice,
-                                  java.time.LocalDateTime endTime, String imagePath) {
+                                  java.time.LocalDateTime endTime, String imagePath, double reservePrice) {
         try {
-            Object[] updateData = {auctionId, title, description, category, startPrice, endTime, imagePath};
+            Object[] updateData = {auctionId, title, description, category, startPrice, endTime, imagePath, reservePrice};
             Request  request    = new Request(Request.UPDATE_AUCTION, updateData);
             attachToken(request);
             return (Response) connection.sendRequest(request);
@@ -195,12 +193,10 @@ public class AuctionService {
     }
 
     public Response setAutoBid(AutoBidDTO dto) {
-        // 1. Đóng gói gói hàng mang từ khóa lệnh SET_AUTO_BID kèm dữ liệu cấu hình DTO
         Request req = new Request(Request.SET_AUTO_BID, dto);
-
-        // 2. Sử dụng chính hàm send(request) nội bộ của Class này để đẩy qua Socket lên Server
         return send(req);
     }
+
     // ── EXTEND / END EARLY ───────────────────────────────────────────────────
     public boolean extendAuction(Long auctionId, int hours) {
         Object[] data = {auctionId, hours};
@@ -212,6 +208,7 @@ public class AuctionService {
         Response res = send(new Request(Request.END_AUCTION_EARLY, auctionId));
         return res != null && res.isSuccess();
     }
+
     // ── Helper ───────────────────────────────────────────────────────────────
     private Response send(Request request) {
         try {
@@ -227,19 +224,19 @@ public class AuctionService {
         String token = SessionManager.get().getToken();
         if (token != null) request.setToken(token);
     }
+
     public com.auction.common.model.DashboardData getDashboardData(long userId) throws Exception {
         Request req = new Request("GET_DASHBOARD_DATA", userId);
-        Response res = send(req); // Hàm gửi socket của bạn
+        Response res = send(req);
 
         if (res != null && res.isSuccess() && res.getData() != null) {
-            // Cất vào kho RAM trước khi trả về
             cachedDashboardData = (com.auction.common.model.DashboardData) res.getData();
             return cachedDashboardData;
         }
         return null;
     }
-    // ── 5 HÀM PHỤC VỤ CHỨC NĂNG DUYỆT ĐẤU GIÁ CỦA ADMIN ───────────────────────
 
+    // ── 5 HÀM PHỤC VỤ CHỨC NĂNG DUYỆT ĐẤU GIÁ CỦA ADMIN ───────────────────────
     public List<Auction> getPendingAuctions() {
         Response res = send(new Request("GET_PENDING_AUCTIONS"));
         if (res != null && res.isSuccess() && res.getData() instanceof List) {
@@ -274,8 +271,8 @@ public class AuctionService {
         Response res = send(new Request("ADMIN_REJECT_AUCTION", data));
         return res != null && res.isSuccess();
     }
+
     public List<Auction> getAllApprovalAuctions() {
-        // Gửi lệnh "GET_ALL_APPROVAL_AUCTIONS" lên Server chỉ với 1 cú gọi duy nhất
         Response res = send(new Request("GET_ALL_APPROVAL_AUCTIONS"));
         if (res != null && res.isSuccess() && res.getData() instanceof List) {
             return (List<Auction>) res.getData();
@@ -328,6 +325,7 @@ public class AuctionService {
             return Response.error("Lỗi kết nối: " + e.getMessage());
         }
     }
+
     public Response topUpBalance(Long userId, double amount) {
         try {
             Object[] data = {userId, amount};

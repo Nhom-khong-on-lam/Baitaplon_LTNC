@@ -47,22 +47,10 @@ public class ClientHandler extends Thread {
 
                 System.out.println("📩 [Server] Nhận được gói tin từ Client: " + requestObj.getClass().getSimpleName());
 
-                // 🔴 BƯỚC SỬA QUYẾT ĐỊNH:
-                // Bạn hãy tìm lại file ClientHandler.java GỐC (lúc chưa sửa gì hôm qua)
-                // xem nhóm bạn xử lý gói tin 'requestObj' này như thế nào, rồi copy y hệt đoạn đó bỏ vào đây.
-
                 Object responseObj = null;
 
-                // Ví dụ cấu hình chuẩn theo logic thông thường của đồ án:
-                // Bạn cần gọi hàm xử lý thực tế của nhóm bạn, ví dụ:
                 responseObj = handleRequest((com.auction.common.network.Request) requestObj);
 
-                // Hoặc nếu nhóm bạn viết trực tiếp bằng if-else:
-                // if (requestObj instanceof Request) {
-                //     responseObj = Controller.process((Request) requestObj);
-                // }
-
-                // Gửi trả kết quả xịn (Không còn bị null hay bị lệch kiểu dữ liệu nữa)
                 if (responseObj != null) {
                     System.out.println("📤 [Server] Gửi trả phản hồi thành công: " + responseObj.getClass().getSimpleName());
                 } else {
@@ -184,7 +172,7 @@ public class ClientHandler extends Thread {
                     out.println("Lỗi kiểm tra cấu hình tồn tại: " + e.getMessage());
                 }
 
-                // 3. 🚀 ĐỔI CHIẾN THUẬT: Nhận diện luồng bằng maxPrice để chống lỗi biến Boolean active
+                // 3. Nhận diện luồng bằng maxPrice để chống lỗi biến Boolean active
                 if (autoBidDto.getMaxPrice() <= 0) {
 
                     // ── [LUỒNG HỦY AUTOBID] ──────────────────────────────────
@@ -428,7 +416,7 @@ public class ClientHandler extends Thread {
                     createBidNotifications(auctionId, bidder.getId(), bidAmount, false);
 
                     // ====================================================================
-                    // 🚀 CHUỖI PHẢN ỨNG CHẠY NỀN: Kích hoạt Robot AutoBid nâng giá đè lên luôn
+                    // CHUỖI PHẢN ỨNG CHẠY NỀN: Kích hoạt Robot AutoBid nâng giá đè lên luôn
                     // ====================================================================
                     triggerAutoBidsLoop(auctionId, bidAmount, bidder.getId(), auctionDAO, bidDAO);
                     // ====================================================================
@@ -444,7 +432,7 @@ public class ClientHandler extends Thread {
                     boolean success = userDAO.deleteUserById(userId);
 
                     if (success) {
-                        // 🚀 GIẢI PHÁP: Return trực tiếp gói tin về luồng xử lý trung tâm, không dùng out.writeObject và break nữa
+                        // GIẢI PHÁP: Return trực tiếp gói tin về luồng xử lý trung tâm, không dùng out.writeObject và break nữa
                         return Response.ok("Đã xóa người dùng vĩnh viễn khỏi hệ thống!");
                     } else {
                         return Response.error("Xóa thất bại! Người dùng có thể đang vướng ràng buộc dữ liệu đấu giá.");
@@ -464,7 +452,7 @@ public class ClientHandler extends Thread {
                     boolean success = userDAO.updateStatus(userId, newStatus);
 
                     if (success) {
-                        // 🚀 GIẢI PHÁP: Dùng return chuẩn cấu trúc kiến trúc phần mềm
+                        // GIẢI PHÁP: Dùng return chuẩn cấu trúc kiến trúc phần mềm
                         return Response.ok("Cập nhật trạng thái người dùng thành công!");
                     } else {
                         return Response.error("Không thể cập nhật trạng thái trong Database.");
@@ -486,6 +474,48 @@ public class ClientHandler extends Thread {
                 AuctionDAO auctionDAO = new AuctionDAO();
                 java.util.List<AuctionDTO> dtos = auctionDAO.findActive();
                 return Response.ok(toClientAuctions(dtos, userDAO));
+            }
+
+            case "UPDATE_RESERVE_PRICE": {
+                try {
+                    // 1. Bóc tách mảng dữ liệu do Client gửi sang qua Socket
+                    Object[] data = (Object[]) req.getData();
+                    Long auctionId = ((Number) data[0]).longValue();
+                    Double reservePrice = ((Number) data[1]).doubleValue();
+
+                    System.out.println("🚀 [Server] Nhận lệnh cập nhật Giá dự phòng cho Auction ID: " + auctionId + " | Giá mới: " + reservePrice);
+
+                    // 2. Gọi lớp DAO có sẵn của Server để tương tác với Database
+                    AuctionDAO auctionDAO = new AuctionDAO();
+                    AuctionDTO existing = auctionDAO.findById(auctionId);
+
+                    if (existing == null) {
+                        return Response.error("Không tìm thấy phiên đấu giá tương ứng trên hệ thống.");
+                    }
+
+                    // 3. Thực thi cập nhật giá trị trực tiếp vào Database
+                    boolean success = false;
+                    String sql = "UPDATE auction SET reserve_price = ? WHERE id = ?";
+
+                    // Sử dụng kết nối DBConnection chuẩn của Server bạn (server.database.DBConnection)
+                    try (java.sql.Connection conn = server.database.DBConnection.getConnection();
+                         java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setDouble(1, reservePrice);
+                        ps.setLong(2, auctionId);
+                        success = ps.executeUpdate() > 0;
+                    }
+
+                    if (success) {
+                        System.out.println("✅ [Server] Đã lưu giá dự phòng vào DB thành công!");
+                        return Response.ok("Cập nhật thành công");
+                    } else {
+                        return Response.error("Database từ chối cập nhật (Lỗi ràng buộc dữ liệu).");
+                    }
+                } catch (Exception e) {
+                    System.err.println("❌ Lỗi xử lý UPDATE_RESERVE_PRICE: " + e.getMessage());
+                    e.printStackTrace();
+                    return Response.error("Lỗi nội bộ Server: " + e.getMessage());
+                }
             }
 
             case Request.GET_AUCTION: {
@@ -544,7 +574,9 @@ public class ClientHandler extends Thread {
             case "CREATE_AUCTION": {
                 Object[] data = (Object[]) req.getData();
 
-                User owner = (User) data[0];
+                // ĐÃ SỬA: Bốc ID người bán thay vì bốc cả Object User gây lệch byte
+                Long sellerId = data[0] != null ? ((Number) data[0]).longValue() : 1L;
+
                 String title = data.length > 1 && data[1] != null ? (String) data[1] : "Sản phẩm không tên";
                 String description = data.length > 2 && data[2] != null ? (String) data[2] : "";
                 String category = data.length > 3 && data[3] != null ? (String) data[3] : "Electronics";
@@ -562,6 +594,18 @@ public class ClientHandler extends Thread {
                 if (data.length > 10 && data[10] != null) {
                     imagePath = (String) data[10];
                 }
+
+                // ĐÃ SỬA: Đọc trực tiếp vị trí số 6, không lo vỡ mảng
+                double reservePrice = 0.0;
+                if (data.length > 6 && data[6] != null) {
+                    try {
+                        reservePrice = Double.parseDouble(data[6].toString());
+                    } catch (Exception e) {
+                        reservePrice = 0.0;
+                    }
+                }
+
+                System.out.println("🔥 [SERVER CHỐT HẠ] Giá dự phòng nhận được: " + reservePrice);
 
                 server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
                 com.auction.common.dto.ItemDTO newItemDto = new com.auction.common.dto.ItemDTO();
@@ -585,8 +629,10 @@ public class ClientHandler extends Thread {
 
                 AuctionDTO auction = new AuctionDTO();
                 auction.setItemId(generatedItemId);
-                auction.setSellerId(owner.getId());
+                auction.setSellerId(sellerId); // Gán ID trực tiếp cực chuẩn
                 auction.setCurrentPrice(startPrice);
+                auction.setReservePrice(reservePrice); // Gán giá dự phòng
+
                 auction.setStartTime(startTime != null ? startTime : java.time.LocalDateTime.now());
                 auction.setEndTime(endTime);
                 auction.setStatus("PENDING_APPROVAL");
@@ -610,26 +656,37 @@ public class ClientHandler extends Thread {
                 java.time.LocalDateTime endTime = (java.time.LocalDateTime) data[5];
                 String imagePath  = (data.length > 6) ? (String) data[6] : null;
 
+                // THÊM TRƯỜNG HỢP AN TOÀN: Bóc tách giá dự phòng nếu Client gửi kèm khi sửa
+                double reservePrice = 0.0;
+                boolean hasReserveInUpdate = false;
+                if (data.length > 7 && data[7] != null) {
+                    reservePrice = ((Number) data[7]).doubleValue();
+                    hasReserveInUpdate = true;
+                }
+
                 AuctionDAO auctionDAO = new AuctionDAO();
                 AuctionDTO existing = auctionDAO.findById(auctionId);
                 if (existing == null) return Response.error("Auction not found.");
 
-                // ── Kiểm tra điều kiện: chỉ cho sửa nếu PENDING_APPROVAL và chưa hết hạn
                 String currentStatus = existing.getStatus();
                 if (!"PENDING_APPROVAL".equalsIgnoreCase(currentStatus)) {
                     return Response.error("Không thể chỉnh sửa: phiên đấu giá đã được duyệt hoặc đang diễn ra.");
                 }
 
-                existing.setCurrentPrice(startPrice);  // giữ lại dòng này
+                existing.setCurrentPrice(startPrice);
                 existing.setEndTime(endTime);
+
+                // Nếu bóc tách được giá dự phòng mới, cập nhật vào đối tượng luôn
+                if (hasReserveInUpdate) {
+                    existing.setReservePrice(reservePrice);
+                }
+
                 boolean ok = auctionDAO.update(existing);
                 if (!ok) return Response.error("Failed to update auction.");
 
-                // ── Update bảng item (name, description, category)
                 try (java.sql.Connection conn = server.database.DBConnection.getConnection()) {
                     long itemId = auctionDAO.getItemIdByAuctionId(auctionId);
 
-                    // 1. Update name, description, category vào bảng item
                     String updateItemSql = "UPDATE item SET name=?, description=?, category=?, starting_price=? WHERE id=?";
                     try (java.sql.PreparedStatement ps = conn.prepareStatement(updateItemSql)) {
                         ps.setString(1, title);
@@ -640,7 +697,16 @@ public class ClientHandler extends Thread {
                         ps.executeUpdate();
                     }
 
-                    // 2. Update ảnh vào bảng item_image (nếu user có upload ảnh mới)
+                    // BỔ SUNG: Cập nhật trực tiếp cột reserve_price vào bảng auction trong DB để đảm bảo không bị sót số
+                    if (hasReserveInUpdate) {
+                        String updateReserveSql = "UPDATE auction SET reserve_price=? WHERE id=?";
+                        try (java.sql.PreparedStatement ps = conn.prepareStatement(updateReserveSql)) {
+                            ps.setDouble(1, reservePrice);
+                            ps.setLong(2, auctionId);
+                            ps.executeUpdate();
+                        }
+                    }
+
                     if (imagePath != null && !imagePath.isBlank()) {
                         String checkSql = "SELECT COUNT(*) FROM item_image WHERE item_id=?";
                         boolean hasImage = false;
@@ -673,7 +739,6 @@ public class ClientHandler extends Thread {
 
                 return Response.ok(null);
             }
-
             case "DELETE_AUCTION": {
                 Object rawData = req.getData();
                 if (rawData == null) return Response.error("ID phiên đấu giá không được để trống!");
@@ -806,7 +871,7 @@ public class ClientHandler extends Thread {
                     // Tính toán thời gian kết thúc mới
                     java.time.LocalDateTime newEndTime = existing.getEndTime().plusHours(hours);
 
-                    // 🚀 GIẢI PHÁP DU KÍCH: Chạy lệnh UPDATE cô lập, chỉ sửa thời gian và trạng thái
+                    // GIẢI PHÁP DU KÍCH: Chạy lệnh UPDATE cô lập, chỉ sửa thời gian và trạng thái
                     // Tuyệt đối không chạm vào cột current_price hay highest_bidder_id trong DB!
                     String directSql = "UPDATE auction SET end_time = ? WHERE id = ?";
 
@@ -851,7 +916,7 @@ public class ClientHandler extends Thread {
 
                 AuctionDAO auctionDAO = new AuctionDAO();
 
-                // 🌟 ĐỌC DỮ LIỆU HIỆN TẠI: Lấy thông tin phiên đấu giá trước khi đóng sổ để biết ai đang dẫn đầu
+                // ĐỌC DỮ LIỆU HIỆN TẠI: Lấy thông tin phiên đấu giá trước khi đóng sổ để biết ai đang dẫn đầu
                 com.auction.common.dto.AuctionDTO existing = auctionDAO.findById(auctionId);
                 if (existing == null) {
                     return Response.error("Không tìm thấy phiên đấu giá.");
@@ -873,7 +938,7 @@ public class ClientHandler extends Thread {
                 // 3. ĐỔI TRẠNG THÁI SANG FINISHED bằng hàm có sẵn của bạn
                 boolean ok = auctionDAO.updateStatus(auctionId, "FINISHED");
 
-                // 4. 🚀 TỰ ĐỘNG THÊM VÀO BẢNG PAYMENT NẾU CÓ NGƯỜI ĐẶT GIÁ (HỢP NHẤT LOGIC)
+                // 4. TỰ ĐỘNG THÊM VÀO BẢNG PAYMENT NẾU CÓ NGƯỜI ĐẶT GIÁ (HỢP NHẤT LOGIC)
                 if (ok) {
                     // Kiểm tra xem phiên đấu giá này có ai đặt giá thắng cuộc không (highest_bidder_id != null)
                     if (existing.getHighestBidderId() != null) {
@@ -1122,8 +1187,7 @@ public class ClientHandler extends Thread {
                         if (payment == null) return Response.error("Lỗi nội bộ: không fetch lại được payment.");
                     }
 
-                    // 🌟 SỬA TẠI ĐÂY: XÓA BỎ ĐOẠN QUĂNG RESPONSE.ERROR VÔ LÝ!
-                    // Thay vào đó, cứ cho chạy tiếp xuống dưới để trả về Object kèm theo trạng thái "COMPLETED"
+                    // cho chạy tiếp xuống dưới để trả về Object kèm theo trạng thái "COMPLETED"
                     // cho Client tự biết đường mà xử lý đóng Popup hoặc ẩn nút.
 
                     // Gắn thông tin ngân hàng của Seller vào DTO phục vụ Client hiển thị lên UI Dialog
@@ -1187,7 +1251,7 @@ public class ClientHandler extends Thread {
                             return Response.error("Lưu thông tin thanh toán thất bại.");
                         }
 
-                        // 🚀 GIỮ NGUYÊN FINISHED: Tránh ghi đè chữ "PAID" lỗi khiến dữ liệu bị văng ngược về trạng thái "Live"
+                        // GIỮ NGUYÊN FINISHED: Tránh ghi đè chữ "PAID" lỗi khiến dữ liệu bị văng ngược về trạng thái "Live"
                         AuctionDAO auctionDAO = new AuctionDAO();
                         AuctionDTO auction = auctionDAO.findById(p.getAuctionId());
                         if (auction != null) {
@@ -1195,7 +1259,7 @@ public class ClientHandler extends Thread {
                             auctionDAO.update(auction);
                         }
 
-                        conn.commit(); // ✅ Xác nhận hoàn tất chuỗi giao dịch ví thành công tuyệt đối!
+                        conn.commit(); // Xác nhận hoàn tất chuỗi giao dịch ví thành công tuyệt đối!
                         return Response.ok("Thanh toán thành công!");
                     }
                 } catch (Exception e) {
@@ -1244,9 +1308,8 @@ public class ClientHandler extends Thread {
             server.repository.ItemImageDAO imageDAO = new server.repository.ItemImageDAO();
 
             // 2. BƯỚC THẦN TỐC: Gom toàn bộ bảng dữ liệu lên bộ nhớ tạm (RAM) của Server
-            // (Hãy đảm bảo trong ItemDAO và ItemImageDAO của bạn có hàm findAll() hoặc hàm tương đương để lấy hết)
             java.util.Map<Long, com.auction.common.dto.ItemDTO> itemMap = new java.util.HashMap<>();
-            java.util.List<com.auction.common.dto.ItemDTO> allItems = itemDAO.getAll(); // Sử dụng hàm lấy hết dữ liệu sản phẩm
+            java.util.List<com.auction.common.dto.ItemDTO> allItems = itemDAO.getAll();
             if (allItems != null) {
                 for (com.auction.common.dto.ItemDTO itemDto : allItems) {
                     itemMap.put(itemDto.getId(), itemDto);
@@ -1254,27 +1317,23 @@ public class ClientHandler extends Thread {
             }
 
             java.util.Map<Long, String> imageMap = new java.util.HashMap<>();
-            java.util.List<com.auction.common.dto.ItemImageDTO> allImages = imageDAO.getAll(); // Sử dụng hàm lấy hết dữ liệu ảnh
+            java.util.List<com.auction.common.dto.ItemImageDTO> allImages = imageDAO.getAll();
 
-            // Nạp tổng số lần đặt giá của TẤT CẢ phiên cùng lúc (1 query thay vì N queries)
+            // Nạp tổng số lần đặt giá của TẤT CẢ phiên cùng lúc
             server.repository.BidDAO bidDAO = new server.repository.BidDAO();
             java.util.Map<Long, Integer> bidCountMap = bidDAO.countAllGroupedByAuction();
 
             if (allImages != null) {
                 for (com.auction.common.dto.ItemImageDTO imgDto : allImages) {
-                    // Ưu tiên nạp đường dẫn ảnh đầu tiên tìm thấy của mỗi itemId vào bộ nhớ tạm
                     if (!imageMap.containsKey(imgDto.getItemId())) {
 
                         String rawUrl = imgDto.getImageUrl();
                         if (rawUrl != null && !rawUrl.isBlank()) {
-                            // Làm sạch khoảng trắng thừa và chuẩn hóa dấu gạch xuôi
                             String safeUrl = rawUrl.trim().replace("\\", "/");
 
-                            // Nếu là link mạng trực tuyến (chứa http:// hoặc https://) thì GIỮ NGUYÊN HOÀN TOÀN
                             if (safeUrl.toLowerCase().startsWith("http://") || safeUrl.toLowerCase().startsWith("https://")) {
                                 imageMap.put(imgDto.getItemId(), safeUrl);
                             }
-                            // Nếu là đường dẫn local cũ dưới máy tính mà chưa có tiền tố file:
                             else if (!safeUrl.toLowerCase().startsWith("file:")) {
                                 safeUrl = "file:///" + safeUrl;
                                 imageMap.put(imgDto.getItemId(), safeUrl);
@@ -1286,29 +1345,26 @@ public class ClientHandler extends Thread {
                 }
             }
             java.util.Map<Long, UserDTO> userMap = new java.util.HashMap<>();
-            java.util.List<UserDTO> allUsers = userDAO.findAll(); // Sử dụng hàm lấy toàn bộ danh sách thành viên
+            java.util.List<UserDTO> allUsers = userDAO.findAll();
             if (allUsers != null) {
                 for (UserDTO uDto : allUsers) {
                     userMap.put(uDto.getId(), uDto);
                 }
             }
 
-            // 3. Tiến hành xử lý lặp dữ liệu trên RAM - Tốc độ ánh sáng O(1)
+            // 3. Tiến hành xử lý lặp dữ liệu trên RAM
             for (AuctionDTO dto : dtos) {
                 if (dto == null || dto.getItemId() <= 0) continue;
 
-                // Đồng bộ nhanh thông tin người bán (Seller)
                 UserDTO sellerDto = userMap.get(dto.getSellerId());
                 User seller = sellerDto != null
                         ? toClientUser(sellerDto)
                         : new User(dto.getSellerId(), "Unknown", "", "", SystemRole.USER);
 
-                // Bốc sản phẩm trực tiếp từ RAM ra thông qua Map, không truy vấn Database dòng này nữa!
                 com.auction.common.dto.ItemDTO itemDto = itemMap.get(dto.getItemId());
                 Item item;
 
                 if (itemDto != null) {
-                    // Chuẩn hóa chuỗi danh mục sản phẩm
                     String categoryStr = itemDto.getCategory() != null ? itemDto.getCategory().toLowerCase().trim() : "";
 
                     item = switch (categoryStr) {
@@ -1331,14 +1387,12 @@ public class ClientHandler extends Thread {
                     };
                     item.setId(dto.getItemId());
 
-                    // Lấy link ảnh trực tiếp từ bộ nhớ RAM thông qua Map
                     String cachedImgUrl = imageMap.get(dto.getItemId());
                     if (cachedImgUrl != null) {
                         item.setImageUrl(cachedImgUrl);
                     }
 
                 } else {
-                    // Không tìm thấy sản phẩm thật tương ứng -> Bỏ qua dòng rác này
                     continue;
                 }
 
@@ -1347,6 +1401,9 @@ public class ClientHandler extends Thread {
                 Auction auction = new Auction(item, seller, endTime);
                 auction.setId(dto.getId());
                 auction.setCurrentPrice(dto.getCurrentPrice());
+
+                // Đồng bộ Giá dự phòng từ DTO (Database) sang Model gửi về Client
+                auction.setReservePrice(dto.getReservePrice());
 
                 if (dto.getHighestBidderId() != null && dto.getHighestBidderId() > 0) {
                     UserDTO bidderDto = userMap.get(dto.getHighestBidderId());
@@ -1459,7 +1516,7 @@ public class ClientHandler extends Thread {
 
                     createBidNotifications(auctionId, config.getBidderId(), nextPrice, true);
 
-                    // 🔄 CHUỖI PHẢN ỨNG ĐỆ QUY: Tự động gọi lại chính nó với mức giá mới
+                    // CHUỖI PHẢN ỨNG ĐỆ QUY: Tự động gọi lại chính nó với mức giá mới
                     // Đảm bảo nếu trong phòng có nhiều robot cài AutoBid đè nhau, chúng sẽ tự nâng giá qua lại liên tục
                     triggerAutoBidsLoop(auctionId, nextPrice, config.getBidderId(), auctionDAO, bidDAO);
                     break; // Thoát vòng lặp hiện tại để nhường quyền xử lý cho luồng đệ quy mới

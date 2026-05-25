@@ -67,9 +67,6 @@ public class SceneManager {
             if (!next.getStylesheets().contains(css))
                 next.getStylesheets().add(css);
 
-            // ❌ Xóa dòng này — callback không còn ở đây nữa
-            // if (setup != null) setup.accept(loader.getController());
-
             Parent prev = scene.getRoot();
             FadeTransition out = new FadeTransition(Duration.millis(160), prev);
             out.setToValue(0);
@@ -77,7 +74,7 @@ public class SceneManager {
                 next.setOpacity(0);
                 scene.setRoot(next);          // scene có root rồi
 
-                if (setup != null)            // ✅ callback chạy sau
+                if (setup != null)            // callback chạy sau
                     setup.accept(loader.getController());
 
                 FadeTransition in = new FadeTransition(Duration.millis(240), next);

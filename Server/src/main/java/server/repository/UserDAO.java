@@ -20,7 +20,7 @@ public class UserDAO {
         user.setPassword(rs.getString("password"));
         user.setEmail(rs.getString("email"));
 
-        // 🔥 CHUẨN HÓA CHỮ HOA: Tránh lỗi nếu trong DB lỡ lưu chữ thường 'admin' hoặc 'user'
+        // CHUẨN HÓA CHỮ HOA: Tránh lỗi nếu trong DB lỡ lưu chữ thường 'admin' hoặc 'user'
         String role = rs.getString("systemRole");
         user.setSystemRole(role != null ? role.toUpperCase().trim() : "USER");
 
@@ -41,7 +41,7 @@ public class UserDAO {
         try { user.setBankName(rs.getString("bank_name")); } catch (SQLException ignore) {}
         try { user.setCardholderName(rs.getString("cardholder_name")); } catch (SQLException ignore) {}
 
-        // 🚀 BỔ SUNG: Đọc dữ liệu số dư từ Database lên RAM
+        // Đọc dữ liệu số dư từ Database lên RAM
         try { user.setBalance(rs.getDouble("balance")); } catch (SQLException ignore) {}
 
         return user;
@@ -156,7 +156,7 @@ public class UserDAO {
 
     // --- UPDATE (BỔ SUNG QUYẾT ĐỊNH CHO BIẾN BALANCE ĐỂ LƯU ĐƯỢC TIỀN) ---
     public boolean update(UserDTO user) {
-        // 🚀 Đã thêm "balance = ?" vào trước khối WHERE và đẩy tham số ID xuống vị trí số 10
+        // Đã thêm "balance = ?" vào trước khối WHERE và đẩy tham số ID xuống vị trí số 10
         String sql = "UPDATE user SET username = ?, email = ?, systemRole = ?, accountStatus = ?, password = ?," +
                 " account_number = ?, bank_name = ?, cardholder_name = ?, balance = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -211,7 +211,7 @@ public class UserDAO {
                     user.setEmail(rs.getString("email"));
                     user.setSystemRole(rs.getString("systemRole"));
                     user.setAccountStatus(rs.getString("accountStatus"));
-                    user.setBalance(rs.getDouble("balance")); // 🚀 Đọc balance
+                    user.setBalance(rs.getDouble("balance"));
 
                     Timestamp ts = rs.getTimestamp("created_at");
                     if (ts != null) {

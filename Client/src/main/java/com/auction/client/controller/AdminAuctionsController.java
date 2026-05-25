@@ -335,7 +335,7 @@ public class AdminAuctionsController {
 
             new Thread(() -> {
                 try {
-                    // 🌟 Ép kiểu tường minh sang Long để tránh lệch pha dữ liệu giữa Client và Server
+                    // Ép kiểu tường minh sang Long để tránh lệch pha dữ liệu giữa Client và Server
                     Long idToSend = Long.valueOf(auction.getId());
 
                     // Gọi dịch vụ và lấy kết quả trả về từ Server xem có thành công hay không
@@ -343,7 +343,7 @@ public class AdminAuctionsController {
 
                     javafx.application.Platform.runLater(() -> {
                         if (success) {
-                            // 🌟 CẬP NHẬT TRỰC TIẾP RAM CLIENT: Chuyển trạng thái của đối tượng đang nằm trong bộ nhớ sang FINISHED
+                            // CẬP NHẬT TRỰC TIẾP RAM CLIENT: Chuyển trạng thái của đối tượng đang nằm trong bộ nhớ sang FINISHED
                             auction.setStatus(AuctionStatus.FINISHED);
 
                             // Đưa thời gian kết thúc về ngay thời điểm hiện tại
@@ -376,7 +376,7 @@ public class AdminAuctionsController {
 
         confirm.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                // 🚀 Chạy luồng ngầm để gọi mạng, giữ ứng dụng mượt mà không đơ UI
+                // Chạy luồng ngầm để gọi mạng, giữ ứng dụng mượt mà không đơ UI
                 new Thread(() -> {
                     try {
                         // Gọi sang service để bắn gói tin lên Server xử lý

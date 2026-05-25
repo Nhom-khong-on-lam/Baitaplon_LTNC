@@ -47,6 +47,7 @@ public class AuctionDetailController {
     @FXML private Label    resultTitle;
     @FXML private Label    resultMsg;
 
+    private Label detailReserveStatus = new Label();
     private final AuctionService auctionService = new AuctionService();
     private User    currentUser;
     private Auction auction;
@@ -130,6 +131,7 @@ public class AuctionDetailController {
 
         // Prices
         updatePriceDisplay();
+        renderReservePriceLogic();
         detailStartPrice.setText(String.format("%,.0f", auction.getItem().getStartingPrice()));
 
         // Seller info
@@ -195,6 +197,23 @@ public class AuctionDetailController {
 
         // Start live countdown
         startCountdown();
+
+        // ĐỔI LẠI LOGIC CHÈN CỐ ĐỊNH: Ép hiển thị thẳng vào VBox chứa vùng đặt giá
+        try {
+            if (bidMsg != null && bidMsg.getParent() instanceof VBox) {
+                VBox parentContainer = (VBox) bidMsg.getParent();
+
+                // Thiết lập kiểu chữ to, rõ ràng hơn để dễ quan sát
+                detailReserveStatus.setStyle("-fx-font-size: 14px; -fx-padding: 8px 0; -fx-alignment: center;");
+
+                // Kiểm tra nếu container chưa chứa nhãn này thì ép thêm vào cuối cùng luôn
+                if (!parentContainer.getChildren().contains(detailReserveStatus)) {
+                    parentContainer.getChildren().add(detailReserveStatus);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Bỏ qua lỗi vẽ giao diện phụ: " + e.getMessage());
+        }
 
         if (currentUser != null && auction != null) {
             new Thread(() -> {
@@ -333,12 +352,12 @@ public class AuctionDetailController {
                         int oldBidCount = this.auction.getBidCount();
                         int newBidCount = (history != null) ? history.size() : updatedAuction.getBidCount();
 
-                        // 🚀 CHỐNG GHI ĐÈ SAI GIÁ: Chỉ cập nhật nếu giá từ server lớn hơn giá hiện tại trên UI
+                        // CHỐNG GHI ĐÈ SAI GIÁ: Chỉ cập nhật nếu giá từ server lớn hơn giá hiện tại trên UI
                         if (updatedAuction.getCurrentPrice() > this.auction.getCurrentPrice()) {
                             this.auction.setCurrentPrice(updatedAuction.getCurrentPrice());
                         }
 
-                        // 🚀 BẢO LƯU THÔNG TIN NGƯỜI ĐẶT GIÁ CAO NHẤT: Tránh bị gán về null khi gia hạn
+                        // BẢO LƯU THÔNG TIN NGƯỜI ĐẶT GIÁ CAO NHẤT: Tránh bị gán về null khi gia hạn
                         if (updatedAuction.getHighestBidder() != null) {
                             this.auction.setHighestBidder(updatedAuction.getHighestBidder());
                         } else if (history != null && !history.isEmpty()) {
@@ -353,6 +372,7 @@ public class AuctionDetailController {
 
                         // Cập nhật hiển thị UI
                         updatePriceDisplay();
+                        renderReservePriceLogic();
 
                         // Cập nhật status pill
                         detailStatusPill.setText(this.auction.getStatusLabel());
@@ -796,6 +816,41 @@ public class AuctionDetailController {
     private void updatePriceDisplay() {
         detailCurrentPrice.setText( String.format("%,.0f", auction.getCurrentPrice()));
         detailBidCount.setText(String.valueOf(auction.getBidCount()));
+    }
+
+    private void renderReservePriceLogic() {
+        try {
+            if (detailReserveStatus == null || auction == null) return;
+
+            double currentPrice = auction.getCurrentPrice();
+            double reservePrice = auction.getReservePrice();
+
+            // Luôn hiển thị nhãn thông báo, không ẩn đi nữa
+            detailReserveStatus.setVisible(true);
+
+            if (reservePrice > 0) {
+                if (currentPrice < reservePrice) {
+                    // Giá hiện tại thấp hơn giá dự phòng -> Báo chưa đáp ứng SUỐT
+                    detailReserveStatus.setText("❌ Giá dự phòng chưa đạt yêu cầu");
+                    detailReserveStatus.setStyle("-fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-font-size: 13px;");
+                } else {
+                    // Giá hiện tại đã bằng hoặc vượt -> Báo đã đáp ứng MÃI MÃI
+                    detailReserveStatus.setText("✔ Giá dự phòng đã được đáp ứng");
+                    detailReserveStatus.setStyle("-fx-text-fill: #16a34a; -fx-font-weight: bold; -fx-font-size: 13px;");
+                }
+            } else {
+                // Trường hợp dữ liệu trả về bằng 0 (Hoặc phiên không cài giá dự phòng)
+                detailReserveStatus.setText("ℹ Phiên đấu giá không áp dụng giá dự phòng");
+                detailReserveStatus.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic; -fx-font-size: 13px;");
+            }
+        } catch (Exception e) {
+            System.err.println("⚠ Lỗi render giao diện giá dự phòng: " + e.getMessage());
+            if (detailReserveStatus != null) {
+                detailReserveStatus.setVisible(true);
+                detailReserveStatus.setText("⚠ Lỗi tải dữ liệu giá dự phòng");
+                detailReserveStatus.setStyle("-fx-text-fill: #ff9800; -fx-font-weight: bold;");
+            }
+        }
     }
 
     private String formatCountdown(long totalSecs) {

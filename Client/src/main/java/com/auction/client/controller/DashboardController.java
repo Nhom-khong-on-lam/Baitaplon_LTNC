@@ -48,7 +48,7 @@ public class DashboardController {
         welcomeGreeting.setText("Good " + hour + ", " + user.getUsername());
         welcomeDate.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMM dd")));
 
-        // ⚡ BƯỚC 1: HIỂN THỊ NGAY TỨC THÌ DỮ LIỆU TỪ RAM CACHE (0ms - KHÔNG ĐỢI MẠNG)
+        // BƯỚC 1: HIỂN THỊ NGAY TỨC THÌ DỮ LIỆU TỪ RAM CACHE (0ms - KHÔNG ĐỢI MẠNG)
         com.auction.common.model.DashboardData cachedData = auctionService.getDashboardDataCached();
         if (cachedData != null) {
             System.out.println("Dashboard bốc từ RAM Cache: Mở phát lên luôn!");
@@ -57,7 +57,7 @@ public class DashboardController {
             welcomeSub.setText("Loading dashboard data...");
         }
 
-        // 🔄 BƯỚC 2: CHẠY NGẦM 1 REQUEST DUY NHẤT ĐỂ ĐỒNG BỘ SỐ LIỆU MỚI TỪ SERVER
+        // BƯỚC 2: CHẠY NGẦM 1 REQUEST DUY NHẤT ĐỂ ĐỒNG BỘ SỐ LIỆU MỚI TỪ SERVER
         Task<com.auction.common.model.DashboardData> loadTask = new Task<>() {
             @Override
             protected com.auction.common.model.DashboardData call() throws Exception {
@@ -93,7 +93,7 @@ public class DashboardController {
     }
 
     /**
-     * 🛠️ HÀM PHỤ TÁCH RIÊNG LOGIC VẼ UI - Giúp tái sử dụng code cho cả dữ liệu Cache và Server
+     * HÀM PHỤ TÁCH RIÊNG LOGIC VẼ UI - Giúp tái sử dụng code cho cả dữ liệu Cache và Server
      */
     private void renderDashboardUI(com.auction.common.model.DashboardData data) {
         List<Auction> allAuctions = data.getAllAuctions() != null ? data.getAllAuctions() : java.util.Collections.emptyList();
