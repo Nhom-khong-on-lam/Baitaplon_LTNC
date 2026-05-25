@@ -117,7 +117,7 @@
                             <TextField fx:id="autoBidLimitField" promptText="Vd: 5000" styleClass="form-input" />
                         </VBox>
                         <VBox spacing="5" HBox.hgrow="ALWAYS">
-                            <Label styleClass="stat-label" text="Bước nhảy Bid Increment ($)" />
+                            <Label styleClass="stat-label" text="Bid Increment ($)" />
                             <TextField fx:id="autoBidStepField" promptText="Vd: 50" styleClass="form-input" />
                         </VBox>
                     </HBox>

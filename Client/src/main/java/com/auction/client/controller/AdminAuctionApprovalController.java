@@ -209,7 +209,7 @@ public class AdminAuctionApprovalController {
             }
         });
 
-        colStartPrice.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f ₫", c.getValue().getItem() != null ? c.getValue().getItem().getStartingPrice() : 0.0)));
+        colStartPrice.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f ", c.getValue().getItem() != null ? c.getValue().getItem().getStartingPrice() : 0.0)));
         colStartPrice.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String p, boolean empty) {
                 super.updateItem(p, empty);
