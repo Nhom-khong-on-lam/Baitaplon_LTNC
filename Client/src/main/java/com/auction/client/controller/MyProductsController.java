@@ -49,7 +49,7 @@ public class MyProductsController {
             return new javafx.beans.property.SimpleObjectProperty<>(c.getValue().getPaymentStatus());
         });
 
-        // 🌟 ĐỒNG BỘ: Kiểm tra cờ RAM tập trung từ SessionManager để đổi màu COMPLETED lập tức
+        // ĐỒNG BỘ: Kiểm tra cờ RAM tập trung từ SessionManager để đổi màu COMPLETED lập tức
         colPaymentStatus.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(com.auction.common.enums.PaymentStatus item, boolean empty) {
@@ -63,7 +63,7 @@ public class MyProductsController {
                 badge.setPadding(new javafx.geometry.Insets(4, 8, 4, 8));
                 badge.setStyle("-fx-background-radius: 4; -fx-font-size: 11px; -fx-font-weight: bold;");
 
-                // 🚀 ƯU TIÊN KIỂM TRA TRẠNG THÁI: Nếu cờ RAM cục bộ HOẶC data thuộc tính Payment từ DB trả về là COMPLETED
+                // ƯU TIÊN KIỂM TRA TRẠNG THÁI: Nếu cờ RAM cục bộ HOẶC data thuộc tính Payment từ DB trả về là COMPLETED
                 if (SessionManager.get().isAuctionPaidLocally(auction.getId())
                         || item == com.auction.common.enums.PaymentStatus.COMPLETED) {
                     badge.setText("COMPLETED");
@@ -300,7 +300,7 @@ public class MyProductsController {
     private void loadTable(List<Auction> list) {
         if (list == null) return;
 
-        // 🚀 THẦN THÁNH: Tạo luồng ngầm tự động liên hệ Server quét trạng thái hóa đơn gốc thực tế từ Database
+        // Tạo luồng ngầm tự động liên hệ Server quét trạng thái hóa đơn gốc thực tế từ Database
         new Thread(() -> {
             try {
                 for (Auction auction : list) {

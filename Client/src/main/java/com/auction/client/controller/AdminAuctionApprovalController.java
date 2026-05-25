@@ -67,7 +67,7 @@ public class AdminAuctionApprovalController {
         }
 
         new Thread(() -> {
-            // 🔥 CHỈ GỌI MẠNG ĐÚNG 1 LẦN DUY NHẤT để lấy tất cả phòng về
+            // CHỈ GỌI MẠNG ĐÚNG 1 LẦN DUY NHẤT để lấy tất cả phòng về
             List<Auction> allAuctions = auctionService.getAllApprovalAuctions();
 
             Platform.runLater(() -> {

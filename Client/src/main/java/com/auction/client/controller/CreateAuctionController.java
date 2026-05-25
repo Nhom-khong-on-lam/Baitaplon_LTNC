@@ -159,7 +159,7 @@ public class CreateAuctionController {
                     finalImagePath = com.auction.client.service.CloudinaryService.uploadImage(selectedImageFile);
                 }
                 auctionService.updateAuction(editingAuction.getId(), title, desc,
-                        category, startPrice, end, finalImagePath); // thêm finalImagePath
+                        category, startPrice, end, finalImagePath, reserve);
             }
 
             // 4. Server chạy xong, báo luồng chính cập nhật lại UI

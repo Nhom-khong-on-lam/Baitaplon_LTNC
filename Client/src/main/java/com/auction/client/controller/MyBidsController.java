@@ -108,7 +108,7 @@ public class MyBidsController {
             return;
         }
 
-        // 🚀 THẦN THÁNH: Tạo luồng ngầm kiểm tra hóa đơn gốc thực tế từ Database cho người mua
+        // THẦN THÁNH: Tạo luồng ngầm kiểm tra hóa đơn gốc thực tế từ Database cho người mua
         new Thread(() -> {
             try {
                 boolean needRefresh = false;
@@ -231,7 +231,7 @@ public class MyBidsController {
             if (won) {
                 String auctionStatus = a.getStatus() != null ? a.getStatus().name() : "";
 
-                // 🚀 ĐỒNG BỘ TUYỆT ĐỐI: Kiểm tra trạng thái DB HOẶC kiểm tra cờ lưu tập trung trên SessionManager
+                // ĐỒNG BỘ TUYỆT ĐỐI: Kiểm tra trạng thái DB HOẶC kiểm tra cờ lưu tập trung trên SessionManager
                 boolean isPaid = "PAID".equalsIgnoreCase(auctionStatus)
                         || "SOLD_PAID".equalsIgnoreCase(auctionStatus)
                         || "COMPLETED".equalsIgnoreCase(auctionStatus)
@@ -257,7 +257,7 @@ public class MyBidsController {
                                 this.currentUser = sessionUser;
                             }
 
-                            // 🚀 ĐĂNG KÝ TRẠNG THÁI: Ghi nhận cờ thanh toán lên bộ nhớ tổng SessionManager
+                            // ĐĂNG KÝ TRẠNG THÁI: Ghi nhận cờ thanh toán lên bộ nhớ tổng SessionManager
                             SessionManager.get().markAsPaid(a.getId());
 
                             // Cập nhật lại giao diện tab hiện tại ngay lập tức, cực kỳ mượt mà

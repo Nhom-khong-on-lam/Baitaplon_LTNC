@@ -69,7 +69,7 @@ public class AutoBidDAO {
 
     public List<AutoBidDTO> getActiveConfigsForAuction(Long auctionId) {
         List<AutoBidDTO> configs = new ArrayList<>();
-        // ✅ ĐÃ SỬA: Lấy theo maxPrice và stepIncrement
+        // Lấy theo maxPrice và stepIncrement
         String sql = "SELECT * FROM auto_bid WHERE auction_id = ? AND active = 1 ORDER BY max_price DESC, registered_at ASC";
 
         try (Connection conn = DBConnection.getConnection();
@@ -83,7 +83,7 @@ public class AutoBidDAO {
                     config.setAuctionId(rs.getLong("auction_id"));
                     config.setBidderId(rs.getLong("bidder_id"));
 
-                    // ✅ ĐÃ SỬA: Tên cột chuẩn CamelCase của Database
+                    // Tên cột chuẩn CamelCase của Database
                     config.setMaxPrice(rs.getDouble("max_price"));
                     config.setStepIncrement(rs.getDouble("step_increment"));
 

@@ -14,7 +14,7 @@ public class PaymentDTO implements Serializable {
     private String status;
     private LocalDateTime createdAt;
 
-    // 🚀 Các trường bổ trợ hiển thị thông tin ngân hàng đích của Người Bán lên UI Dialog
+    // Các trường bổ trợ hiển thị thông tin ngân hàng đích của Người Bán lên UI Dialog
     private String sellerBankName;
     private String sellerAccountNumber;
     private String sellerCardholderName;

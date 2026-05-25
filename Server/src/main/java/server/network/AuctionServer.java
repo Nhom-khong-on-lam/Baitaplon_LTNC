@@ -8,10 +8,10 @@ public class AuctionServer {
     private static final int UDP_PORT = 8888; // Cổng phát sóng tìm IP (UDP)
 
     public static void main(String[] args) {
-        // 📡 1. Kích hoạt luồng phát sóng UDP ngầm ra mạng LAN
+        // Kích hoạt luồng phát sóng UDP ngầm ra mạng LAN
         startUDPBeacon();
 
-        // 🔌 2. Mở cổng TCP đón Client vào truyền thông tin
+        // Mở cổng TCP đón Client vào truyền thông tin
         try (ServerSocket serverSocket = new ServerSocket(TCP_PORT)) {
             System.out.println("🟢 [TCP Server] Listening on port: " + TCP_PORT);
 

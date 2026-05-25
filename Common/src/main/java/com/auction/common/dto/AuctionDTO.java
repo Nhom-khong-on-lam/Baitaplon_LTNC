@@ -17,6 +17,7 @@ public class AuctionDTO {
     private String itemName;
     private String category;
     private String sellerUsername;
+    private Double reservePrice;
 
     public AuctionDTO() {}
 
@@ -52,4 +53,6 @@ public class AuctionDTO {
     public void setCategory(String category) { this.category = category; }
     public String getSellerUsername() { return sellerUsername; }
     public void setSellerUsername(String sellerUsername) { this.sellerUsername = sellerUsername; }
+    public double getReservePrice() { return reservePrice; }
+    public void setReservePrice(double reservePrice) { this.reservePrice = reservePrice; }
 }

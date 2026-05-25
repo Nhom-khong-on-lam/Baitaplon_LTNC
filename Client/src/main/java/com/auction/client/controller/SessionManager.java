@@ -17,7 +17,7 @@ public class SessionManager {
     private User currentUser;
     private String token;
 
-    // 🚀 BỘ NHỚ TOÀN CỤC: Đánh dấu các ID phiên đấu giá đã được bấm thanh toán thành công trên Client
+    // BỘ NHỚ TOÀN CỤC: Đánh dấu các ID phiên đấu giá đã được bấm thanh toán thành công trên Client
     private final Set<Long> globallyPaidAuctionIds = new HashSet<>();
 
     // Lưu lịch sử thông báo phiên làm việc hiện tại

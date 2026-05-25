@@ -1,6 +1,5 @@
 package com.auction.common.model;
 
-
 import com.auction.common.enums.AccountStatus;
 import com.auction.common.enums.SystemRole;
 

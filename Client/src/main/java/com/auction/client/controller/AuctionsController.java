@@ -86,7 +86,7 @@ public class AuctionsController {
             auctionListContainer.getChildren().clear();
         }
 
-        // ⚡ BƯỚC 1: ĐỔ NGAY DỮ LIỆU TỪ RAM CACHE RA MÀN HÌNH (0ms)
+        //BƯỚC 1: ĐỔ NGAY DỮ LIỆU TỪ RAM CACHE RA MÀN HÌNH (0ms)
         List<Auction> cached = auctionService.getActiveAuctionsCached();
         if (cached != null && !cached.isEmpty()) {
             this.allAuctions = new ArrayList<>(cached);
@@ -96,7 +96,7 @@ public class AuctionsController {
             resultCount.setText("Loading auctions from server...");
         }
 
-        // 🔄 BƯỚC 2: TÁCH BIỆT HOÀN TOÀN LUỒNG LẤY MẠNG VÀ RENDER
+        // BƯỚC 2: TÁCH BIỆT HOÀN TOÀN LUỒNG LẤY MẠNG VÀ RENDER
         new Thread(() -> {
             try {
                 // Lấy dữ liệu ngầm từ Server qua Socket
@@ -269,10 +269,7 @@ public class AuctionsController {
                 // Gắn dữ liệu Auction vào card
                 card.setUserData(a);
 
-                // 🚀 SỬA TẠI ĐÂY: Chỉ giữ lại DUY NHẤT 1 dòng add này
                 auctionListContainer.getChildren().add(card);
-
-                // ĐÃ XÓA dòng add thứ hai bị trùng lặp ở đây!
             }
 
             visibleCount = end;
