@@ -51,7 +51,7 @@ public class DashboardController {
         // ⚡ BƯỚC 1: HIỂN THỊ NGAY TỨC THÌ DỮ LIỆU TỪ RAM CACHE (0ms - KHÔNG ĐỢI MẠNG)
         com.auction.common.model.DashboardData cachedData = auctionService.getDashboardDataCached();
         if (cachedData != null) {
-            System.out.println("Dashboard bốc từ RAM Cache: Mở phát lên luôn!");
+            System.out.println("Dashboard retrieved from RAM Cache: Instant rendering.");
             renderDashboardUI(cachedData);
         } else {
             welcomeSub.setText("Loading dashboard data...");
@@ -78,7 +78,7 @@ public class DashboardController {
             protected void failed() {
                 System.err.println("Dashboard background refresh failed: " + getException().getMessage());
                 if (auctionService.getDashboardDataCached() == null) {
-                    welcomeSub.setText("Mất kết nối hoặc không thể đồng bộ dữ liệu Dashboard.");
+                    welcomeSub.setText("Connection lost or unable to synchronize Dashboard data.");
                 }
             }
         };

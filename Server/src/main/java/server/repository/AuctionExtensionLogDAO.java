@@ -26,11 +26,11 @@ public class AuctionExtensionLogDAO {
 
             boolean success = ps.executeUpdate() >0;
             if(success) {
-                LOGGER.info("EXTENSION_LOG: Phiên đấu giá ID " + log.getAuctionId() + " được gia hạn từ " + log.getOriginalEndTime() + " đến " + log.getNewEndTime());
+                LOGGER.info("EXTENSION_LOG: Auction ID " + log.getAuctionId() + " has been extended from " + log.getOriginalEndTime() + " to " + log.getNewEndTime());
             }
             return success;
         } catch (SQLException e ) {
-            LOGGER.log(Level.SEVERE, "EXTENSION_ERROR: Lỗi khi ghi log gia hạn cho Auction ID " + log.getAuctionId(), e);
+            LOGGER.log(Level.SEVERE, "EXTENSION_ERROR: Error logging extension for Auction ID: " + log.getAuctionId(), e);
         }
         return false;
     }
@@ -53,7 +53,7 @@ public class AuctionExtensionLogDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "EXTENSION_READ_ERROR: Lỗi truy vấn lịch sử gia hạn cho ID " + auctionId, e);
+            LOGGER.log(Level.SEVERE, "EXTENSION_READ_ERROR: Error querying extension history for ID: " + auctionId, e);
         }
         return logs;
     }

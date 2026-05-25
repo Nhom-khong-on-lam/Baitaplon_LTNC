@@ -238,12 +238,12 @@ public class MyBidsController {
                         || SessionManager.get().isAuctionPaidLocally(a.getId());
 
                 if (isPaid) {
-                    Label paidBadge = new Label("✓ Đã thanh toán");
+                    Label paidBadge = new Label("✓ Paid");
                     paidBadge.setStyle("-fx-background-color:#d1fae5; -fx-text-fill:#065f46;" +
                             "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:4 10; -fx-background-radius:20;");
                     right.getChildren().add(paidBadge);
                 } else {
-                    Button payBtn = new Button("💳 Thanh toán");
+                    Button payBtn = new Button("💳 Pay Now");
                     payBtn.setStyle("-fx-background-color:#10b981; -fx-text-fill:white; -fx-font-weight:bold;" +
                             "-fx-font-size:12px; -fx-cursor:hand; -fx-background-radius:8; -fx-padding:6 14;");
 

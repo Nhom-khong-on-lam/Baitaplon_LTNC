@@ -33,13 +33,13 @@ public class AutoBidDAO {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         long id = rs.getLong(1);
-                        LOGGER.info("INSERT SUCCESS: Đã lưu AutoBid mới ID=" + id + " cho Auction=" + config.getAuctionId());
+                        LOGGER.info("INSERT SUCCESS: New AutoBid saved with ID = " + id + " for Auction = " + config.getAuctionId());
                         return id;
                     }
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "INSERT ERROR: Lỗi khi lưu AutoBidDTO", e);
+            LOGGER.log(Level.SEVERE, "INSERT ERROR: Failed to save AutoBidDTO", e);
         }
         return -1;
     }
@@ -55,14 +55,14 @@ public class AutoBidDAO {
 
             boolean updated = ps.executeUpdate() > 0;
             if (updated) {
-                LOGGER.info("UPDATE SUCCESS: Đã đổi trạng thái AutoBid ID=" + configId + " thành " + isActive);
+                LOGGER.info("UPDATE SUCCESS: Changed status of AutoBid ID = " + configId + " to " + isActive);
             } else {
-                LOGGER.warning("UPDATE WARNING: Không tìm thấy AutoBid ID=" + configId + " để cập nhật trạng thái.");
+                LOGGER.warning("UPDATE WARNING: AutoBid ID = " + configId + " not found for status update.");
             }
             return updated;
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "UPDATE ERROR: Lỗi cập nhật trạng thái AutoBid ID=" + configId, e);
+            LOGGER.log(Level.SEVERE, "UPDATE ERROR: Failed to update status for AutoBid ID = " + configId, e);
         }
         return false;
     }
@@ -94,10 +94,10 @@ public class AutoBidDAO {
 
                     configs.add(config);
                 }
-                LOGGER.info("READ SUCCESS: Lấy thành công " + configs.size() + " cấu hình AutoBid active cho Auction ID=" + auctionId);
+                LOGGER.info("READ SUCCESS:Successfully retrieved " + configs.size() + " active AutoBid configurations for Auction ID = " + auctionId);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi lấy danh sách AutoBid của auction_id=" + auctionId, e);
+            LOGGER.log(Level.SEVERE, "READ ERROR: Failed to retrieve AutoBid list for auction_id = " + auctionId, e);
         }
         return configs;
     }
@@ -121,14 +121,14 @@ public class AutoBidDAO {
 
                     Timestamp ts = rs.getTimestamp("registered_at");
                     if (ts != null) config.setRegisteredAt(ts.toLocalDateTime());
-                    LOGGER.info("READ SUCCESS: Đã tìm thấy AutoBid ID=" + id);
+                    LOGGER.info("READ SUCCESS: AutoBid found with ID = " + id);
                     return config;
                 } else {
-                    LOGGER.warning("READ WARNING: Không tồn tại AutoBid với ID=" + id);
+                    LOGGER.warning("READ WARNING: AutoBid does not exist with ID = " + id);
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi tìm AutoBid theo ID=" + id, e);
+            LOGGER.log(Level.SEVERE, "READ ERROR: Failed to find AutoBid by ID = " + id, e);
         }
         return null;
     }

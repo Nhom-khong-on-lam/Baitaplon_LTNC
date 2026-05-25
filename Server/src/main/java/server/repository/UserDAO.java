@@ -69,13 +69,13 @@ public class UserDAO {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         long generatedId = rs.getLong(1);
-                        LOGGER.info("INSERT SUCCESS: Đã tạo User mới ID=" + generatedId);
+                        LOGGER.info("INSERT SUCCESS: New user created with ID = " + generatedId);
                         return generatedId;
                     }
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "INSERT ERROR: Không thể thêm User " + user.getUsername(), e);
+            LOGGER.log(Level.SEVERE, "INSERT ERROR: Failed to add new user " + user.getUsername(), e);
         }
         return -1;
     }
@@ -87,7 +87,7 @@ public class UserDAO {
             ps.setLong(1, userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi SQL khi xóa User: " + e.getMessage());
+            System.err.println("SQL Error while deleting user: " + e.getMessage());
             return false;
         }
     }
@@ -100,7 +100,7 @@ public class UserDAO {
             ps.setLong(2, userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi SQL khi đổi trạng thái User: " + e.getMessage());
+            System.err.println("SQL Error while changing user status: " + e.getMessage());
             return false;
         }
     }
@@ -115,7 +115,7 @@ public class UserDAO {
                 if (rs.next()) return mapRow(rs);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi tìm user theo field " + fieldName, e);
+            LOGGER.log(Level.SEVERE, "READ ERROR: Failed to fetch user by field " + fieldName, e);
         }
         return null;
     }
@@ -140,7 +140,7 @@ public class UserDAO {
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) users.add(mapRow(rs));
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "READ ALL ERROR: Lỗi lấy danh sách user", e);
+            LOGGER.log(Level.SEVERE, "READ ALL ERROR: Failed to fetch user list", e);
         }
         return users;
     }
@@ -187,10 +187,10 @@ public class UserDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             boolean deleted = ps.executeUpdate() > 0;
-            if (deleted) LOGGER.info("DELETE SUCCESS: Đã xóa User ID=" + id);
+            if (deleted) LOGGER.info("DELETE SUCCESS: Successfully deleted user with ID = " + id);
             return deleted;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "DELETE ERROR: Không thể xóa User ID=" + id, e);
+            LOGGER.log(Level.SEVERE, "DELETE ERROR: Failed to delete user with ID = " + id, e);
         }
         return false;
     }

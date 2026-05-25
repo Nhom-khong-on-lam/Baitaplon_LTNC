@@ -37,7 +37,7 @@ public class PaymentDialogHelper {
         titleLbl.setAlignment(Pos.CENTER);
 
         // Subtitle
-        Label subLbl = new Label("Thực hiện chuyển tiền cho người bán");
+        Label subLbl = new Label("Transfer to Seller");
         subLbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #718096;");
         subLbl.setAlignment(Pos.CENTER);
 
@@ -53,38 +53,38 @@ public class PaymentDialogHelper {
         grid.setVgap(12);
         grid.setPadding(new Insets(10, 0, 10, 0));
 
-        Label itemLabel = new Label("Sản phẩm:");
+        Label itemLabel = new Label("Product:");
         itemLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #4a5568;");
         Label itemVal = new Label(auction.getTitle());
         itemVal.setWrapText(true);
         itemVal.setMaxWidth(220);
 
-        Label sellerLabel = new Label("Người bán:");
+        Label sellerLabel = new Label("Seller:");
         sellerLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #4a5568;");
         Label sellerVal = new Label(auction.getSeller().getUsername());
 
-        Label amountLabel = new Label("Số tiền:");
+        Label amountLabel = new Label("Amount:");
         amountLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #4a5568;");
-        Label amountVal = new Label("Đang tải...");
+        Label amountVal = new Label("Loading...");
         amountVal.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2563eb;");
 
-        Label methodLabel = new Label("Phương thức:");
+        Label methodLabel = new Label("Method:");
         methodLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #4a5568;");
-        Label methodVal = new Label("Chuyển khoản Ngân hàng");
+        Label methodVal = new Label("Bank Transfer");
 
-        Label bankLabel = new Label("Ngân hàng nhận:");
+        Label bankLabel = new Label("Receiving Bank:");
         bankLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #4a5568;");
-        Label bankVal = new Label("Đang tải...");
+        Label bankVal = new Label("Loading...");
         bankVal.setStyle("-fx-font-weight: bold; -fx-text-fill: #2d3748;");
 
-        Label accountLabel = new Label("Số tài khoản:");
+        Label accountLabel = new Label("Account Number:");
         accountLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #4a5568;");
-        Label accountVal = new Label("Đang tải...");
+        Label accountVal = new Label("Loading...");
         accountVal.setStyle("-fx-font-family: monospace; -fx-font-weight: bold; -fx-text-fill: #2d3748;");
 
-        Label cardholderLabel = new Label("Tên chủ thẻ:");
+        Label cardholderLabel = new Label("Account Holder Name:");
         cardholderLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #4a5568;");
-        Label cardholderVal = new Label("Đang tải...");
+        Label cardholderVal = new Label("Loading...");
         cardholderVal.setStyle("-fx-font-weight: bold; -fx-text-fill: #2d3748;");
 
         grid.add(itemLabel, 0, 0);
@@ -103,12 +103,12 @@ public class PaymentDialogHelper {
         grid.add(cardholderVal, 1, 6);
 
         // Buttons
-        Button payBtn = new Button("Xác nhận thanh toán");
+        Button payBtn = new Button("Confirm Payment");
         payBtn.getStyleClass().add("btn-primary");
         payBtn.setMaxWidth(Double.MAX_VALUE);
         payBtn.setStyle("-fx-background-color: #10b981; -fx-pref-height: 40px; -fx-font-weight: bold;");
 
-        Button cancelBtn = new Button("Hủy bỏ");
+        Button cancelBtn = new Button("Cancel");
         cancelBtn.getStyleClass().add("btn-secondary");
         cancelBtn.setMaxWidth(Double.MAX_VALUE);
         cancelBtn.setStyle("-fx-pref-height: 40px;");
@@ -130,7 +130,7 @@ public class PaymentDialogHelper {
 
         payBtn.setDisable(true);
         cancelBtn.setDisable(true);
-        statusMsg.setText("Đang tải thông tin hóa đơn...");
+        statusMsg.setText("Loading invoice details...");
         statusMsg.setStyle("-fx-text-fill: #d97706;");
         statusMsg.setVisible(true);
         statusMsg.setManaged(true);
@@ -144,17 +144,17 @@ public class PaymentDialogHelper {
                 javafx.application.Platform.runLater(() -> {
                     if (p != null) {
                         loadedPayment[0] = p;
-                        amountVal.setText(String.format("%,.0f VND", p.getAmount()));
-                        bankVal.setText(p.getSellerBankName() != null ? p.getSellerBankName() : "Chưa liên kết");
-                        accountVal.setText(p.getSellerAccountNumber() != null ? p.getSellerAccountNumber() : "Chưa liên kết");
-                        cardholderVal.setText(p.getSellerCardholderName() != null ? p.getSellerCardholderName() : "Chưa liên kết");
+                        amountVal.setText(String.format("%,.0f $", p.getAmount()));
+                        bankVal.setText(p.getSellerBankName() != null ? p.getSellerBankName() : "Not linked");
+                        accountVal.setText(p.getSellerAccountNumber() != null ? p.getSellerAccountNumber() : "Not linked");
+                        cardholderVal.setText(p.getSellerCardholderName() != null ? p.getSellerCardholderName() : "Not linked");
 
                         payBtn.setDisable(false);
                         cancelBtn.setDisable(false);
                         statusMsg.setVisible(false);
                         statusMsg.setManaged(false);
                     } else {
-                        statusMsg.setText("✕ Không thể tải thông tin hóa đơn.");
+                        statusMsg.setText("✕ Unable to load invoice details.");
                         statusMsg.setStyle("-fx-text-fill: #ef4444;");
                         cancelBtn.setDisable(false);
                     }
@@ -162,7 +162,7 @@ public class PaymentDialogHelper {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 javafx.application.Platform.runLater(() -> {
-                    statusMsg.setText("✕ Lỗi kết nối hệ thống.");
+                    statusMsg.setText("✕ System connection error.");
                     statusMsg.setStyle("-fx-text-fill: #ef4444;");
                     cancelBtn.setDisable(false);
                 });
@@ -173,7 +173,7 @@ public class PaymentDialogHelper {
             if (loadedPayment[0] == null) return;
             payBtn.setDisable(true);
             cancelBtn.setDisable(true);
-            statusMsg.setText("Đang xử lý giao dịch...");
+            statusMsg.setText("Processing transaction...");
             statusMsg.setStyle("-fx-text-fill: #d97706;");
             statusMsg.setVisible(true);
             statusMsg.setManaged(true);
@@ -185,7 +185,7 @@ public class PaymentDialogHelper {
 
                     javafx.application.Platform.runLater(() -> {
                         if (res != null && res.isSuccess()) {
-                            statusMsg.setText("✓ Thanh toán thành công!");
+                            statusMsg.setText("✓ Payment successful!");
                             statusMsg.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
 
                             javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.millis(800));
@@ -197,7 +197,7 @@ public class PaymentDialogHelper {
                             });
                             pause.play();
                         } else {
-                            statusMsg.setText("✕ Lỗi: " + (res != null ? res.getMessage() : "Không thể kết nối Server"));
+                            statusMsg.setText("✕ Error: " + (res != null ? res.getMessage() : "Unable to connect to server"));
                             statusMsg.setStyle("-fx-text-fill: #ef4444;");
                             payBtn.setDisable(false);
                             cancelBtn.setDisable(false);
@@ -206,7 +206,7 @@ public class PaymentDialogHelper {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     javafx.application.Platform.runLater(() -> {
-                        statusMsg.setText("✕ Lỗi kết nối hệ thống.");
+                        statusMsg.setText("✕ System connection error.");
                         statusMsg.setStyle("-fx-text-fill: #ef4444;");
                         payBtn.setDisable(false);
                         cancelBtn.setDisable(false);

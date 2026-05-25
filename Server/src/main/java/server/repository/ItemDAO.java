@@ -48,7 +48,6 @@ public class ItemDAO {
             }
         } catch (SQLException e) {
 
-            System.err.println("LỖI trong ItemDAO.insert(): " + e.getMessage());
             e.printStackTrace();
         }
         return -1;
@@ -93,11 +92,9 @@ public class ItemDAO {
             ps.setLong(1, id);
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                System.out.println("🗑[DB SUCCESS] Đã xóa Item ID=" + id + " thành công khỏi bảng item.");
                 return true;
             }
         } catch (SQLException e) {
-            System.err.println("❌ LỖI trong ItemDAO.delete(): " + e.getMessage());
             e.printStackTrace();
         }
         return false;

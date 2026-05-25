@@ -15,7 +15,6 @@ public class LoginController {
 
     @FXML private TextField     loginUser;
     @FXML private PasswordField loginPass;
-    @FXML private CheckBox      rememberCheck;
     @FXML private Label         loginMsg;
     @FXML private Button        loginBtn;
     @FXML private VBox          formPanel;
@@ -114,11 +113,6 @@ public class LoginController {
         });
 
         new Thread(loginTask).start();
-    }
-
-    @FXML
-    public void handleForgotPassword() {
-        showInfo("Password reset link sent to your registered email.");
     }
 
     @FXML

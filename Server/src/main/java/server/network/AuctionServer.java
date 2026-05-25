@@ -13,17 +13,17 @@ public class AuctionServer {
 
         // 🔌 2. Mở cổng TCP đón Client vào truyền thông tin
         try (ServerSocket serverSocket = new ServerSocket(TCP_PORT)) {
-            System.out.println("🟢 [TCP Server] Đang mở tại cổng: " + TCP_PORT);
+            System.out.println("🟢 [TCP Server] Listening on port: " + TCP_PORT);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("📶 [TCP Server] Client kết nối từ IP: " + clientSocket.getInetAddress().getHostAddress());
+                System.out.println("📶 [TCP Server] Client connected from IP: " + clientSocket.getInetAddress().getHostAddress());
 
                 // Bàn giao ống Socket duy nhất này cho ClientHandler quản lý vĩnh viễn
                 new ClientHandler(clientSocket).start();
             }
         } catch (IOException e) {
-            System.err.println("❌ [TCP Server] Lỗi khởi động: " + e.getMessage());
+            System.err.println("❌ [TCP Server] Startup error: " + e.getMessage());
         }
     }
 
@@ -43,13 +43,13 @@ public class AuctionServer {
                         UDP_PORT
                 );
 
-                System.out.println("📡 [UDP Beacon] Đang phát sóng tìm Client ngầm từng giây...");
+                System.out.println("📡 [UDP Beacon] Broadcasting for background clients every second...");
                 while (true) {
                     udpSocket.send(packet);
                     Thread.sleep(1000); // Cứ 1 giây phát tín hiệu 1 lần
                 }
             } catch (Exception e) {
-                System.err.println("❌ [UDP Beacon] Lỗi phát sóng: " + e.getMessage());
+                System.err.println("❌ [UDP Beacon] Broadcast error: " + e.getMessage());
             }
         });
         udpThread.setDaemon(true); // Luồng chạy ngầm tự tắt khi tắt app chính

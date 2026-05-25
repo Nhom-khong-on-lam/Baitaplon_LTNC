@@ -27,7 +27,7 @@ public class CloudinaryService {
             // Lấy ra đường link trực tuyến an toàn mạng trả về
             return (String) uploadResult.get("secure_url");
         } catch (Exception e) {
-            System.err.println("Lỗi khi upload ảnh lên Cloudinary: " + e.getMessage());
+            System.err.println("Failed to upload image to Cloudinary: " + e.getMessage());
             e.printStackTrace();
             return null;
         }

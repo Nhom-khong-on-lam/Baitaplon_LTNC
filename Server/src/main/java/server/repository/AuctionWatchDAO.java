@@ -21,7 +21,7 @@ public class AuctionWatchDAO {
             ps.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi addWatch", e);
+            LOGGER.log(Level.SEVERE, "Error in addWatch", e);
             return false;
         }
     }
@@ -34,7 +34,7 @@ public class AuctionWatchDAO {
             ps.setLong(2, auctionId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi removeWatch", e);
+            LOGGER.log(Level.SEVERE, "Error in removeWatch", e);
             return false;
         }
     }
@@ -60,7 +60,7 @@ public class AuctionWatchDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi getWatchListByUserId", e);
+            LOGGER.log(Level.SEVERE, "Error in getWatchListByUserId", e);
         }
         return list;
     }

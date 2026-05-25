@@ -260,8 +260,8 @@ public class AdminAuctionApprovalController {
         });
 
         colActions.setCellFactory(col -> new TableCell<>() {
-            private final Button approveBtn = new Button("✓ Approve");
-            private final Button rejectBtn  = new Button("✗ Reject");
+            private final Button approveBtn = new Button("Approve");
+            private final Button rejectBtn  = new Button("Reject");
             private final Button detailBtn  = new Button("👁");
             private final HBox   box        = new HBox(6, approveBtn, rejectBtn, detailBtn);
 

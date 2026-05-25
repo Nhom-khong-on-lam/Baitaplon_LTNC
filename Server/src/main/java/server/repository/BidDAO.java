@@ -30,13 +30,13 @@ public class BidDAO {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         long id = rs.getLong(1);
-                        LOGGER.info("INSERT SUCCESS: Đã lưu Bid mới ID=" + id + " cho Auction=" + bid.getAuctionId());
+                        LOGGER.info("INSERT SUCCESS: New Bid saved with ID = " + id + " for Auction = " + bid.getAuctionId());
                         return id;
                     }
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "INSERT ERROR: Lỗi khi lưu BidDTO của Auction=" + bid.getAuctionId(), e);
+            LOGGER.log(Level.SEVERE, "INSERT ERROR: Failed to save BidDTO for Auction = " + bid.getAuctionId(), e);
         }
         return -1;
     }
@@ -48,11 +48,11 @@ public class BidDAO {
             ps.setLong(1, auctionId);
             int rowsDeleted = ps.executeUpdate();
 
-            LOGGER.info("DELETE SUCCESS: Đã xóa " + rowsDeleted + " lượt đặt giá thuộc Auction ID=" + auctionId);
+            LOGGER.info("DELETE SUCCESS: Deleted " + rowsDeleted + " bids belonging to Auction ID = " + auctionId);
             return true;
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "DELETE ERROR: Lỗi khi xóa các lượt đặt giá của Auction ID=" + auctionId, e);
+            LOGGER.log(Level.SEVERE, "DELETE ERROR: Failed to delete bids for Auction ID = " + auctionId, e);
             return false;
         }
     }
@@ -82,13 +82,13 @@ public class BidDAO {
                 }
 
                 if (bidHistory.isEmpty()) {
-                    LOGGER.warning("READ WARNING: Không tìm thấy lượt đấu giá nào cho Auction ID=" + auctionId);
+                    LOGGER.warning("READ WARNING: No bids found for Auction ID = " + auctionId);
                 } else {
-                    LOGGER.info("READ SUCCESS: Đã lấy " + bidHistory.size() + " lượt đấu giá cho Auction ID=" + auctionId);
+                    LOGGER.info("READ SUCCESS: Successfully retrieved " + bidHistory.size() + " bids for Auction ID = " + auctionId);
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "READ ERROR: Lỗi lấy danh sách bid của auction_id=" + auctionId, e);
+            LOGGER.log(Level.SEVERE, "READ ERROR: Failed to retrieve bid list for auction_id = " + auctionId, e);
         }
         return bidHistory;
     }
@@ -135,7 +135,7 @@ public class BidDAO {
                 while (rs.next()) list.add(rs.getLong(1));
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi lấy danh sách bidder", e);
+            LOGGER.log(Level.SEVERE, "Failed to retrieve bidder ", e);
         }
         return list;
     }

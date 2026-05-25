@@ -114,7 +114,7 @@ public class AuctionsController {
                     });
                 }
             } catch (Exception e) {
-                System.err.println("Lỗi nạp dữ liệu ngầm đấu giá: " + e.getMessage());
+                System.err.println("Failed to background load auction data:" + e.getMessage());
             }
         }).start();
     }
@@ -278,7 +278,7 @@ public class AuctionsController {
             visibleCount = end;
 
         } catch (Exception e) {
-            System.err.println("Lỗi render thẻ đấu giá: " + e.getMessage());
+            System.err.println("Failed to render auction card: " + e.getMessage());
         } finally {
             isRendering = false;
         }

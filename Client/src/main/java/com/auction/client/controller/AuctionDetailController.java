@@ -100,7 +100,7 @@ public class AuctionDetailController {
                         javafx.application.Platform.runLater(() -> {
                             detailImageIcon.setText("⚠️");
                             detailImageIcon.setStyle("-fx-font-size:50px; -fx-padding:20; -fx-alignment: center; -fx-text-fill: #dc2626;");
-                            System.err.println("❌ Lỗi tải ảnh từ Cloudinary: " + (newValue != null ? newValue.getMessage() : "Unknown error"));
+                            System.err.println("Cloudinary upload failed: " + (newValue != null ? newValue.getMessage() : "Unknown error"));
                         });
                     }
                 });
@@ -153,24 +153,24 @@ public class AuctionDetailController {
         if (!canBid) {
             if (!auction.isLive()) {
                 if (auction.getSeller().getId() == currentUser.getId()) {
-                    String msg = "Phiên đấu giá của bạn đã kết thúc.";
+                    String msg = "Your auction has ended.";
                     if (auction.getHighestBidder() != null) {
-                        msg += "\nNgười thắng: " + auction.getHighestBidder().getUsername();
+                        msg += "\nWinner: " + auction.getHighestBidder().getUsername();
                     } else {
-                        msg += "\nKhông có người mua.";
+                        msg += "\nNo buyers.";
                     }
                     showAuctionResult(msg, "#718096", "#f7fafc");
                 } else if (auction.getHighestBidder() != null && auction.getHighestBidder().getUsername().equals(currentUser.getUsername())) {
-                    showAuctionResult("Chúc mừng bạn đã THẮNG CUỘC!", "#16a34a", "#f0fdf4");
+                    showAuctionResult("Congratulations! You have WON the auction!", "#16a34a", "#f0fdf4");
                 } else {
-                    String msg = "Bạn đã THUA CUỘC.";
+                    String msg = "You did not win this auction.";
                     if (auction.getHighestBidder() != null) {
-                        msg += "\nNgười thắng: " + auction.getHighestBidder().getUsername();
+                        msg += "\nWinner: " + auction.getHighestBidder().getUsername();
                     }
                     showAuctionResult(msg, "#dc2626", "#fef2f2");
                 }
             } else {
-                bidMsg.setText("Bạn không thể đặt giá cho phiên của chính mình.");
+                bidMsg.setText("You cannot bid on your own auction.");
                 bidMsg.setTextFill(Color.web("#718096"));
             }
         }
@@ -206,8 +206,8 @@ public class AuctionDetailController {
                     if (checkRes != null && checkRes.isSuccess() && checkRes.getData() != null) {
                         Object data = checkRes.getData();
                         boolean activeInDB = false;
-                        String maxStr = "(Đang chạy)";
-                        String stepStr = "(Đang chạy)";
+                        String maxStr = "(Loading)";
+                        String stepStr = "(Loading)";
 
                         if (data instanceof Boolean) {
                             activeInDB = (Boolean) data;
@@ -227,7 +227,7 @@ public class AuctionDetailController {
                             if (finalActive) {
                                 isAutoBidActive = true;
                                 // Biến nút thành màu đỏ và chữ Hủy Auto Bid
-                                autoBidBtn.setText("Hủy Auto Bid");
+                                autoBidBtn.setText("Turn Off Auto Bid");
                                 autoBidBtn.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-border-color: #f87171; -fx-font-weight: bold;");
 
                                 // Khóa các trường nhập liệu lại vì cấu hình đang chạy nền
@@ -241,7 +241,7 @@ public class AuctionDetailController {
                         });
                     }
                 } catch (Exception ex) {
-                    System.err.println("Lỗi đồng bộ trạng thái AutoBid nút bấm: " + ex.getMessage());
+                    System.err.println("Auto Bid button status sync failed: " + ex.getMessage());
                 }
             }).start();
         }
@@ -269,32 +269,32 @@ public class AuctionDetailController {
                 if (auction.getSeller() != null && auction.getSeller().getId().equals(curUserId)) {
                     String msg;
                     if (!winnerName.isEmpty()) {
-                        msg = "🎉 Chúc mừng! Bạn đã BÁN THÀNH CÔNG sản phẩm này!\nNgười mua thắng cuộc: " + winnerName;
+                        msg = "🎉 Congratulations! You have SUCCESSFULLY SOLD this item!\nWinning buyer: " + winnerName;
                     } else {
-                        msg = "Phiên đấu giá của bạn đã kết thúc.\nKhông có người mua.";
+                        msg = "Your auction has ended.\nNo buyers.";
                     }
                     showAuctionResult(msg, "#1e40af", "#dbeafe");
                 }
                 // 2. TRƯỜNG HỢP LÀ NGƯỜI ĐÃ TRÚNG ĐẤU GIÁ (Người thắng cuộc) -> 🟢 MÀU XANH LÁ CÂY
                 else if (!winnerName.isEmpty() && winnerName.equals(curUsername)) {
-                    showAuctionResult("🎉 Chúc mừng! Bạn đã THẮNG CUỘC phiên đấu giá này!", "#16a34a", "#f0fdf4");
+                    showAuctionResult("🎉 Congratulations! You have WON this auction!", "#16a34a", "#f0fdf4");
                 }
                 // 3. TRƯỜNG HỢP CÓ THAM GIA ĐẶT GIÁ NHƯNG THUA CUỘC -> 🔴 MÀU ĐỎ
                 // Chỉ những ai thực sự có lịch sử đặt giá và mức giá lớn hơn 0 mới bị tính là Thua cuộc
                 else if (auction.getUserBidAmount(curUserId) > 0) {
-                    String msg = "Bạn đã THUA CUỘC.";
+                    String msg = "You did not win this auction.";
                     if (!winnerName.isEmpty()) {
-                        msg += "\nNgười thắng cuộc: " + winnerName;
+                        msg += "\nWinner: " + winnerName;
                     }
                     showAuctionResult(msg, "#dc2626", "#fef2f2");
                 }
                 // 4. TRƯỜNG HỢP CÒN LẠI: CHỈ BẤM VÀO XEM (Người xem vãng lai như 'nhims') -> 🔵 MÀU XANH NƯỚC BIỂN
                 else {
-                    String msg = "Phiên đấu giá đã kết thúc.";
+                    String msg = "The auction has ended.";
                     if (!winnerName.isEmpty()) {
-                        msg += "\nNgười chiến thắng: " + winnerName;
+                        msg += "\nWinner: " + winnerName;
                     } else {
-                        msg += "\nKhông có người mua.";
+                        msg += "\nNo buyers.";
                     }
                     showAuctionResult(msg, "#1e40af", "#dbeafe");
                 }
@@ -365,24 +365,24 @@ public class AuctionDetailController {
                         if (!canBid) {
                             if (!this.auction.isLive()) {
                                 if (this.auction.getSeller().getId() == currentUser.getId()) {
-                                    String msg = "Phiên đấu giá của bạn đã kết thúc.";
+                                    String msg = "Your auction has ended.";
                                     if (this.auction.getHighestBidder() != null) {
-                                        msg += "\nNgười thắng: " + this.auction.getHighestBidder().getUsername();
+                                        msg += "\nWinner: " + this.auction.getHighestBidder().getUsername();
                                     } else {
-                                        msg += "\nKhông có người mua.";
+                                        msg += "\nNo buyers.";
                                     }
                                     showAuctionResult(msg, "#718096", "#f7fafc");
                                 } else if (this.auction.getHighestBidder() != null && this.auction.getHighestBidder().getUsername().equals(currentUser.getUsername())) {
-                                    showAuctionResult("Chúc mừng bạn đã THẮNG CUỘC!", "#16a34a", "#f0fdf4");
+                                    showAuctionResult("Congratulations! You have WON the auction!", "#16a34a", "#f0fdf4");
                                 } else {
-                                    String msg = "Bạn đã THUA CUỘC.";
+                                    String msg = "You did not win this auction.";
                                     if (this.auction.getHighestBidder() != null) {
-                                        msg += "\nNgười thắng: " + this.auction.getHighestBidder().getUsername();
+                                        msg += "\nWinner: " + this.auction.getHighestBidder().getUsername();
                                     }
                                     showAuctionResult(msg, "#dc2626", "#fef2f2");
                                 }
                             } else {
-                                bidMsg.setText("Bạn không thể đặt giá cho phiên của chính mình.");
+                                bidMsg.setText("You cannot bid on your own auction.");
                                 bidMsg.setTextFill(Color.web("#718096"));
                             }
                         }
@@ -400,11 +400,11 @@ public class AuctionDetailController {
                                     BidTransaction bid = history.get(i);
                                     if (bid.getBidder().getId() != currentUser.getId()) {
                                         String bidType = bid.isAutoBid() ? "(Auto Bid)" : "";
-                                        String msg = "🔔 Có người vừa đặt giá mới!\n" + bid.getBidder().getUsername() + " đặt " + String.format("%,.0f", bid.getAmount()) + " " + bidType;
+                                        String msg = "🔔 A new bid has been placed!\n" + bid.getBidder().getUsername() + " bid " + String.format("%,.0f", bid.getAmount()) + " " + bidType;
                                         showToast(msg, toastOffset++);
-                                        SessionManager.get().addNotification("Có người vừa đặt giá mới: " + bid.getBidder().getUsername() + " đặt " + String.format("%,.0f", bid.getAmount()) + " " + bidType);
+                                        SessionManager.get().addNotification("New bid placed: " + bid.getBidder().getUsername() + " bid " + String.format("%,.0f", bid.getAmount()) + " " + bidType);
                                     } else if (bid.isAutoBid()) {
-                                        String msg = "🤖 Auto Bid của bạn vừa tự động nâng giá!\nBạn đặt " + String.format("%,.0f", bid.getAmount());
+                                        String msg = "🤖 Your Auto Bid has automatically increased!\nBạn đặt " + String.format("%,.0f", bid.getAmount());
                                         showToast(msg, toastOffset++);
                                         SessionManager.get().addNotification("Auto Bid của bạn vừa tự động nâng giá lên " + String.format("%,.0f", bid.getAmount()));
                                     }
@@ -414,7 +414,7 @@ public class AuctionDetailController {
                     });
                 }
             } catch (Exception ex) {
-                System.err.println("Lỗi đồng bộ dữ liệu phiên đấu giá: " + ex.getMessage());
+                System.err.println("Failed to synchronize auction session data: " + ex.getMessage());
             }
         }).start();
     }
@@ -443,7 +443,7 @@ public class AuctionDetailController {
         // Chống lỗi crash nếu vô tình linh kiện FXML chưa được map trúng ID
         if (autoBidLimitField == null || autoBidStepField == null || autoBidBtn == null) {
             // Nếu bị lỗi này, bạn hãy kiểm tra file .fxml xem fx:id của ô nhập và nút bấm đã đặt đúng tên chưa nhé!
-            showAlert(Alert.AlertType.ERROR, "Lỗi Giao Diện", "Các ô nhập liệu AutoBid chưa được kết nối đúng với FXML (fx:id)!");
+            showAlert(Alert.AlertType.ERROR, "UI Error","AutoBid input fields are not properly linked to FXML (fx:id)!");
             return;
         }
 
@@ -468,16 +468,16 @@ public class AuctionDetailController {
                         if (res != null && res.isSuccess()) {
                             isAutoBidActive = false;
 
-                            autoBidBtn.setText("Kích hoạt Auto Bid");
+                            autoBidBtn.setText("Turn On Auto Bid");
                             autoBidBtn.setStyle("-fx-background-color: #ebf8ff; -fx-text-fill: #2b6cb0; -fx-border-color: #4299e1; -fx-font-weight: bold;");
                             autoBidLimitField.setDisable(false);
                             autoBidStepField.setDisable(false);
                             autoBidLimitField.clear();
                             autoBidStepField.clear();
 
-                            showBidSuccess("🎉 Đã hủy chế độ Đấu giá tự động thành công!");
+                            showBidSuccess("🎉 Auto-bid mode has been successfully canceled!");
                         } else {
-                            showBidError(res != null ? res.getMessage() : "Lỗi: Mất kết nối Server!");
+                            showBidError(res != null ? res.getMessage() : "Error: Server connection lost!");
                         }
                     });
                 } catch (Exception ex) {
@@ -492,7 +492,7 @@ public class AuctionDetailController {
         String stepTxt = autoBidStepField.getText().trim();
 
         if (maxTxt.isEmpty() || stepTxt.isEmpty()) {
-            showBidError("Vui lòng nhập đầy đủ thông tin AutoBid!");
+            showBidError("Please fill in all AutoBid fields!");
             return;
         }
 
@@ -501,12 +501,12 @@ public class AuctionDetailController {
             double stepIncrement = Double.parseDouble(stepTxt);
 
             if (maxPrice <= auction.getCurrentPrice()) {
-                showBidError("Giá tối đa phải lớn hơn giá hiện tại (" + String.format("%,.0f", auction.getCurrentPrice()) + ")!");
+                showBidError("Maximum bid must be greater than the current price (" + String.format("%,.0f", auction.getCurrentPrice()) + ")!");
                 AnimationUtil.shake(autoBidLimitField);
                 return;
             }
             if (stepIncrement <= 0) {
-                showBidError("Bước nhảy giá phải lớn hơn 0!");
+                showBidError("Bid increment must be greater than 0!");
                 AnimationUtil.shake(autoBidStepField);
                 return;
             }
@@ -529,15 +529,15 @@ public class AuctionDetailController {
                         if (res != null && res.isSuccess()) {
                             isAutoBidActive = true;
 
-                            autoBidBtn.setText("Hủy Auto Bid");
+                            autoBidBtn.setText("Turn Off Auto Bid");
                             autoBidBtn.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-border-color: #f87171; -fx-font-weight: bold;");
 
                             autoBidLimitField.setDisable(true);
                             autoBidStepField.setDisable(true);
 
-                            showBidSuccess("🚀 Đã kích hoạt Đấu giá tự động thành công!");
+                            showBidSuccess("🚀 Auto-bid has been successfully activated!");
                         } else {
-                            showBidError(res != null ? res.getMessage() : "Server từ chối kích hoạt!");
+                            showBidError(res != null ? res.getMessage() : "Server refused activation!");
                         }
                     });
                 } catch (Exception ex) {
@@ -546,14 +546,14 @@ public class AuctionDetailController {
             }).start();
 
         } catch (NumberFormatException e) {
-            showBidError("Vui lòng nhập số hợp lệ vào ô thông tin!");
+            showBidError("Please enter a valid number in the input fields!");
         }
     }
     // ── Place bid ─────────────────────────────────────────────
     @FXML public void handlePlaceBid() {
         if (auction.getSeller().getId().equals(currentUser.getId())) {
             // Hiển thị thông báo cảnh báo lỗi bằng Alert hoặc Label thông báo
-            showAlert(Alert.AlertType.WARNING, "Lỗi đặt giá", "Bạn không thể tự đặt giá cho sản phẩm của chính mình!");
+            showAlert(Alert.AlertType.WARNING, "Bidding Error", "You cannot bid on your own product!");
             return; // Dừng xử lý luôn, không gửi request lên Server nữa
         }
         String txt = bidAmountField.getText().trim();
@@ -638,12 +638,12 @@ public class AuctionDetailController {
                 // Nhận kết quả từ Server trả về và xử lý giao diện an toàn
                 javafx.application.Platform.runLater(() -> {
                     if (res != null && res.isSuccess()) {
-                        showBidSuccess("⏳ Đã gia hạn thời gian phiên đấu giá thêm " + hoursToExtend + " giờ thành công!");
+                        showBidSuccess("⏳ Auction time successfully extended by " + hoursToExtend + " hours!");
 
                         // Cho phép nút bấm pulse nhẹ một cái tạo hiệu ứng trực quan
-                        System.out.println("🎉 [CLIENT SUCCESS] Phiên " + this.auction.getId() + " đã được Server mở lại trạng thái LIVE.");
+                        System.out.println("🎉 [CLIENT SUCCESS] Auction " + this.auction.getId() + " has been reopened to LIVE status by the server.");
                     } else {
-                        showBidError(res != null ? res.getMessage() : "Gia hạn thất bại: Mất kết nối Server!");
+                        showBidError(res != null ? res.getMessage() : "Extension failed: Server connection lost!");
                     }
                 });
             } catch (Exception ex) {

@@ -312,7 +312,7 @@ public class AdminAuctionsController {
                 javafx.application.Platform.runLater(() -> {
                     if (success) {
                         refreshCurrentTab();
-                        showInfo("✓ Auction extended successfully.");
+                        showInfo("Auction extended successfully.");
                     } else {
                         showError("Failed to extend auction.");
                     }
@@ -352,7 +352,7 @@ public class AdminAuctionsController {
                             // Vẽ lại bảng dữ liệu dựa trên tab hiện tại (Phòng này sẽ tự động biến mất khỏi tab LIVE và nhảy sang tab FINISHED)
                             refreshCurrentTab();
 
-                            showInfo("✓ Auction ended early successfully.");
+                            showInfo("Auction ended early successfully.");
                         } else {
                             showError("Server refused to end early. Maybe there are no bids or connection error.");
                         }
@@ -400,7 +400,7 @@ public class AdminAuctionsController {
                                 totalLabel.setText(allAuctions.size() + " auctions");
                             }
 
-                            showInfo("✓ Auction and its item have been deleted successfully from database.");
+                            showInfo("Auction and its item have been deleted successfully from database.");
                         });
 
                     } catch (Exception e) {
@@ -438,9 +438,6 @@ public class AdminAuctionsController {
             case "Art"         -> "🎨";
             case "Electronics" -> "💻";
             case "Vehicle"     -> "🚗";
-            case "Jewelry"     -> "💎";
-            case "Fashion"     -> "👗";
-            case "Real Estate" -> "🏠";
             default            -> "📦";
         };
     }

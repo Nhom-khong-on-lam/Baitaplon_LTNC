@@ -31,7 +31,7 @@ public class ServerConnection {
 
     // 📡 Hàm bắt sóng UDP để lấy IP thật của máy Server trong mạng LAN
     private void discoverServerIP() {
-        System.out.println("🔍 [UDP Client] Đang quét tìm Server trong mạng LAN...");
+        System.out.println("🔍 [UDP Client] Scanning for Server in LAN...");
         try (DatagramSocket udpSocket = new DatagramSocket(UDP_PORT)) {
             udpSocket.setSoTimeout(3000); // Đợi tối đa 3 giây, quá hạn coi như lỗi
 
@@ -45,11 +45,11 @@ public class ServerConnection {
             if ("AUCTION_SERVER_IP_HERE".equals(message)) {
                 // Hốt lấy IP của máy Server gửi đến
                 discoveredServerIp = packet.getAddress().getHostAddress();
-                System.out.println("🟢 [UDP Client] Tìm thấy IP Server mạng LAN: " + discoveredServerIp);
+                System.out.println("🟢 [UDP Client] Found LAN Server IP: " + discoveredServerIp);
                 return;
             }
         } catch (Exception e) {
-            System.out.println("⚠️ [UDP Client] Không tìm thấy Server LAN qua UDP, chuyển về mặc định localhost.");
+            System.out.println("⚠️ [UDP Client] LAN Server not found via UDP, reverting to default localhost.");
         }
         discoveredServerIp = "127.0.0.1"; // Phương án dự phòng nếu chạy cùng 1 máy
     }
@@ -62,9 +62,9 @@ public class ServerConnection {
             this.socket = new Socket(discoveredServerIp, TCP_PORT);
             this.out = new ObjectOutputStream(socket.getOutputStream());
             this.in = new ObjectInputStream(socket.getInputStream());
-            System.out.println("🟢 [TCP Client] Đã thông suốt ống TCP duy nhất tới Server!");
+            System.out.println("🟢 [TCP Client] Single TCP connection established to the server!");
         } catch (IOException e) {
-            System.err.println("❌ [TCP Client] Lỗi kết nối Socket: " + e.getMessage());
+            System.err.println("❌ [TCP Client] Socket connection error: " + e.getMessage());
         }
     }
 
@@ -81,7 +81,7 @@ public class ServerConnection {
                 out.reset();
                 return in.readObject();
             } catch (IOException e) {
-                System.err.println("❌ [TCP Client] Đứt đường truyền, đang thiết lập lại ống...");
+                System.err.println("❌ [TCP Client] Connection lost, re-establishing connection...");
                 closeConnection();
                 connectToServer();
                 throw e;
@@ -101,9 +101,9 @@ public class ServerConnection {
             if (out != null) out.close();
             if (in != null) in.close();
             if (socket != null && !socket.isClosed()) socket.close();
-            System.out.println("🧹 [Client] Đã đóng Socket sau khi Log Out.");
+            System.out.println("🧹 [Client] Socket closed after logging out.");
         } catch (IOException e) {
-            System.err.println("❌ [Client] Lỗi dọn dẹp Socket: " + e.getMessage());
+            System.err.println("❌ [Client] Error cleaning up socket: " + e.getMessage());
         } finally {
             socket = null; out = null; in = null;
         }

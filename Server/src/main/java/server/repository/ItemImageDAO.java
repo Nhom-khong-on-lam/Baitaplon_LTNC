@@ -29,7 +29,6 @@ public class ItemImageDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi getImagesByItemId: " + e.getMessage());
             e.printStackTrace();
         }
         return images;
@@ -46,7 +45,6 @@ public class ItemImageDAO {
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi insert ItemImage: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -61,7 +59,6 @@ public class ItemImageDAO {
             ps.setLong(1, itemId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi delete ItemImage: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -82,7 +79,6 @@ public class ItemImageDAO {
                 images.add(img);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi getAll ItemImage: " + e.getMessage());
             e.printStackTrace();
         }
         return images;

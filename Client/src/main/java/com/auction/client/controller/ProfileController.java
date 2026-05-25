@@ -71,7 +71,7 @@ public class ProfileController {
                             // Đẩy lên UI Thread để vẽ lại số tiền thật lên màn hình!
                             javafx.application.Platform.runLater(() -> {
                                 if (lblCurrentBalance != null) {
-                                    lblCurrentBalance.setText(String.format("%,.0f VND", realBalance));
+                                    lblCurrentBalance.setText(String.format("%,.0f $", realBalance));
                                 }
                             });
                         }
@@ -128,15 +128,15 @@ public class ProfileController {
 
         // 🚀 CẬP NHẬT CHUẨN XÁC: Vẽ số dư lấy từ luồng SessionManager lên màn hình
         if (lblCurrentBalance != null) {
-            lblCurrentBalance.setText(String.format("%,.0f VND", currentUser.getBalance()));
+            lblCurrentBalance.setText(String.format("%,.0f $", currentUser.getBalance()));
         }
         if (infoBankName != null) {
             infoBankName.setText(currentUser.getBankName() != null && !currentUser.getBankName().isEmpty()
-                    ? currentUser.getBankName() : "Chưa liên kết");
+                    ? currentUser.getBankName() : "Not Linked");
         }
         if (infoAccountNumber != null) {
             infoAccountNumber.setText(currentUser.getAccountNumber() != null && !currentUser.getAccountNumber().isEmpty()
-                    ? currentUser.getAccountNumber() : "Chưa liên kết");
+                    ? currentUser.getAccountNumber() : "Not Linked");
         }
     }
 
@@ -291,13 +291,13 @@ public class ProfileController {
     @FXML
     public void handleTopUp() {
         if (txtTopUpAmount == null) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Chưa kết nối text field nạp tiền!");
+            showAlert(Alert.AlertType.ERROR, "Error", "Deposit text field is not connected!");
             return;
         }
 
         String amountStr = txtTopUpAmount.getText().trim();
         if (amountStr.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thông báo", "Vui lòng nhập số tiền cần nạp!");
+            showAlert(Alert.AlertType.WARNING, "Notification", "Please enter the deposit amount!");
             AnimationUtil.shake(txtTopUpAmount);
             return;
         }
@@ -305,7 +305,7 @@ public class ProfileController {
         try {
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {
-                showAlert(Alert.AlertType.WARNING, "Lỗi số tiền", "Số tiền nạp vào phải lớn hơn 0 VND!");
+                showAlert(Alert.AlertType.WARNING, "Invalid Amount", "The deposit amount must be greater than $0!");
                 AnimationUtil.shake(txtTopUpAmount);
                 return;
             }
@@ -331,26 +331,26 @@ public class ProfileController {
 
                             // 4. Ép giao diện vẽ lại thay số 0 cũ thành số tiền mới tinh vừa nạp
                             if (lblCurrentBalance != null) {
-                                lblCurrentBalance.setText(String.format("%,.0f VND", newBalance));
+                                lblCurrentBalance.setText(String.format("%,.0f $", newBalance));
                             }
 
                             txtTopUpAmount.clear(); // Xóa trống ô nhập
-                            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Nạp tiền thành công! Số dư mới: " + String.format("%,.0f VND", newBalance));
+                            showAlert(Alert.AlertType.INFORMATION, "Success", "Deposit successful! New balance: " + String.format("%,.0f $", newBalance));
                         } else {
-                            showAlert(Alert.AlertType.ERROR, "Thất bại", res != null ? res.getMessage() : "Lỗi kết nối Server.");
+                            showAlert(Alert.AlertType.ERROR, "Failed", res != null ? res.getMessage() : "Server connection error.");
                         }
                     });
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     javafx.application.Platform.runLater(() -> {
                         txtTopUpAmount.setDisable(false);
-                        showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể kết nối mạng tới Server.");
+                        showAlert(Alert.AlertType.ERROR, "Error", "Unable to connect to the server.");
                     });
                 }
             }).start();
 
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Sai định dạng", "Số tiền nhập vào bắt buộc phải là ký tự số!");
+            showAlert(Alert.AlertType.ERROR, "Invalid format", "The amount entered must be a valid number!");
             txtTopUpAmount.setDisable(false);
             AnimationUtil.shake(txtTopUpAmount);
         }

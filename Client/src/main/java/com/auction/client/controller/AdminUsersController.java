@@ -259,9 +259,9 @@ public class AdminUsersController {
                         if (isSuccess) {
                             user.setAccountStatus(newStatus);
                             usersTable.refresh(); // Làm mới bảng lập tức
-                            showInfo(user.getUsername() + " has been " + action.toLowerCase() + "ned thành công.");
+                            showInfo(user.getUsername() + " has been " + action.toLowerCase() + "ned successfully.");
                         } else {
-                            showError("Thất bại! Server từ chối cập nhật trạng thái.");
+                            showError("Failed! The server refused to update the status.");
                         }
                     });
                 }).start();
@@ -287,9 +287,9 @@ public class AdminUsersController {
                             // Xóa hoàn toàn khỏi mảng dữ liệu đang hiển thị trên bảng
                             allUsers.removeIf(u -> u.getId().equals(user.getId()));
                             loadTable(allUsers); // Hàm load lại bảng giao diện của bạn
-                            showInfo("User \"" + user.getUsername() + "\" đã bị xóa vĩnh viễn.");
+                            showInfo("User \"" + user.getUsername() + "\" has been permanently deleted.");
                         } else {
-                            showError("Xóa thất bại! Người dùng này có thể đang có phòng đấu giá hoặc lượt đặt giá hợp lệ.");
+                            showError("Deletion failed! This user may have active auctions or valid bids.");
                         }
                     });
                 }).start();

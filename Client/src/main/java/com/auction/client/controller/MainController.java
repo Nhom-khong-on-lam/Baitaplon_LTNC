@@ -159,12 +159,12 @@ public class MainController {
         java.util.List<com.auction.common.dto.NotificationDTO> notifs = auctionService.getNotifications(SessionManager.get().getUser().getId());
 
         if (notifs == null || notifs.isEmpty()) {
-            MenuItem emptyItem = new MenuItem("Không có thông báo nào");
+            MenuItem emptyItem = new MenuItem("You have no notifications.");
             emptyItem.setDisable(true);
             menu.getItems().add(emptyItem);
         } else {
             // Tiêu đề nhỏ gọn đặt ở trên cùng bảng thông báo
-            MenuItem titleItem = new MenuItem("Thông báo gần đây");
+            MenuItem titleItem = new MenuItem("Recent Notifications");
             titleItem.setStyle("-fx-font-weight: bold; -fx-text-fill: #2b6cb0; -fx-font-size: 11px;");
             titleItem.setDisable(true);
             menu.getItems().add(titleItem);

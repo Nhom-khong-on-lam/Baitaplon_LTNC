@@ -60,7 +60,7 @@ public class UserSessionDAO {
                 return true;
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "INSERT SESSION ERROR: Không thể thêm session mới", e);
+            LOGGER.log(Level.SEVERE, "INSERT SESSION ERROR: Failed to create new session", e);
         }
         return false;
     }
@@ -78,7 +78,7 @@ public class UserSessionDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "FIND SESSION ERROR: Lỗi tìm kiếm session với token=" + token, e);
+            LOGGER.log(Level.SEVERE, "FIND SESSION ERROR: Failed to fetch session with token = " + token, e);
         }
         return null;
     }
@@ -92,11 +92,11 @@ public class UserSessionDAO {
             ps.setString(1, token);
             boolean deleted = ps.executeUpdate() > 0;
             if (deleted) {
-                LOGGER.info("DELETE SESSION SUCCESS: Đã xóa session của token = " + token);
+                LOGGER.info("DELETE SESSION SUCCESS: Successfully deleted session for token =  " + token);
             }
             return deleted;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "DELETE SESSION ERROR: Không thể xóa session", e);
+            LOGGER.log(Level.SEVERE, "DELETE SESSION ERROR: Failed to delete session", e);
         }
         return false;
     }

@@ -40,7 +40,7 @@ public class NotificationDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi tạo thông báo", e);
+            LOGGER.log(Level.SEVERE, "Failed to create notification", e);
         }
         return -1;
     }
@@ -77,7 +77,7 @@ public class NotificationDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi đọc danh sách thông báo chưa đọc", e);
+            LOGGER.log(Level.SEVERE, "Failed to fetch unread notifications", e);
         }
         return list;
     }
@@ -114,7 +114,7 @@ public class NotificationDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi đọc danh sách thông báo của user", e);
+            LOGGER.log(Level.SEVERE, "Failed to fetch notification list for user", e);
         }
         return list;
     }
@@ -126,7 +126,7 @@ public class NotificationDAO {
             ps.setLong(1, notificationId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi cập nhật trạng thái đã đọc thông báo", e);
+            LOGGER.log(Level.SEVERE, "Failed to update notification read status", e);
             return false;
         }
     }
@@ -138,7 +138,7 @@ public class NotificationDAO {
             ps.setLong(1, userId);
             return ps.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi cập nhật đọc tất cả thông báo", e);
+            LOGGER.log(Level.SEVERE, "Failed to mark all notifications as read", e);
             return 0;
         }
     }

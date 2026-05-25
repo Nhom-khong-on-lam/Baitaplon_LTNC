@@ -45,7 +45,7 @@ public class ClientHandler extends Thread {
                 Object requestObj = in.readObject();
                 if (requestObj == null) break;
 
-                System.out.println("📩 [Server] Nhận được gói tin từ Client: " + requestObj.getClass().getSimpleName());
+                System.out.println("📩 [Server] Received packet from client: " + requestObj.getClass().getSimpleName());
 
                 // 🔴 BƯỚC SỬA QUYẾT ĐỊNH:
                 // Bạn hãy tìm lại file ClientHandler.java GỐC (lúc chưa sửa gì hôm qua)
@@ -64,9 +64,9 @@ public class ClientHandler extends Thread {
 
                 // Gửi trả kết quả xịn (Không còn bị null hay bị lệch kiểu dữ liệu nữa)
                 if (responseObj != null) {
-                    System.out.println("📤 [Server] Gửi trả phản hồi thành công: " + responseObj.getClass().getSimpleName());
+                    System.out.println("📤 [Server] Successfully sent response: " + responseObj.getClass().getSimpleName());
                 } else {
-                    System.out.println("⚠️ [Server] Cảnh báo: responseObj đang bị NULL! Kiểm tra lại hàm xử lý logic.");
+                    System.out.println("⚠️ [Server] WARNING: responseObj is NULL! Check the business logic handler.");
                 }
 
                 objectOut.writeObject(responseObj);
@@ -97,7 +97,7 @@ public class ClientHandler extends Thread {
                 // ── VÁ LỖI TỰ ĐỘNG: Nếu đăng nhập bằng admin, tự băm lại pass bằng chính Java ──
                 if (user != null && "admin".equals(user.getUsername())) {
                     String javaHashed = org.mindrot.jbcrypt.BCrypt.hashpw("123456", org.mindrot.jbcrypt.BCrypt.gensalt());
-                    out.println("⚡ CHUỖI MẬT KHẨU MỚI DO JAVA TỰ SINH: " + javaHashed);
+                    out.println("SECURITY: Auto-generated new password by Java:: " + javaHashed);
 
                     // Gán chuỗi mới tinh này vào user để tí nữa hàm checkpw chắc chắn qua
                     user.setPassword(javaHashed);
@@ -151,7 +151,7 @@ public class ClientHandler extends Thread {
                         }
                     }
                 } catch (java.sql.SQLException e) {
-                    System.out.println("❌ Lỗi check trạng thái AutoBid: " + e.getMessage());
+                    System.out.println("AUTOBID ERROR: Failed to check AutoBid status: " + e.getMessage());
                 }
 
                 // Trả về DTO
@@ -181,7 +181,7 @@ public class ClientHandler extends Thread {
                         }
                     }
                 } catch (java.sql.SQLException e) {
-                    out.println("Lỗi kiểm tra cấu hình tồn tại: " + e.getMessage());
+                    out.println("CONFIG ERROR: Failed to check configuration existence: " + e.getMessage());
                 }
 
                 // 3. 🚀 ĐỔI CHIẾN THUẬT: Nhận diện luồng bằng maxPrice để chống lỗi biến Boolean active
@@ -192,12 +192,12 @@ public class ClientHandler extends Thread {
                         // Gọi hàm updateActiveStatus(id, active) có sẵn trong DAO của bạn để tắt đi
                         boolean isUpdated = autoBidDAO.updateActiveStatus(existingId, false);
                         if (isUpdated) {
-                            responseToClient = new Response(true, "Đã hủy chế độ tự động và lưu lịch sử thành công!", null);
+                            responseToClient = new Response(true, "AUTOBID SUCCESS: AutoBid disabled and history log saved successfully!", null);
                         } else {
-                            responseToClient = new Response(false, "Lỗi: Không thể cập nhật trạng thái hủy vào CSDL!", null);
+                            responseToClient = new Response(false, "DATABASE ERROR: Failed to update cancellation status in DB!", null);
                         }
                     } else {
-                        responseToClient = new Response(false, "Không tìm thấy cấu hình Auto Bid hoạt động để hủy!", null);
+                        responseToClient = new Response(false, "AUTOBID WARNING: No active AutoBid configuration found to cancel!", null);
                     }
 
                 } else {
@@ -215,21 +215,21 @@ public class ClientHandler extends Thread {
 
                             int rows = ps.executeUpdate();
                             if (rows > 0) {
-                                responseToClient = new Response(true, "Cập nhật và kích hoạt Auto Bid thành công!", existingId);
+                                responseToClient = new Response(true, "AUTOBID SUCCESS: AutoBid configured and activated successfully!", existingId);
                             } else {
-                                responseToClient = new Response(false, "Lỗi khi cập nhật cấu hình Auto Bid!", null);
+                                responseToClient = new Response(false, "AUTOBID ERROR: Failed to update AutoBid configuration!", null);
                             }
                         } catch (java.sql.SQLException e) {
-                            responseToClient = new Response(false, "Lỗi SQL: " + e.getMessage(), null);
+                            responseToClient = new Response(false, "SQL Error: " + e.getMessage(), null);
                         }
                     } else {
                         // Nếu hoàn toàn chưa có bản ghi nào, tiến hành INSERT mới từ đầu
                         autoBidDto.setActive(true); // Ép cứng trạng thái hoạt động trước khi lưu
                         long newId = autoBidDAO.insert(autoBidDto);
                         if (newId != -1) {
-                            responseToClient = new Response(true, "Kích hoạt tự động đấu giá thành công!", newId);
+                            responseToClient = new Response(true, "AUTOBID SUCCESS: Auto-bid activated successfully!", newId);
                         } else {
-                            responseToClient = new Response(false, "Lỗi hệ thống: Không thể lưu cấu hình mới!", null);
+                            responseToClient = new Response(false, "Auto-bid successfully enabled!", null);
                         }
                     }
                 }
@@ -248,7 +248,7 @@ public class ClientHandler extends Thread {
                             }
                         }
                     } catch (Exception e) {
-                        System.err.println("Lỗi kích hoạt AutoBid ngay lập tức: " + e.getMessage());
+                        System.err.println("Error during immediate AutoBid activation: " + e.getMessage());
                     }
                 }
 
@@ -280,7 +280,7 @@ public class ClientHandler extends Thread {
                     }
 
                     if (newUser == null) {
-                        System.err.println("❌ LỖI ĐĂNG KÝ: Dữ liệu Client gửi lên không hợp lệ (Null hoặc sai kiểu Class)!");
+                        System.err.println("❌ REGISTRATION ERROR: Invalid client payload (Null or Class Type Mismatch)!");
                         return Response.error("Invalid registration data form.");
                     }
 
@@ -309,14 +309,14 @@ public class ClientHandler extends Thread {
                     long generatedId = userDAO.insert(newUser);
                     if (generatedId != -1) {
                         newUser.setId(generatedId);
-                        out.println("🚀 [SUCCESS] Đăng ký thành công thành viên mới: " + newUser.getUsername());
+                        out.println("🚀 [SUCCESS] Successfully registered new member: " + newUser.getUsername());
                         return Response.ok(toClientUser(newUser));
                     } else {
                         return Response.error("Database error. Failed to save account.");
                     }
 
                 } catch (Exception ex) {
-                    System.err.println(" LỖI NGHIÊM TRỌNG TRONG LUỒNG REGISTER: " + ex.getMessage());
+                    System.err.println(" CRITICAL ERROR IN REGISTER FLOW: " + ex.getMessage());
                     ex.printStackTrace();
                     return Response.error("Server internal error during registration.");
                 }
@@ -380,18 +380,18 @@ public class ClientHandler extends Thread {
                     AuctionDTO auctionDto = auctionDAO.findById(auctionId);
 
                     if (auctionDto == null) {
-                        System.out.println("❌ [PLACE_BID ERROR] Phiên đấu giá ID=" + auctionId + " không tồn tại.");
-                        return Response.error("Phiên đấu giá không tồn tại.");
+                        System.out.println("❌ [PLACE_BID ERROR] Auction with ID = " + auctionId + " does not exist.");
+                        return Response.error("Auction does not exist.");
                     }
 
                     if (auctionDto.getSellerId() == bidder.getId()) {
-                        System.out.println("❌ [SECURITY VIOLATION] User ID=" + bidder.getId() + " cố tình đặt giá phòng của chính mình!");
-                        return Response.error("Bạn không thể tự đặt giá phòng của mình.");
+                        System.out.println("❌ [SECURITY VIOLATION] User ID=" + bidder.getId() + " attempted to bid on their own auction!");
+                        return Response.error("You cannot bid on your own auction.");
                     }
 
                     if (bidAmount <= auctionDto.getCurrentPrice()) {
-                        System.out.println("❌ [PLACE_BID ERROR] Mức giá đặt (" + bidAmount + ") nhỏ hơn hoặc bằng giá hiện tại (" + auctionDto.getCurrentPrice() + ").");
-                        return Response.error("Giá đặt của bạn đã bị người khác vượt lên trước đó. Hãy tải lại trang!");
+                        System.out.println("❌ [PLACE_BID ERROR] Bid amount (" + bidAmount + ") must be higher than current price (" + auctionDto.getCurrentPrice() + ").");
+                        return Response.error("Your bid has been outbid by another user. Please refresh the page!");
                     }
 
                     auctionDto.setCurrentPrice(bidAmount);
@@ -404,14 +404,13 @@ public class ClientHandler extends Thread {
                         long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
                         if (secondsRemaining <= 180) {
                             auctionDto.setEndTime(endTime.plusSeconds(180));
-                            System.out.println("⏳ [ANTI-SNIPING ACTIVATED] Phiên " + auctionId + " được gia hạn thêm 3 phút.");
+                            System.out.println("⏳ [ANTI-SNIPING ACTIVATED] Auction " + auctionId + " has been extended by 3 minutes.");
                         }
                     }
 
                     boolean updateSuccess = auctionDAO.update(auctionDto);
                     if (!updateSuccess) {
-                        System.out.println("❌ [DATABASE ERROR] Không thể cập nhật giá mới cho Auction ID=" + auctionId);
-                        return Response.error("Lỗi kết nối cơ sở dữ liệu khi đặt giá.");
+                        return Response.error("Database connection error while placing bid.");
                     }
 
                     server.repository.BidDAO bidDAO = new server.repository.BidDAO();
@@ -423,7 +422,7 @@ public class ClientHandler extends Thread {
                     bidDto.setAutoBid(false); // Đánh dấu lượt đặt giá thủ công từ Client
                     bidDAO.insert(bidDto);
 
-                    System.out.println("💰 [BID SUCCESS] Người dùng [" + bidder.getUsername() + "] đặt giá thành công " + bidAmount + " tại phòng " + auctionId);
+                    System.out.println("💰 [BID SUCCESS] User [" + bidder.getUsername() + "] successfully placed a bid of " + bidAmount + " on auction room " + auctionId);
 
                     createBidNotifications(auctionId, bidder.getId(), bidAmount, false);
 
@@ -433,7 +432,7 @@ public class ClientHandler extends Thread {
                     triggerAutoBidsLoop(auctionId, bidAmount, bidder.getId(), auctionDAO, bidDAO);
                     // ====================================================================
 
-                    return Response.ok("Đặt giá thành công!");
+                    return Response.ok("Bid placed successfully!");
                 }
             }
             case Request.ADMIN_DELETE_USER: {
@@ -445,12 +444,12 @@ public class ClientHandler extends Thread {
 
                     if (success) {
                         // 🚀 GIẢI PHÁP: Return trực tiếp gói tin về luồng xử lý trung tâm, không dùng out.writeObject và break nữa
-                        return Response.ok("Đã xóa người dùng vĩnh viễn khỏi hệ thống!");
+                        return Response.ok("User has been permanently deleted from the system.");
                     } else {
-                        return Response.error("Xóa thất bại! Người dùng có thể đang vướng ràng buộc dữ liệu đấu giá.");
+                        return Response.error("Cannot delete user due to existing auction data references/constraints.");
                     }
                 } catch (Exception e) {
-                    return Response.error("Lỗi Server khi xóa: " + e.getMessage());
+                    return Response.error("Internal server error during deletion: " + e.getMessage());
                 }
             }
 
@@ -465,12 +464,12 @@ public class ClientHandler extends Thread {
 
                     if (success) {
                         // 🚀 GIẢI PHÁP: Dùng return chuẩn cấu trúc kiến trúc phần mềm
-                        return Response.ok("Cập nhật trạng thái người dùng thành công!");
+                        return Response.ok("User status has been successfully updated.");
                     } else {
-                        return Response.error("Không thể cập nhật trạng thái trong Database.");
+                        return Response.error("Failed to update status in Database.");
                     }
                 } catch (Exception e) {
-                    return Response.error("Lỗi Server: " + e.getMessage());
+                    return Response.error("Server Error: " + e.getMessage());
                 }
             }
 
@@ -545,7 +544,7 @@ public class ClientHandler extends Thread {
                 Object[] data = (Object[]) req.getData();
 
                 User owner = (User) data[0];
-                String title = data.length > 1 && data[1] != null ? (String) data[1] : "Sản phẩm không tên";
+                String title = data.length > 1 && data[1] != null ? (String) data[1] : "Unnamed Product";
                 String description = data.length > 2 && data[2] != null ? (String) data[2] : "";
                 String category = data.length > 3 && data[3] != null ? (String) data[3] : "Electronics";
                 String condition = data.length > 4 && data[4] != null ? (String) data[4] : "New";
@@ -617,7 +616,7 @@ public class ClientHandler extends Thread {
                 // ── Kiểm tra điều kiện: chỉ cho sửa nếu PENDING_APPROVAL và chưa hết hạn
                 String currentStatus = existing.getStatus();
                 if (!"PENDING_APPROVAL".equalsIgnoreCase(currentStatus)) {
-                    return Response.error("Không thể chỉnh sửa: phiên đấu giá đã được duyệt hoặc đang diễn ra.");
+                    return Response.error("Cannot edit: the auction has already been approved or is currently active.");
                 }
 
                 existing.setCurrentPrice(startPrice);  // giữ lại dòng này
@@ -676,7 +675,7 @@ public class ClientHandler extends Thread {
 
             case "DELETE_AUCTION": {
                 Object rawData = req.getData();
-                if (rawData == null) return Response.error("ID phiên đấu giá không được để trống!");
+                if (rawData == null) return Response.error("Auction ID cannot be empty!");
 
                 long auctionId = -1;
                 if (rawData instanceof Number) {
@@ -685,7 +684,7 @@ public class ClientHandler extends Thread {
                     try {
                         auctionId = Long.parseLong(rawData.toString().trim());
                     } catch (Exception e) {
-                        return Response.error("Định dạng ID không hợp lệ.");
+                        return Response.error("Invalid ID format.");
                     }
                 }
 
@@ -694,7 +693,7 @@ public class ClientHandler extends Thread {
 
                 // 1. Lấy ra mã hàng hóa item_id trước khi bảng auction bị xóa sạch
                 long itemId = auctionDAO.getItemIdByAuctionId(auctionId);
-                System.out.println("🚀 [CLEAN] Tiến hành dọn dẹp chuỗi bản ghi liên kết cho Auction ID: " + auctionId);
+                System.out.println("🚀 [CLEAN] Proceeding to clean up linked records for Auction ID: " + auctionId);
 
                 // 2. Thực thi chuỗi lệnh xóa bằng SQL thuần bọc cô lập để dọn sạch các bảng không có CASCADE
                 try (Connection conn = server.database.DBConnection.getConnection()) {
@@ -734,21 +733,19 @@ public class ClientHandler extends Thread {
                         // Kiểm tra: Nếu bản ghi auction chính đã được dọn khỏi bộ nhớ DB
                         if (auctionRows > 0) {
                             conn.commit(); // Hợp thức hóa, ghi dữ liệu xuống ổ cứng vĩnh viễn
-                            System.out.println("🗑️ [SUCCESS] Đã xóa mất hút khỏi DB: 1 Auction và " + itemRows + " Item.");
-                            return Response.ok("Xóa thành công");
+                            return Response.ok("Deleted successfully");
                         } else {
                             conn.rollback();
-                            return Response.error("Không tìm thấy phiên đấu giá tương ứng trong DB.");
+                            return Response.error("Corresponding auction not found in DB.");
                         }
 
                     } catch (SQLException e) {
                         conn.rollback(); // Hoàn tác dữ liệu ngay nếu có một bảng bị kẹt
-                        System.err.println("❌ Lỗi thực thi SQL khi dọn rác DB: " + e.getMessage());
-                        return Response.error("Lỗi ràng buộc dữ liệu: " + e.getMessage());
+                        return Response.error("DATA CONSTRAINT ERROR: " + e.getMessage());
                     }
                 } catch (SQLException ex) {
                     ex.printStackTrace();
-                    return Response.error("Lỗi kết nối cơ sở dữ liệu Server.");
+                    return Response.error("Server database connection failed.");
                 }
             }
 
@@ -777,7 +774,7 @@ public class ClientHandler extends Thread {
                 try {
                     Object[] data = (Object[]) req.getData();
                     if (data == null || data.length < 2) {
-                        return Response.error("Dữ liệu yêu cầu gia hạn không đầy đủ.");
+                        return Response.error("Incomplete extension request data.");
                     }
 
                     long auctionId = -1;
@@ -794,13 +791,11 @@ public class ClientHandler extends Thread {
                         hours = Integer.parseInt(data[1].toString());
                     }
 
-                    System.out.println("⏳ [PROCESS] Tiến hành gia hạn thêm " + hours + " giờ cho Auction ID: " + auctionId);
-
                     AuctionDAO auctionDAO = new AuctionDAO();
                     com.auction.common.dto.AuctionDTO existing = auctionDAO.findById(auctionId);
 
                     if (existing == null) {
-                        return Response.error("Không tìm thấy phiên đấu giá tương ứng.");
+                        return Response.error("Corresponding auction not found.");
                     }
 
                     // Tính toán thời gian kết thúc mới
@@ -820,16 +815,14 @@ public class ClientHandler extends Thread {
                     }
 
                     if (ok) {
-                        System.out.println("🎉 [SUCCESS] Gia hạn thành công phiên ID " + auctionId + ". Thời gian mới: " + newEndTime);
                         return Response.ok(null);
                     } else {
-                        return Response.error("Lỗi cập nhật thời gian mới vào Database.");
+                        return Response.error("Failed to update the new time in the Database.");
                     }
 
                 } catch (Exception e) {
-                    System.err.println("❌ Lỗi nghiêm trọng tại case EXTEND_AUCTION: " + e.getMessage());
                     e.printStackTrace();
-                    return Response.error("Lỗi Server: " + e.getMessage());
+                    return Response.error("Server Error: " + e.getMessage());
                 }
             }
 
@@ -854,7 +847,7 @@ public class ClientHandler extends Thread {
                 // 🌟 ĐỌC DỮ LIỆU HIỆN TẠI: Lấy thông tin phiên đấu giá trước khi đóng sổ để biết ai đang dẫn đầu
                 com.auction.common.dto.AuctionDTO existing = auctionDAO.findById(auctionId);
                 if (existing == null) {
-                    return Response.error("Không tìm thấy phiên đấu giá.");
+                    return Response.error("Auction not found.");
                 }
 
                 // 2. Ép thời gian kết thúc (endTime) về HIỆN TẠI
@@ -867,7 +860,7 @@ public class ClientHandler extends Thread {
                     ps.executeUpdate();
 
                 } catch (SQLException e) {
-                    System.err.println("Cảnh báo: Không thể cập nhật end_time: " + e.getMessage());
+                    System.err.println("WARNING: Failed to update endTime: " + e.getMessage());
                 }
 
                 // 3. ĐỔI TRẠNG THÁI SANG FINISHED bằng hàm có sẵn của bạn
@@ -891,10 +884,10 @@ public class ClientHandler extends Thread {
                             // Gọi hàm insert xịn trong PaymentDAO của bạn để đẩy xuống database
                             boolean isPaymentCreated = paymentDAO.insert(newPayment);
                             if (isPaymentCreated) {
-                                System.out.println("🎉 [Server] Đã tạo thành công hóa đơn PENDING cho Buyer ID: "
-                                        + existing.getHighestBidderId() + " tại Auction ID: " + auctionId);
+                                System.out.println("🎉 [Server] Successfully created PENDING invoice for Buyer ID: "
+                                        + existing.getHighestBidderId() + " at Auction ID: " + auctionId);
                             } else {
-                                System.err.println("❌ [Server] Lỗi: Không thể insert hóa đơn vào bảng payment.");
+                                System.err.println("❌ [Server] ERROR: Failed to insert invoice into the payment table.");
                             }
                         }
                     }
@@ -939,7 +932,7 @@ public class ClientHandler extends Thread {
                 Long userId = (Long) req.getData();
                 // Gọi xuống UserDAO để chạy lệnh DELETE SQL
                 boolean ok = userDAO.deleteUserById(userId);
-                return ok ? Response.ok(null) : Response.error("Không thể xóa người dùng này khỏi DB!");
+                return ok ? Response.ok(null) : Response.error("Failed to delete this user from the Database.");
             }
 
             case "UPDATE_USER_STATUS": {
@@ -948,7 +941,7 @@ public class ClientHandler extends Thread {
                 String newStatus = (String) data[1];
                 // Gọi xuống UserDAO để chạy lệnh UPDATE user SET accountStatus = ? WHERE id = ?
                 boolean ok = userDAO.updateStatus(userId, newStatus);
-                return ok ? Response.ok(null) : Response.error("Không thể cập nhật trạng thái User!");
+                return ok ? Response.ok(null) : Response.error("Failed to update user status.");
             }
 
             case "GET_PENDING_AUCTIONS": {
@@ -958,7 +951,7 @@ public class ClientHandler extends Thread {
                     List<Auction> clientAuctions = toClientAuctions(dtos, userDAO);
                     return Response.ok(clientAuctions);
                 } catch (Exception e) {
-                    return Response.error("Lỗi lấy danh sách chờ duyệt: " + e.getMessage());
+                    return Response.error("Failed to fetch pending approval list: " + e.getMessage());
                 }
             }
 
@@ -969,7 +962,7 @@ public class ClientHandler extends Thread {
                     List<Auction> clientAuctions = toClientAuctions(dtos, userDAO);
                     return Response.ok(clientAuctions);
                 } catch (Exception e) {
-                    return Response.error("Lỗi lấy danh sách đã duyệt: " + e.getMessage());
+                    return Response.error("Failed to fetch approved list: " + e.getMessage());
                 }
             }
             // ── THÊM VÀO CUỐI SWITCH CASE TRƯỚC DEFAULT ──────────────────────
@@ -984,12 +977,10 @@ public class ClientHandler extends Thread {
                     Long userId = ((Number) data[0]).longValue();
                     Double amount = ((Number) data[1]).doubleValue();
 
-                    System.out.println("💰 [Server] Đang xử lý yêu cầu nạp tiền cho User ID: " + userId + " | Số tiền: " + amount);
-
                     // 3. Tìm thông tin UserDTO hiện tại trong Database thông qua userDAO
                     UserDTO userDto = userDAO.findById(userId);
                     if (userDto == null) {
-                        return Response.error("Không tìm thấy tài khoản người dùng trên hệ thống!");
+                        return Response.error("User account not found on the system.");
                     }
 
                     // 4. Cộng dồn số tiền nạp vào số dư hiện tại trong cơ sở dữ liệu
@@ -1000,15 +991,14 @@ public class ClientHandler extends Thread {
                     boolean success = userDAO.update(userDto);
 
                     if (success) {
-                        System.out.println("✅ [Server] Nạp tiền THÀNH CÔNG! Tài khoản: " + userDto.getUsername() + " | Số dư mới: " + newBalance + " VND");
                         // Trả số dư mới tinh (newBalance) về để Client vẽ lại giao diện
                         return Response.ok(newBalance);
                     } else {
-                        return Response.error("Lỗi hệ thống: Không thể lưu số dư mới vào Cơ sở dữ liệu.");
+                        return Response.error("SYSTEM ERROR: Failed to save the new balance to the database.");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return Response.error("Lỗi xử lý nạp tiền phía Server: " + e.getMessage());
+                    return Response.error("Failed to process deposit transaction:" + e.getMessage());
                 }
             }
 
@@ -1020,7 +1010,7 @@ public class ClientHandler extends Thread {
                     String accountNumber = (String) data[2];
 
                     UserDTO user = userDAO.findById(userId);
-                    if (user == null) return Response.error("Không tìm thấy người dùng.");
+                    if (user == null) return Response.error("User not found.");
 
                     // Cập nhật thông tin liên kết ngân hàng
                     user.setBankName(bankName);
@@ -1028,12 +1018,12 @@ public class ClientHandler extends Thread {
 
                     boolean ok = userDAO.update(user);
                     if (ok) {
-                        return Response.ok("Cập nhật thông tin tài chính thành công!");
+                        return Response.ok("Financial information updated successfully!");
                     } else {
-                        return Response.error("Lỗi cập nhật dữ liệu ngân hàng.");
+                        return Response.error("Failed to update bank data.");
                     }
                 } catch (Exception e) {
-                    return Response.error("Lỗi Server: " + e.getMessage());
+                    return Response.error("Server Error: " + e.getMessage());
                 }
             }
 
@@ -1044,7 +1034,7 @@ public class ClientHandler extends Thread {
                     List<Auction> clientAuctions = toClientAuctions(dtos, userDAO);
                     return Response.ok(clientAuctions);
                 } catch (Exception e) {
-                    return Response.error("Lỗi lấy danh sách bị từ chối: " + e.getMessage());
+                    return Response.error("Failed to fetch rejected list: " + e.getMessage());
                 }
             }
 
@@ -1054,12 +1044,12 @@ public class ClientHandler extends Thread {
                     server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
                     boolean success = auctionDAO.updateStatusAndStartTime(auctionId, "RUNNING", java.time.LocalDateTime.now());
                     if (success) {
-                        return Response.ok("Duyệt thành công");
+                        return Response.ok("Approval successful");
                     } else {
-                        return Response.error("Không thể cập nhật trạng thái");
+                        return Response.error("Failed to update status.");
                     }
                 } catch (Exception e) {
-                    return Response.error("Lỗi Server Approve: " + e.getMessage());
+                    return Response.error("Approval process failed: " + e.getMessage());
                 }
             }
 
@@ -1079,12 +1069,12 @@ public class ClientHandler extends Thread {
                     server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
                     boolean success = auctionDAO.updateStatus(auctionId, "REJECTED");
                     if (success) {
-                        return Response.ok("Từ chối thành công");
+                        return Response.ok("Rejected successfully");
                     } else {
-                        return Response.error("Không thể từ chối");
+                        return Response.error("Failed to reject.");
                     }
                 } catch (Exception e) {
-                    return Response.error("Lỗi Server Reject: " + e.getMessage());
+                    return Response.error("Rejection process failed: " + e.getMessage());
                 }
             }
 
@@ -1097,7 +1087,7 @@ public class ClientHandler extends Thread {
                     Long auctionId = (Long) req.getData();
                     AuctionDAO auctionDAO = new AuctionDAO();
                     AuctionDTO auction = auctionDAO.findById(auctionId);
-                    if (auction == null) return Response.error("Không tìm thấy phiên đấu giá.");
+                    if (auction == null) return Response.error("Auction not found.");
 
                     server.repository.PaymentDAO paymentDAO = new server.repository.PaymentDAO();
                     com.auction.common.dto.PaymentDTO payment = paymentDAO.getByAuctionId(auctionId);
@@ -1105,7 +1095,7 @@ public class ClientHandler extends Thread {
                     // Nếu chưa có bản ghi payment (auction vừa kết thúc), tự tạo một PENDING
                     if (payment == null) {
                         if (auction.getHighestBidderId() == null) {
-                            return Response.error("Phiên này không có người đấu giá thắng cuộc.");
+                            return Response.error("This auction has no winning bidder.");
                         }
                         payment = new com.auction.common.dto.PaymentDTO();
                         payment.setAuctionId(auctionId);
@@ -1115,11 +1105,11 @@ public class ClientHandler extends Thread {
                         payment.setStatus("PENDING");
 
                         boolean inserted = paymentDAO.insert(payment);
-                        if (!inserted) return Response.error("Không thể khởi tạo hóa đơn.");
+                        if (!inserted) return Response.error("Failed to create invoice.");
 
                         // Fetch lại để lấy id chuẩn từ DB
                         payment = paymentDAO.getByAuctionId(auctionId);
-                        if (payment == null) return Response.error("Lỗi nội bộ: không fetch lại được payment.");
+                        if (payment == null) return Response.error("INTERNAL ERROR: Failed to re-fetch payment record.");
                     }
 
                     // 🌟 SỬA TẠI ĐÂY: XÓA BỎ ĐOẠN QUĂNG RESPONSE.ERROR VÔ LÝ!
@@ -1137,25 +1127,25 @@ public class ClientHandler extends Thread {
                     return Response.ok(payment); // Luôn trả về dữ liệu thành công
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return Response.error("Lỗi Server khi tải thông tin thanh toán: " + e.getMessage());
+                    return Response.error("Failed to load payment information: " + e.getMessage());
                 }
             }
 
             case "CREATE_PAYMENT": {
                 try {
                     com.auction.common.dto.PaymentDTO p = (com.auction.common.dto.PaymentDTO) req.getData();
-                    if (p == null || p.getAuctionId() == null) return Response.error("Dữ liệu thanh toán không hợp lệ.");
+                    if (p == null || p.getAuctionId() == null) return Response.error("Invalid payment data.");
 
                     // 1. Kiểm tra ví tiền của người mua (Buyer) và người bán (Seller) xem có đủ điều kiện không
                     UserDTO buyer = userDAO.findById(p.getBuyerId());
                     UserDTO seller = userDAO.findById(p.getSellerId());
 
                     if (buyer == null || seller == null) {
-                        return Response.error("Giao dịch thất bại: Thực thể tài khoản không hợp lệ.");
+                        return Response.error("Transaction failed: Invalid account entity.");
                     }
 
                     if (buyer.getBalance() < p.getAmount()) {
-                        return Response.error("Số dư tài khoản ví AURUM không đủ! Vui lòng nạp thêm tiền tại trang Profile.");
+                        return Response.error("Insufficient account balance! Please top up your account on the Profile page.");
                     }
 
                     server.repository.PaymentDAO paymentDAO = new server.repository.PaymentDAO();
@@ -1184,7 +1174,7 @@ public class ClientHandler extends Thread {
 
                         if (!ok) {
                             conn.rollback();
-                            return Response.error("Lưu thông tin thanh toán thất bại.");
+                            return Response.error("Failed to save payment information.");
                         }
 
                         // 🚀 GIỮ NGUYÊN FINISHED: Tránh ghi đè chữ "PAID" lỗi khiến dữ liệu bị văng ngược về trạng thái "Live"
@@ -1196,11 +1186,11 @@ public class ClientHandler extends Thread {
                         }
 
                         conn.commit(); // ✅ Xác nhận hoàn tất chuỗi giao dịch ví thành công tuyệt đối!
-                        return Response.ok("Thanh toán thành công!");
+                        return Response.ok("Payment successful!");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return Response.error("Lỗi Server khi xử lý thanh toán: " + e.getMessage());
+                    return Response.error("Failed to process payment: " + e.getMessage());
                 }
             }
 
@@ -1213,15 +1203,15 @@ public class ClientHandler extends Thread {
                     String cardholderName = (String) data[3];
 
                     UserDTO user = userDAO.findById(userId);
-                    if (user == null) return Response.error("Không tìm thấy người dùng.");
+                    if (user == null) return Response.error("User not found.");
 
                     user.setBankName(bankName);
                     user.setAccountNumber(accountNumber);
                     user.setCardholderName(cardholderName);
                     boolean ok = userDAO.update(user);
-                    return ok ? Response.ok(null) : Response.error("Cập nhật thông tin ngân hàng thất bại.");
+                    return ok ? Response.ok(null) : Response.error("Failed to update bank information.");
                 } catch (Exception e) {
-                    return Response.error("Lỗi Server: " + e.getMessage());
+                    return Response.error("Server Error: " + e.getMessage());
                 }
             }
 
@@ -1366,7 +1356,7 @@ public class ClientHandler extends Thread {
                 result.add(auction);
             }
         } catch (Exception e) {
-            out.println("Lỗi nghiêm trọng khi tối ưu hóa bộ nhớ RAM cho phòng đấu giá: " + e.getMessage());
+            out.println("CRITICAL ERROR: Failed to optimize RAM for auction room: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -1439,7 +1429,7 @@ public class ClientHandler extends Thread {
                         long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
                         if (secondsRemaining <= 180) {
                             auctionDto.setEndTime(endTime.plusSeconds(180));
-                            out.println("Anti-sniping kích hoạt bởi AutoBid nền: Phiên " + auctionId + " được gia hạn thêm 3 phút.");
+                            out.println("Anti-sniping rule activated via background AutoBid: Auction " + auctionId + " has been extended by 3 minutes.");
                         }
                     }
 
@@ -1455,7 +1445,7 @@ public class ClientHandler extends Thread {
                     autoBidDto.setAutoBid(true); // Đánh dấu robot hệ thống tự đặt hộ
                     bidDAO.insert(autoBidDto);
 
-                    out.println("🤖 [AUTOBID REALTIME] Robot tự động nâng giá cho User ID [" + config.getBidderId() + "] lên " + nextPrice + " tại phòng " + auctionId);
+                    out.println("🤖 [AUTOBID REALTIME] Auto-bid robot increased price for User ID [" + config.getBidderId() + "] to " + nextPrice + " in Auction " + auctionId);
 
                     createBidNotifications(auctionId, config.getBidderId(), nextPrice, true);
 
@@ -1466,11 +1456,10 @@ public class ClientHandler extends Thread {
                 } else {
                     // Nếu vượt quá số tiền tối đa chịu đựng được, tự động tắt trạng thái hoạt động trong DB
                     autoBidDAO.updateActiveStatus(config.getId(), false);
-                    out.println("🤖 [AUTOBID TERMINATED] User ID [" + config.getBidderId() + "] tự động tắt vì giá vượt đỉnh trần.");
+                    out.println("🤖 [AUTOBID TERMINATED] User ID [" + config.getBidderId() + "] automatically disabled because the price exceeded the max ceiling.");
                 }
             }
         } catch (Exception e) {
-            System.err.println("Lỗi nghiêm trọng trong chuỗi xử lý AutoBid chạy ngầm:");
             e.printStackTrace();
         }
     }
@@ -1487,10 +1476,10 @@ public class ClientHandler extends Thread {
             if (auction == null) return;
 
             com.auction.common.dto.ItemDTO item = itemDAO.getById(auction.getItemId());
-            String title = (item != null) ? item.getName() : "Phòng #" + auctionId;
+            String title = (item != null) ? item.getName() : "Auction " + auctionId;
 
             com.auction.common.dto.UserDTO bidder = uDAO.findById(bidderId);
-            String bidderName = (bidder != null) ? bidder.getUsername() : "Ai đó";
+            String bidderName = (bidder != null) ? bidder.getUsername() : "Someone";
 
             java.util.List<Long> involvedUsers = bidDAO.getDistinctBiddersByAuction(auctionId);
             if (!involvedUsers.contains(auction.getSellerId())) {
@@ -1507,17 +1496,17 @@ public class ClientHandler extends Thread {
                 notif.setType("BID_PLACED");
 
                 if (uid == bidderId && isAutoBid) {
-                    notif.setTitle("Auto Bid tự động nâng giá");
-                    notif.setMessage("Hệ thống vừa tự động đặt " + String.format("%,.0f", amount) + " VND cho phiên đấu giá " + title);
+                    notif.setTitle("Auto-Bid Triggered");
+                    notif.setMessage("The system automatically placed a bid of " + String.format("%,.0f", amount) + " $ on auction " + title);
                 } else {
                     String typeStr = isAutoBid ? " (Auto Bid)" : "";
-                    notif.setTitle("Có người vừa đặt giá mới");
-                    notif.setMessage(bidderName + " vừa đặt " + String.format("%,.0f", amount) + " VND cho phiên đấu giá " + title + typeStr);
+                    notif.setTitle("New Bid Placed");
+                    notif.setMessage(bidderName + " just placed a bid of " + String.format("%,.0f", amount) + " $ on auction " + title + typeStr);
                 }
                 notificationDAO.insert(notif);
             }
         } catch (Exception e) {
-            System.err.println("Lỗi khi tạo thông báo đặt giá: " + e.getMessage());
+            System.err.println("Failed to generate bid placement notification: " + e.getMessage());
         }
     }
 }

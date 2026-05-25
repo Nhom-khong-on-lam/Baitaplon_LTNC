@@ -56,7 +56,7 @@ public class AuctionService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Lỗi tải ngầm danh sách đấu giá: " + e.getMessage());
+            System.err.println("Error background loading auction list: " + e.getMessage());
         }
     }
     public boolean isFirstLoadDone() {
@@ -315,7 +315,7 @@ public class AuctionService {
             return send(req);
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.error("Lỗi kết nối khi thanh toán: " + e.getMessage());
+            return Response.error("Connection error during payment:" + e.getMessage());
         }
     }
 
@@ -325,7 +325,7 @@ public class AuctionService {
             return send(new Request("UPDATE_BANK_INFO", data));
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.error("Lỗi kết nối: " + e.getMessage());
+            return Response.error("Connection error: " + e.getMessage());
         }
     }
     public Response topUpBalance(Long userId, double amount) {
@@ -334,7 +334,7 @@ public class AuctionService {
             return send(new Request("TOP_UP_BALANCE", data));
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.error("Lỗi kết nối nạp tiền: " + e.getMessage());
+            return Response.error("Deposit connection error: " + e.getMessage());
         }
     }
 }

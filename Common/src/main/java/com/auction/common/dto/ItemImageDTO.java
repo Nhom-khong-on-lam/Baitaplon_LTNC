@@ -12,7 +12,7 @@ public class ItemImageDTO {
     // Constructor đầy đủ tham số (Có kiểm tra null an toàn)
     public ItemImageDTO(Long itemId, String imageUrl) {
         if (itemId == null) {
-            throw new IllegalArgumentException("itemId không được để trống!");
+            throw new IllegalArgumentException("itemId is required!");
         }
         this.itemId = itemId;
         this.imageUrl = imageUrl;

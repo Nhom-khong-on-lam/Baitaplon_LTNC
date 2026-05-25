@@ -270,7 +270,7 @@ public class MyProductsController {
                 viewBtn.setOnAction(e -> {
                     if (isPending) {
                         new Alert(Alert.AlertType.INFORMATION,
-                                "Auction chưa được admin duyệt, vui lòng chờ.")
+                                "This auction is pending admin approval. Please wait.")
                                 .showAndWait();
                     } else {
                         openDetail(a);
@@ -284,7 +284,7 @@ public class MyProductsController {
                 editBtn.setOnAction(e -> {
                     if (isRunningOrDone) {
                         new Alert(Alert.AlertType.WARNING,
-                                "Không thể chỉnh sửa: Auction đã được duyệt hoặc đã kết thúc.")
+                                "Cannot edit: The auction has already been approved or has ended.")
                                 .showAndWait();
                     } else {
                         openEdit(a);

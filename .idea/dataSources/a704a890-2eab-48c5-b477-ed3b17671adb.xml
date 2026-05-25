@@ -144,7 +144,7 @@
       <CollationName>utf8mb4_unicode_ci</CollationName>
     </table>
     <column id="37" parent="26" name="id">
-      <AutoIncrement>0</AutoIncrement>
+      <AutoIncrement>1320002</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>

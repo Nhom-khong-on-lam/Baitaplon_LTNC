@@ -23,7 +23,7 @@
         <!-- ── Welcome Card ─────────────────────────────────── -->
         <HBox alignment="CENTER_LEFT" spacing="0" styleClass="welcome-card">
             <VBox spacing="8" HBox.hgrow="ALWAYS">
-                <Label fx:id="welcomeGreeting" styleClass="welcome-greeting" text="Good morning, User 👋" />
+                <Label fx:id="welcomeGreeting" styleClass="welcome-greeting" text="Good morning, User " />
                 <Label fx:id="welcomeSub" styleClass="welcome-sub" text="Here's what's happening in the auction world today." />
                 <HBox spacing="10" style="-fx-padding:12 0 0 0;">
                     <Button onAction="#goToAuctions" styleClass="welcome-quick-btn" text="Browse Auctions" />

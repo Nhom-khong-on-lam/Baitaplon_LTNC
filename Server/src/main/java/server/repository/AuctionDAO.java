@@ -284,7 +284,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi getByStatus với trạng thái = " + status, e);
+            LOGGER.log(Level.SEVERE, "Error in getByStatus with status: " + status, e);
         }
         return list;
     }
@@ -303,7 +303,7 @@ public class AuctionDAO {
             if (ok) LOGGER.info("ADMIN APPROVED AUCTION SUCCESS: ID=" + auctionId);
             return ok;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi updateStatusAndStartTime ID=" + auctionId, e);
+            LOGGER.log(Level.SEVERE, "Error in updateStatusAndStartTime for ID = " + auctionId, e);
         }
         return false;
     }
@@ -321,7 +321,7 @@ public class AuctionDAO {
             if (ok) LOGGER.info("ADMIN REJECTED AUCTION SUCCESS: ID=" + auctionId);
             return ok;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi updateStatus ID=" + auctionId, e);
+            LOGGER.log(Level.SEVERE, "Error in updateStatus for ID = " + auctionId, e);
         }
         return false;
     }
@@ -424,7 +424,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi khi truy vấn lấy item_id từ auctionId=" + auctionId, e);
+            LOGGER.log(Level.SEVERE, "Error querying item_id for auctionId = " + auctionId, e);
         }
         return -1;
     }
@@ -439,7 +439,7 @@ public class AuctionDAO {
             ps.setLong(1, itemId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi nghiêm trọng không thể xóa bản ghi trong bảng item ID=" + itemId, e);
+            LOGGER.log(Level.SEVERE, "CRITICAL ERROR: Failed to delete record from item table, ID = " + itemId, e);
             return false;
         }
     }
