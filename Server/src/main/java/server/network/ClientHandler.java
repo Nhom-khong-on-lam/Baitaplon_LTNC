@@ -374,7 +374,7 @@ public class ClientHandler extends Thread {
                 User bidder = (User) data[1];
                 Double bidAmount = (Double) data[2];
 
-                // Đảm bảo không có 2 người cùng đặt giá vào cùng 1 phòng ở cùng 1 phần nghìn giây (Race Condition)
+                // Mitigate Race Conditions: Ensure two users cannot simultaneously place a bid on the same room at the same millisecond
                 synchronized (String.valueOf(auctionId).intern()) {
                     AuctionDAO auctionDAO = new AuctionDAO();
                     AuctionDTO auctionDto = auctionDAO.findById(auctionId);
@@ -390,16 +390,18 @@ public class ClientHandler extends Thread {
                     }
 
                     if (bidAmount <= auctionDto.getCurrentPrice()) {
-                        System.out.println("❌ [PLACE_BID ERROR] Bid amount (" + bidAmount + ") must be higher than current price (" + auctionDto.getCurrentPrice() + ").");
+                        System.out.println("❌ [PLACE_BID ERROR] Manual bid amount (" + bidAmount + ") is below or equal to current price (" + auctionDto.getCurrentPrice() + ").");
                         return Response.error("Your bid has been outbid by another user. Please refresh the page!");
                     }
 
+                    // Apply manual bid modifications to the auction data transfer object
                     auctionDto.setCurrentPrice(bidAmount);
                     auctionDto.setHighestBidderId(bidder.getId());
 
                     java.time.LocalDateTime now = java.time.LocalDateTime.now();
                     java.time.LocalDateTime endTime = auctionDto.getEndTime();
 
+                    // Anti-sniping mechanism: Extend the auction by an extra 3 minutes if a bid lands in the final 3 minutes
                     if (endTime != null && now.isBefore(endTime)) {
                         long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
                         if (secondsRemaining <= 180) {
@@ -408,31 +410,41 @@ public class ClientHandler extends Thread {
                         }
                     }
 
+                    // Commit updated room status to the database
                     boolean updateSuccess = auctionDAO.update(auctionDto);
                     if (!updateSuccess) {
                         return Response.error("Database connection error while placing bid.");
                     }
 
+                    // Save the manual bid interaction log into history table
                     server.repository.BidDAO bidDAO = new server.repository.BidDAO();
                     com.auction.common.dto.BidDTO bidDto = new com.auction.common.dto.BidDTO();
                     bidDto.setAuctionId(auctionId);
                     bidDto.setBidderId(bidder.getId());
                     bidDto.setAmount(bidAmount);
                     bidDto.setBidTime(java.time.LocalDateTime.now());
-                    bidDto.setAutoBid(false); // Đánh dấu lượt đặt giá thủ công từ Client
+                    bidDto.setAutoBid(false); // Designates this record as an authentic manual client-side placement
                     bidDAO.insert(bidDto);
 
-                    System.out.println("💰 [BID SUCCESS] User [" + bidder.getUsername() + "] successfully placed a bid of " + bidAmount + " on auction room " + auctionId);
+                    System.out.println("💰 [BID SUCCESS] User [" + bidder.getUsername() + "] successfully placed a manual bid of " + bidAmount + " on auction room " + auctionId);
 
+                    // Distribute real-time updates and alerts across participants
                     createBidNotifications(auctionId, bidder.getId(), bidAmount, false);
 
                     // ====================================================================
-                    // CHUỖI PHẢN ỨNG CHẠY NỀN: Kích hoạt Robot AutoBid nâng giá đè lên luôn
+                    // BACKGROUND REACTION CHAIN: Invoke flat Single-Pass AutoBid engine
                     // ====================================================================
                     triggerAutoBidsLoop(auctionId, bidAmount, bidder.getId(), auctionDAO, bidDAO);
                     // ====================================================================
 
-                    return Response.ok("Bid placed successfully!");
+                    // ĐOẠN SỬA ĐỔI CHÍNH: Lấy lại trạng thái phòng ĐÃ CẬP NHẬT TRẦN GIÁ BỞI AUTOBID để trả về
+                    AuctionDTO finalAuctionState = auctionDAO.findById(auctionId);
+                    if (finalAuctionState == null) {
+                        finalAuctionState = auctionDto; // Dự phòng trường hợp lỗi
+                    }
+
+                    // Trả thẳng object phòng đấu giá mới nhất về cho Client hiển thị luôn
+                    return Response.ok(finalAuctionState);
                 }
             }
             case Request.ADMIN_DELETE_USER: {
@@ -1466,69 +1478,117 @@ public class ClientHandler extends Thread {
         return u;
     }
 
-    private void triggerAutoBidsLoop(Long auctionId, double currentPrice, Long lastBidderId, AuctionDAO auctionDAO, server.repository.BidDAO bidDAO) {
+    private void triggerAutoBidsLoop(Long auctionId, double currentPrice, Long lastManualBidderId,
+                                     AuctionDAO auctionDAO, server.repository.BidDAO bidDAO) {
         try {
-            server.repository.AutoBidDAO autoBidDAO = new server.repository.AutoBidDAO();
+            // 1. Fetch all active AutoBid configurations for this specific auction
+            java.util.List<AutoBidDTO> activeConfigs = new java.util.ArrayList<>();
+            String sqlFetch = "SELECT id, bidder_id, max_price, step_increment FROM auto_bid WHERE auction_id = ? AND active = 1";
 
-            // Truy vấn thẳng xuống Database tìm tất cả cấu hình AutoBid đang bật (active = 1)
-            List<com.auction.common.dto.AutoBidDTO> configs = autoBidDAO.getActiveConfigsForAuction(auctionId);
-            if (configs == null || configs.isEmpty()) return;
+            try (java.sql.Connection conn = server.database.DBConnection.getConnection();
+                 java.sql.PreparedStatement ps = conn.prepareStatement(sqlFetch)) {
+                ps.setLong(1, auctionId);
+                try (java.sql.ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        AutoBidDTO config = new AutoBidDTO();
+                        config.setId(rs.getLong("id"));
+                        config.setAuctionId(auctionId);
+                        config.setBidderId(rs.getLong("bidder_id"));
+                        config.setMaxPrice(rs.getDouble("max_price"));
+                        config.setStepIncrement(rs.getDouble("step_increment"));
+                        config.setActive(true);
+                        activeConfigs.add(config);
+                    }
+                }
+            }
 
-            for (com.auction.common.dto.AutoBidDTO config : configs) {
-                // Nếu người giữ giá cao nhất hiện tại chính là chủ cấu hình này -> Bỏ qua không tự nâng đè chính mình
-                if (config.getBidderId().equals(lastBidderId)) continue;
+            // If no user has an active autobid configured, terminate immediately
+            if (activeConfigs.isEmpty()) {
+                return;
+            }
 
-                // Tính toán mức giá tự động tiếp theo = Giá hiện tại + Bước nhảy
-                double nextPrice = currentPrice + config.getStepIncrement();
+            // 2. Sort configurations by maxPrice in descending order (highest budget first)
+            activeConfigs.sort((a, b) -> Double.compare(b.getMaxPrice(), a.getMaxPrice()));
 
-                // Điều kiện: Nếu mức giá mới này nằm trong tầm chi trả (<= giá trần tối đa)
-                if (nextPrice <= config.getMaxPrice()) {
+            AutoBidDTO highestConfig = activeConfigs.get(0);
+            Long winnerId = highestConfig.getBidderId();
+            double finalPrice = currentPrice;
+            boolean priceChanged = false;
 
-                    AuctionDTO auctionDto = auctionDAO.findById(auctionId);
-                    if (auctionDto == null) return;
+            if (activeConfigs.size() == 1) {
+                // Case 1: Only 1 user has configured AutoBid in this auction room
+                // If this user is not already the highest bidder, safely increment the price
+                if (!winnerId.equals(lastManualBidderId)) {
+                    double nextBid = currentPrice + highestConfig.getStepIncrement();
+                    finalPrice = Math.min(nextBid, highestConfig.getMaxPrice());
+                    priceChanged = true;
+                }
+            } else {
+                // Case 2: Multi-user AutoBid competition (2 or more active configurations)
+                AutoBidDTO secondConfig = activeConfigs.get(1);
 
-                    // Cập nhật giá cao nhất mới cho phòng đấu giá
-                    auctionDto.setCurrentPrice(nextPrice);
-                    auctionDto.setHighestBidderId(config.getBidderId());
+                if (highestConfig.getMaxPrice() == secondConfig.getMaxPrice()) {
+                    // If both bidders have the exact same maximum budget,
+                    // the one who registered first (highestConfig) wins at their max price.
+                    finalPrice = highestConfig.getMaxPrice();
+                    priceChanged = true;
+                } else {
+                    // The bidder with the highest maxPrice wins.
+                    // Final price proposed = second bidder's max price + highest bidder's step increment.
+                    double calculatedPrice = secondConfig.getMaxPrice() + highestConfig.getStepIncrement();
 
-                    // Đồng bộ tính năng Anti-sniping (Gia hạn phòng 3 phút) cho robot đặt giá
+                    // Math.min ensures the final calculated price never violates the winner's maximum ceiling budget.
+                    // If calculatedPrice exceeds highestConfig.getMaxPrice(), it automatically clamps down to highestConfig.getMaxPrice().
+                    finalPrice = Math.min(calculatedPrice, highestConfig.getMaxPrice());
+                    priceChanged = true;
+                }
+
+                // Edge-case prevention: If the calculated price is below or equal to the current price
+                // (e.g., due to a manual bid spiking up closely right beforehand), bump it up using the winner's step increment.
+                if (finalPrice <= currentPrice) {
+                    finalPrice = Math.min(currentPrice + highestConfig.getStepIncrement(), highestConfig.getMaxPrice());
+                }
+            }
+
+            // 3. Persist modifications to the database in a single-pass execution (No loops, no recursion)
+            if (priceChanged && finalPrice > currentPrice) {
+                AuctionDTO auctionDto = auctionDAO.findById(auctionId);
+                if (auctionDto != null) {
+                    // Update room price and designate the winner as the highest bidder
+                    auctionDto.setCurrentPrice(finalPrice);
+                    auctionDto.setHighestBidderId(winnerId);
+
+                    // Anti-sniping logic: Extend auction time by 3 minutes if bid occurs in the last 3 minutes
                     java.time.LocalDateTime now = java.time.LocalDateTime.now();
                     java.time.LocalDateTime endTime = auctionDto.getEndTime();
                     if (endTime != null && now.isBefore(endTime)) {
                         long secondsRemaining = java.time.Duration.between(now, endTime).getSeconds();
                         if (secondsRemaining <= 180) {
                             auctionDto.setEndTime(endTime.plusSeconds(180));
-                            out.println("Anti-sniping rule activated via background AutoBid: Auction " + auctionId + " has been extended by 3 minutes.");
+                            System.out.println("⏳ [ANTI-SNIPING] Auction " + auctionId + " extended by 3 mins via AutoBid.");
                         }
                     }
 
-                    // 1. Ghi nhận giá mới của phòng đấu giá vào database
+                    // Save updated auction to the database
                     auctionDAO.update(auctionDto);
 
-                    // 2. Chèn lịch sử đấu giá tự động của robot vào bảng bid (set auto_bid = true)
-                    com.auction.common.dto.BidDTO autoBidDto = new com.auction.common.dto.BidDTO();
-                    autoBidDto.setAuctionId(auctionId);
-                    autoBidDto.setBidderId(config.getBidderId());
-                    autoBidDto.setAmount(nextPrice);
-                    autoBidDto.setBidTime(java.time.LocalDateTime.now());
-                    autoBidDto.setAutoBid(true); // Đánh dấu robot hệ thống tự đặt hộ
-                    bidDAO.insert(autoBidDto);
+                    // Insert exactly ONE historic log into the 'bid' table representing the final single-pass outcome
+                    com.auction.common.dto.BidDTO bidDto = new com.auction.common.dto.BidDTO();
+                    bidDto.setAuctionId(auctionId);
+                    bidDto.setBidderId(winnerId);
+                    bidDto.setAmount(finalPrice);
+                    bidDto.setBidTime(java.time.LocalDateTime.now());
+                    bidDto.setAutoBid(true);
+                    bidDAO.insert(bidDto);
 
-                    out.println("🤖 [AUTOBID REALTIME] Auto-bid robot increased price for User ID [" + config.getBidderId() + "] to " + nextPrice + " in Auction " + auctionId);
+                    System.out.println("🤖 [AUTOBID SINGLE-PASS] Winner ID [" + winnerId + "] secured the lead at final price: " + finalPrice);
 
-                    createBidNotifications(auctionId, config.getBidderId(), nextPrice, true);
-
-                    // CHUỖI PHẢN ỨNG ĐỆ QUY: Tự động gọi lại chính nó với mức giá mới
-                    // Đảm bảo nếu trong phòng có nhiều robot cài AutoBid đè nhau, chúng sẽ tự nâng giá qua lại liên tục
-                    triggerAutoBidsLoop(auctionId, nextPrice, config.getBidderId(), auctionDAO, bidDAO);
-                    break; // Thoát vòng lặp hiện tại để nhường quyền xử lý cho luồng đệ quy mới
-                } else {
-                    // Nếu vượt quá số tiền tối đa chịu đựng được, tự động tắt trạng thái hoạt động trong DB
-                    autoBidDAO.updateActiveStatus(config.getId(), false);
-                    out.println("🤖 [AUTOBID TERMINATED] User ID [" + config.getBidderId() + "] automatically disabled because the price exceeded the max ceiling.");
+                    // Broadcast notifications to all interested participants
+                    createBidNotifications(auctionId, winnerId, finalPrice, true);
                 }
             }
         } catch (Exception e) {
+            System.err.println("❌ [AUTOBID ERROR] Single-pass resolution failed: " + e.getMessage());
             e.printStackTrace();
         }
     }
