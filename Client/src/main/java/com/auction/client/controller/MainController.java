@@ -32,6 +32,8 @@ public class MainController {
     // ── Topbar ────────────────────────────────────────────────
     @FXML private Label     topbarTitle, topbarBread, topbarAvatar;
     @FXML private TextField topbarSearch;
+    @FXML private Button    btnNotifications;
+    private javafx.animation.Timeline notificationPollingTimeline;
 
     // ── Content ───────────────────────────────────────────────
     @FXML private StackPane contentPane;
@@ -75,6 +77,37 @@ public class MainController {
         setActive(navDashboard);
         loadContent(BASE + "dashboard.fxml",
                 (DashboardController ctrl) -> ctrl.initData(user));
+
+        // Bắt đầu luồng chạy ngầm hỏi thăm (Polling) số lượng thông báo chưa đọc mỗi 3 giây
+        startNotificationPolling();
+    }
+
+    private void startNotificationPolling() {
+        if (notificationPollingTimeline != null) {
+            notificationPollingTimeline.stop();
+        }
+        notificationPollingTimeline = new javafx.animation.Timeline(
+            new javafx.animation.KeyFrame(Duration.seconds(3), ev -> {
+                try {
+                    com.auction.client.service.ServerConnection conn = com.auction.client.service.ServerConnection.getInstance();
+                    com.auction.common.network.Request req = new com.auction.common.network.Request("COUNT_UNREAD_NOTIFICATIONS", currentUser.getId());
+                    com.auction.common.network.Response resp = (com.auction.common.network.Response) conn.sendRequest(req);
+                    if (resp.isSuccess() && resp.getData() instanceof Integer count) {
+                        if (count > 0) {
+                            btnNotifications.setText("🔔 (" + count + ")");
+                            btnNotifications.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold;"); // Bật màu đỏ nhắc nhở
+                        } else {
+                            btnNotifications.setText("🔔");
+                            btnNotifications.setStyle(""); // Về lại màu bình thường
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Polling notifications failed: " + e.getMessage());
+                }
+            })
+        );
+        notificationPollingTimeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        notificationPollingTimeline.play();
     }
 
     // ── Navigation handlers ───────────────────────────────────
@@ -129,6 +162,9 @@ public class MainController {
 
     @FXML
     public void handleLogout() {
+        if (notificationPollingTimeline != null) {
+            notificationPollingTimeline.stop();
+        }
         SessionManager.get().logout();
         SceneManager.get().navigate(SceneManager.Screen.LOGIN);
     }
@@ -157,6 +193,18 @@ public class MainController {
 
         com.auction.client.service.AuctionService auctionService = new com.auction.client.service.AuctionService();
         java.util.List<com.auction.common.dto.NotificationDTO> notifs = auctionService.getNotifications(SessionManager.get().getUser().getId());
+        if (notifs != null && notifs.size() > 15) {
+            notifs = notifs.subList(0, 15); // Chỉ lấy 15 thông báo gần nhất
+        }
+
+        // Sau khi hiển thị, gọi lệnh đánh dấu đã đọc tất cả
+        try {
+            com.auction.client.service.ServerConnection.getInstance().sendRequest(
+                new com.auction.common.network.Request("MARK_ALL_NOTIF_READ", SessionManager.get().getUser().getId())
+            );
+        } catch (Exception ex) {
+            System.err.println("Failed to mark notifications as read: " + ex.getMessage());
+        }
 
         if (notifs == null || notifs.isEmpty()) {
             MenuItem emptyItem = new MenuItem("You have no notifications.");
@@ -184,7 +232,8 @@ public class MainController {
                 timeLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #a0aec0;");
 
                 // Nhãn hiển thị nội dung tin nhắn, ép chữ thu nhỏ (11px) và tự động ngắt dòng
-                javafx.scene.control.Label msgLabel = new javafx.scene.control.Label(notif.getMessage());
+                String prefix = !notif.isRead() ? "🔴 " : "";
+                javafx.scene.control.Label msgLabel = new javafx.scene.control.Label(prefix + notif.getMessage());
                 msgLabel.setWrapText(true); // Tự động ngắt dòng đi xuống khi chạm biên vùng chữ
                 msgLabel.setPrefWidth(235); // Giới hạn chiều rộng tối đa của cột chữ
                 msgLabel.setMaxWidth(235);

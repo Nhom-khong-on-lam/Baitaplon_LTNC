@@ -142,4 +142,18 @@ public class NotificationDAO {
             return 0;
         }
     }
+
+    public int countUnread(long userId) {
+        String sql = "SELECT COUNT(*) FROM notification WHERE user_id = ? AND is_read = false";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to count unread notifications", e);
+        }
+        return 0;
+    }
 }

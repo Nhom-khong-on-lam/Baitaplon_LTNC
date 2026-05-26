@@ -532,6 +532,36 @@ public class ClientHandler extends Thread {
                 return Response.ok(list);
             }
 
+            case "COUNT_UNREAD_NOTIFICATIONS": {
+                try {
+                    Long uid = ((Number) req.getData()).longValue();
+                    server.repository.NotificationDAO notifDAO = new server.repository.NotificationDAO();
+                    return Response.ok(notifDAO.countUnread(uid));
+                } catch (Exception e) {
+                    return Response.error("Failed to count unread notifications.");
+                }
+            }
+
+            case "MARK_NOTIF_READ": {
+                try {
+                    Long notifId = ((Number) req.getData()).longValue();
+                    server.repository.NotificationDAO notifDAO = new server.repository.NotificationDAO();
+                    return Response.ok(notifDAO.markAsRead(notifId));
+                } catch (Exception e) {
+                    return Response.error("Failed to mark notification as read.");
+                }
+            }
+
+            case "MARK_ALL_NOTIF_READ": {
+                try {
+                    Long uid = ((Number) req.getData()).longValue();
+                    server.repository.NotificationDAO notifDAO = new server.repository.NotificationDAO();
+                    return Response.ok(notifDAO.markAllAsRead(uid));
+                } catch (Exception e) {
+                    return Response.error("Failed to mark all notifications as read.");
+                }
+            }
+
             case Request.GET_MY_BIDS: {
                 Long userId = (Long) req.getData();
                 AuctionDAO auctionDAO = new AuctionDAO();
@@ -620,6 +650,21 @@ public class ClientHandler extends Thread {
                 long newId = auctionDAO.insert(auction);
                 if (newId == -1) {
                     return Response.error("Failed to create auction.");
+                }
+
+                // Send SYSTEM notification
+                try {
+                    server.repository.NotificationDAO notificationDAO = new server.repository.NotificationDAO();
+                    com.auction.common.dto.NotificationDTO notif = new com.auction.common.dto.NotificationDTO();
+                    notif.setUserId(sellerId);
+                    notif.setRelatedAuctionId(newId);
+                    notif.setType("SYSTEM");
+                    notif.setTitle("Auction Created");
+                    notif.setMessage("You have successfully created the auction item '" + title + "'. It is now pending admin approval.");
+                    notif.setRead(false);
+                    notificationDAO.insert(notif);
+                } catch (Exception ex) {
+                    System.err.println("Failed to send notification: " + ex.getMessage());
                 }
 
                 return Response.ok(newId);
@@ -1068,6 +1113,24 @@ public class ClientHandler extends Thread {
                     server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
                     boolean success = auctionDAO.updateStatusAndStartTime(auctionId, "RUNNING", java.time.LocalDateTime.now());
                     if (success) {
+                        try {
+                            com.auction.common.dto.AuctionDTO auction = auctionDAO.findById(auctionId);
+                            if (auction != null) {
+                                server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
+                                com.auction.common.dto.ItemDTO item = itemDAO.getById(auction.getItemId());
+                                String itemName = (item != null && item.getName() != null) ? item.getName() : ("Auction " + auctionId);
+                                
+                                server.repository.NotificationDAO notificationDAO = new server.repository.NotificationDAO();
+                                com.auction.common.dto.NotificationDTO notif = new com.auction.common.dto.NotificationDTO();
+                                notif.setUserId(auction.getSellerId());
+                                notif.setRelatedAuctionId(auctionId);
+                                notif.setType("SYSTEM");
+                                notif.setTitle("Auction Approved");
+                                notif.setMessage("Your auction for '" + itemName + "' has been APPROVED and is now LIVE.");
+                                notif.setRead(false);
+                                notificationDAO.insert(notif);
+                            }
+                        } catch (Exception e) {}
                         return Response.ok("Approval successful");
                     } else {
                         return Response.error("Failed to update status.");
@@ -1093,6 +1156,24 @@ public class ClientHandler extends Thread {
                     server.repository.AuctionDAO auctionDAO = new server.repository.AuctionDAO();
                     boolean success = auctionDAO.updateStatus(auctionId, "REJECTED");
                     if (success) {
+                        try {
+                            com.auction.common.dto.AuctionDTO auction = auctionDAO.findById(auctionId);
+                            if (auction != null) {
+                                server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
+                                com.auction.common.dto.ItemDTO item = itemDAO.getById(auction.getItemId());
+                                String itemName = (item != null && item.getName() != null) ? item.getName() : ("Auction " + auctionId);
+                                
+                                server.repository.NotificationDAO notificationDAO = new server.repository.NotificationDAO();
+                                com.auction.common.dto.NotificationDTO notif = new com.auction.common.dto.NotificationDTO();
+                                notif.setUserId(auction.getSellerId());
+                                notif.setRelatedAuctionId(auctionId);
+                                notif.setType("SYSTEM");
+                                notif.setTitle("Auction Rejected");
+                                notif.setMessage("Your auction for '" + itemName + "' has been REJECTED by the admin.");
+                                notif.setRead(false);
+                                notificationDAO.insert(notif);
+                            }
+                        } catch (Exception e) {}
                         return Response.ok("Rejected successfully");
                     } else {
                         return Response.error("Failed to reject.");
@@ -1209,6 +1290,37 @@ public class ClientHandler extends Thread {
                         }
 
                         conn.commit(); // ✅ Xác nhận hoàn tất chuỗi giao dịch ví thành công tuyệt đối!
+
+                        // Broadcast Payment Notifications
+                        try {
+                            server.repository.NotificationDAO notificationDAO = new server.repository.NotificationDAO();
+                            server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
+                            com.auction.common.dto.ItemDTO item = (auction != null) ? itemDAO.getById(auction.getItemId()) : null;
+                            String itemName = (item != null && item.getName() != null) ? item.getName() : ("Auction " + p.getAuctionId());
+                            
+                            // To Buyer
+                            com.auction.common.dto.NotificationDTO buyerNotif = new com.auction.common.dto.NotificationDTO();
+                            buyerNotif.setUserId(buyer.getId());
+                            buyerNotif.setRelatedAuctionId(p.getAuctionId());
+                            buyerNotif.setRead(false);
+                            buyerNotif.setType("PAYMENT_RECEIVED");
+                            buyerNotif.setTitle("Payment Successful");
+                            buyerNotif.setMessage("You have successfully paid for " + itemName + " to " + seller.getUsername() + ".");
+                            notificationDAO.insert(buyerNotif);
+                            
+                            // To Seller
+                            com.auction.common.dto.NotificationDTO sellerNotif = new com.auction.common.dto.NotificationDTO();
+                            sellerNotif.setUserId(seller.getId());
+                            sellerNotif.setRelatedAuctionId(p.getAuctionId());
+                            sellerNotif.setRead(false);
+                            sellerNotif.setType("PAYMENT_RECEIVED");
+                            sellerNotif.setTitle("Payment Received");
+                            sellerNotif.setMessage(buyer.getUsername() + " has successfully paid for " + itemName + " to you.");
+                            notificationDAO.insert(sellerNotif);
+                        } catch (Exception ex) {
+                            System.err.println("Failed to send payment notification: " + ex.getMessage());
+                        }
+
                         return Response.ok("Payment successful!");
                     }
                 } catch (Exception e) {

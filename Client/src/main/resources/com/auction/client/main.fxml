@@ -135,7 +135,7 @@
             </HBox>
 
             <!-- Notifications -->
-            <Button onAction="#handleNotifications" styleClass="topbar-icon-btn" text="🔔" />
+            <Button fx:id="btnNotifications" onAction="#handleNotifications" styleClass="topbar-icon-btn" text="🔔" />
 
             <!-- Avatar -->
             <Label fx:id="topbarAvatar" onMouseClicked="#handleAvatarClick" styleClass="topbar-avatar-btn" text="  AU" />
