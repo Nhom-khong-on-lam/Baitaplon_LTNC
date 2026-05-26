@@ -66,7 +66,6 @@ public class Auction extends BaseEntity {
 
         this.endTime = dto.getEndTime();
 
-        this.reservePrice = dto.getReservePrice();
 
         if (dto.getStatus() != null) {
 

@@ -76,7 +76,7 @@ public class AuctionService {
     // ── CREATE AUCTION ───────────────────────────────────────────────────────
     public Response createAuction(User owner, String title, String description,
                                   String category, String condition, double startPrice,
-                                  double reservePrice, double increment,
+                                   double increment,
                                   java.time.LocalDateTime startTime,
                                   java.time.LocalDateTime endTime,
                                   String imagePath) {
@@ -85,7 +85,7 @@ public class AuctionService {
             // Thay vào đó chỉ gửi ID của User (Kiểu Long cực kỳ an toàn)
             Object[] auctionData = {
                     owner.getId(), title, description, category, condition,
-                    startPrice, reservePrice, increment,
+                    startPrice, increment,
                     startTime, endTime, imagePath
             };
             Request request = new Request("CREATE_AUCTION", auctionData);
@@ -100,9 +100,9 @@ public class AuctionService {
     // ── UPDATE AUCTION ───────────────────────────────────────────────────────
     public Response updateAuction(Long auctionId, String title, String description,
                                   String category, double startPrice,
-                                  java.time.LocalDateTime endTime, String imagePath, double reservePrice) {
+                                  java.time.LocalDateTime endTime, String imagePath) {
         try {
-            Object[] updateData = {auctionId, title, description, category, startPrice, endTime, imagePath, reservePrice};
+            Object[] updateData = {auctionId, title, description, category, startPrice, endTime, imagePath};
             Request  request    = new Request(Request.UPDATE_AUCTION, updateData);
             attachToken(request);
             return (Response) connection.sendRequest(request);

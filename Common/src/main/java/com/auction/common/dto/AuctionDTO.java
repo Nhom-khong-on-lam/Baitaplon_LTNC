@@ -18,7 +18,6 @@ public class AuctionDTO implements Serializable {
     private String itemName;
     private String category;
     private String sellerUsername;
-    private Double reservePrice;
     private static final long serialVersionUID = 1L;
 
     public AuctionDTO() {}
@@ -55,6 +54,5 @@ public class AuctionDTO implements Serializable {
     public void setCategory(String category) { this.category = category; }
     public String getSellerUsername() { return sellerUsername; }
     public void setSellerUsername(String sellerUsername) { this.sellerUsername = sellerUsername; }
-    public double getReservePrice() { return reservePrice; }
-    public void setReservePrice(double reservePrice) { this.reservePrice = reservePrice; }
+
 }

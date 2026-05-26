@@ -71,11 +71,7 @@
                         <TextField fx:id="fieldStartPrice" promptText="0.00" styleClass="form-input" />
                         <Label fx:id="msgPrice" styleClass="form-error" />
                     </VBox>
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label styleClass="form-label" text="RESERVE PRICE ($)" />
-                        <TextField fx:id="fieldReservePrice" promptText="Optional minimum price" styleClass="form-input" />
-                        <Label styleClass="form-hint" text="Leave blank for no reserve" />
-                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS" />
                 </HBox>
             </VBox>
 

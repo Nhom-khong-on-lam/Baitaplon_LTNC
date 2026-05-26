@@ -499,47 +499,6 @@ public class ClientHandler extends Thread {
                 return Response.ok(toClientAuctions(dtos, userDAO));
             }
 
-            case "UPDATE_RESERVE_PRICE": {
-                try {
-                    // 1. Bóc tách mảng dữ liệu do Client gửi sang qua Socket
-                    Object[] data = (Object[]) req.getData();
-                    Long auctionId = ((Number) data[0]).longValue();
-                    Double reservePrice = ((Number) data[1]).doubleValue();
-
-                    System.out.println("🚀 [Server] Nhận lệnh cập nhật Giá dự phòng cho Auction ID: " + auctionId + " | Giá mới: " + reservePrice);
-
-                    // 2. Gọi lớp DAO có sẵn của Server để tương tác với Database
-                    AuctionDAO auctionDAO = new AuctionDAO();
-                    AuctionDTO existing = auctionDAO.findById(auctionId);
-
-                    if (existing == null) {
-                        return Response.error("Không tìm thấy phiên đấu giá tương ứng trên hệ thống.");
-                    }
-
-                    // 3. Thực thi cập nhật giá trị trực tiếp vào Database
-                    boolean success = false;
-                    String sql = "UPDATE auction SET reserve_price = ? WHERE id = ?";
-
-                    // Sử dụng kết nối DBConnection chuẩn của Server bạn (server.database.DBConnection)
-                    try (java.sql.Connection conn = server.database.DBConnection.getConnection();
-                         java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-                        ps.setDouble(1, reservePrice);
-                        ps.setLong(2, auctionId);
-                        success = ps.executeUpdate() > 0;
-                    }
-
-                    if (success) {
-                        System.out.println("✅ [Server] Đã lưu giá dự phòng vào DB thành công!");
-                        return Response.ok("Cập nhật thành công");
-                    } else {
-                        return Response.error("Database từ chối cập nhật (Lỗi ràng buộc dữ liệu).");
-                    }
-                } catch (Exception e) {
-                    System.err.println("❌ Lỗi xử lý UPDATE_RESERVE_PRICE: " + e.getMessage());
-                    e.printStackTrace();
-                    return Response.error("Lỗi nội bộ Server: " + e.getMessage());
-                }
-            }
 
             case Request.GET_AUCTION: {
                 Long auctionId = (Long) req.getData();
@@ -618,17 +577,6 @@ public class ClientHandler extends Thread {
                     imagePath = (String) data[10];
                 }
 
-                // ĐÃ SỬA: Đọc trực tiếp vị trí số 6, không lo vỡ mảng
-                double reservePrice = 0.0;
-                if (data.length > 6 && data[6] != null) {
-                    try {
-                        reservePrice = Double.parseDouble(data[6].toString());
-                    } catch (Exception e) {
-                        reservePrice = 0.0;
-                    }
-                }
-
-                System.out.println("🔥 [SERVER CHỐT HẠ] Giá dự phòng nhận được: " + reservePrice);
 
                 server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
                 com.auction.common.dto.ItemDTO newItemDto = new com.auction.common.dto.ItemDTO();
@@ -654,7 +602,7 @@ public class ClientHandler extends Thread {
                 auction.setItemId(generatedItemId);
                 auction.setSellerId(sellerId);
                 auction.setCurrentPrice(startPrice);
-                auction.setReservePrice(reservePrice); // Gán giá dự phòng
+
 
                 auction.setStartTime(startTime != null ? startTime : java.time.LocalDateTime.now());
                 auction.setEndTime(endTime);
@@ -679,13 +627,7 @@ public class ClientHandler extends Thread {
                 java.time.LocalDateTime endTime = (java.time.LocalDateTime) data[5];
                 String imagePath  = (data.length > 6) ? (String) data[6] : null;
 
-                // THÊM TRƯỜNG HỢP AN TOÀN: Bóc tách giá dự phòng nếu Client gửi kèm khi sửa
-                double reservePrice = 0.0;
-                boolean hasReserveInUpdate = false;
-                if (data.length > 7 && data[7] != null) {
-                    reservePrice = ((Number) data[7]).doubleValue();
-                    hasReserveInUpdate = true;
-                }
+
 
                 AuctionDAO auctionDAO = new AuctionDAO();
                 AuctionDTO existing = auctionDAO.findById(auctionId);
@@ -698,11 +640,6 @@ public class ClientHandler extends Thread {
 
                 existing.setCurrentPrice(startPrice);  // giữ lại dòng này
                 existing.setEndTime(endTime);
-
-                // Nếu bóc tách được giá dự phòng mới, cập nhật vào đối tượng luôn
-                if (hasReserveInUpdate) {
-                    existing.setReservePrice(reservePrice);
-                }
 
                 boolean ok = auctionDAO.update(existing);
                 if (!ok) return Response.error("Failed to update auction.");
@@ -718,16 +655,6 @@ public class ClientHandler extends Thread {
                         ps.setDouble(4, startPrice);
                         ps.setLong(5, itemId);
                         ps.executeUpdate();
-                    }
-
-                    // BỔ SUNG: Cập nhật trực tiếp cột reserve_price vào bảng auction trong DB để đảm bảo không bị sót số
-                    if (hasReserveInUpdate) {
-                        String updateReserveSql = "UPDATE auction SET reserve_price=? WHERE id=?";
-                        try (java.sql.PreparedStatement ps = conn.prepareStatement(updateReserveSql)) {
-                            ps.setDouble(1, reservePrice);
-                            ps.setLong(2, auctionId);
-                            ps.executeUpdate();
-                        }
                     }
 
                     if (imagePath != null && !imagePath.isBlank()) {
@@ -1416,8 +1343,6 @@ public class ClientHandler extends Thread {
                 auction.setId(dto.getId());
                 auction.setCurrentPrice(dto.getCurrentPrice());
 
-                // Đồng bộ Giá dự phòng từ DTO (Database) sang Model gửi về Client
-                auction.setReservePrice(dto.getReservePrice());
 
                 if (dto.getHighestBidderId() != null && dto.getHighestBidderId() > 0) {
                     UserDTO bidderDto = userMap.get(dto.getHighestBidderId());

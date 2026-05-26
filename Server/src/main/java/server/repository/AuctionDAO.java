@@ -30,10 +30,6 @@ public class AuctionDAO {
             ps.setString(6, a.getStatus() != null ? a.getStatus() : "PENDING_APPROVAL");
 
             // Ép kiểu tường minh bằng cách kiểm tra nếu lấy ra bị lỗi thì gán cứng số, hoặc in ra log ngay tại đây
-            double rPrice = a.getReservePrice();
-            System.out.println("📶 [DAO SQL Check] Giá trị chuẩn bị nạp vào dấu hỏi chấm số 7 là: " + rPrice);
-            ps.setDouble(7, rPrice);
-
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -361,7 +357,6 @@ public class AuctionDAO {
         dto.setHighestBidderId(rs.getLong("highest_bidder_id"));
         dto.setCurrentPrice(rs.getDouble("current_price"));
         dto.setStatus(rs.getString("status"));
-        dto.setReservePrice(rs.getDouble("reserve_price"));
 
         // Đọc các trường mở rộng phục vụ hiển thị trực tiếp từ SQL JOIN
         try {

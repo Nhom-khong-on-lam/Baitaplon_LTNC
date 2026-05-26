@@ -39,7 +39,6 @@ public class AuctionDetailController {
     @FXML private Label bidHistoryCount;
     @FXML private VBox resultBox;
     @FXML private Label resultTitle, resultMsg;
-    @FXML private Label detailReserveStatus;
 
     // ── Core Fields ─────────────────────────────────────────────────────────
     private final AuctionService auctionService = new AuctionService();
@@ -195,7 +194,6 @@ public class AuctionDetailController {
 
                 Platform.runLater(() -> {
                     updatePriceDisplay();
-                    renderReservePriceLogic();
                     detailStatusPill.setText(this.auction.getStatusLabel());
 
                     // FIXED DEADLOCK: Only reload transaction layout history if the bid size actually changed
@@ -583,33 +581,6 @@ public class AuctionDetailController {
         });
     }
 
-    private void renderReservePriceLogic() {
-        Platform.runLater(() -> {
-            try {
-                if (detailReserveStatus == null || auction == null) return;
-
-                double currentPrice = auction.getCurrentPrice();
-                double reservePrice = auction.getReservePrice();
-
-                detailReserveStatus.setVisible(true);
-
-                if (reservePrice > 0) {
-                    if (currentPrice < reservePrice) {
-                        detailReserveStatus.setText("❌ Reserve price not met");
-                        detailReserveStatus.setStyle("-fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-font-size: 13px;");
-                    } else {
-                        detailReserveStatus.setText("✔ Reserve price has been met");
-                        detailReserveStatus.setStyle("-fx-text-fill: #16a34a; -fx-font-weight: bold; -fx-font-size: 13px;");
-                    }
-                } else {
-                    detailReserveStatus.setText("ℹ No reserve price configured for this auction");
-                    detailReserveStatus.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic; -fx-font-size: 13px;");
-                }
-            } catch (Exception e) {
-                System.err.println("⚠ Layout render error on reserve engine: " + e.getMessage());
-            }
-        });
-    }
 
     private void handleAuctionEndedUI() {
         Long curId = currentUser.getId();

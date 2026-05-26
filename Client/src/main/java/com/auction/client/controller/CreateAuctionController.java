@@ -21,7 +21,7 @@ import java.time.format.DateTimeParseException;
 public class CreateAuctionController {
 
     @FXML private Label    pageTitle;
-    @FXML private TextField fieldTitle, fieldStartPrice, fieldReservePrice,
+    @FXML private TextField fieldTitle, fieldStartPrice,
             fieldStartTime, fieldEndTime;
     @FXML private TextArea  fieldDesc;
     @FXML private ComboBox<String> fieldCategory, fieldCondition;
@@ -131,7 +131,6 @@ public class CreateAuctionController {
         String category    = fieldCategory.getValue();
         String condition   = fieldCondition.getValue() == null ? "Good" : fieldCondition.getValue();
         double startPrice  = Double.parseDouble(fieldStartPrice.getText().trim());
-        double reserve     = parseOptionalDouble(fieldReservePrice.getText());
         double increment   = 0;
         LocalDateTime start= parseDateTime(fieldStartTime.getText());
         LocalDateTime end  = parseDateTime(fieldEndTime.getText());
@@ -151,7 +150,7 @@ public class CreateAuctionController {
                 }
                 // Create new
                 auctionService.createAuction(currentUser, title, desc,
-                        category, condition, startPrice, reserve, increment,
+                        category, condition, startPrice, increment,
                         start, end, finalImagePath);
             } else {
                 // Edit existing — upload ảnh mới nếu người dùng có chọn file
@@ -159,7 +158,7 @@ public class CreateAuctionController {
                     finalImagePath = com.auction.client.service.CloudinaryService.uploadImage(selectedImageFile);
                 }
                 auctionService.updateAuction(editingAuction.getId(), title, desc,
-                        category, startPrice, end, finalImagePath, reserve);
+                        category, startPrice, end, finalImagePath);
             }
 
             // 4. Server chạy xong, báo luồng chính cập nhật lại UI
