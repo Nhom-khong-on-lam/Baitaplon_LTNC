@@ -961,6 +961,75 @@ public class ClientHandler extends Thread {
                         }
                     }
 
+                    // Broadcast Auction End Notifications
+                    try {
+                        server.repository.NotificationDAO notificationDAO = new server.repository.NotificationDAO();
+                        server.repository.ItemDAO itemDAO = new server.repository.ItemDAO();
+                        com.auction.common.dto.ItemDTO item = itemDAO.getById(existing.getItemId());
+                        String itemName = (item != null && item.getName() != null) ? item.getName() : ("Auction " + auctionId);
+                        
+                        Long winnerId = existing.getHighestBidderId();
+
+                        if (winnerId != null) {
+                            // 1. Notify Winner
+                            UserDTO winner = userDAO.findById(winnerId);
+                            String winnerName = (winner != null) ? winner.getUsername() : "Someone";
+                            
+                            com.auction.common.dto.NotificationDTO winNotif = new com.auction.common.dto.NotificationDTO();
+                            winNotif.setUserId(winnerId);
+                            winNotif.setRelatedAuctionId(auctionId);
+                            winNotif.setType("AUCTION_WON");
+                            winNotif.setTitle("Auction Won");
+                            winNotif.setMessage("Congratulations! You won the auction for '" + itemName + "'.");
+                            winNotif.setRead(false);
+                            notificationDAO.insert(winNotif);
+
+                            // 2. Notify Seller
+                            com.auction.common.dto.NotificationDTO sellerNotif = new com.auction.common.dto.NotificationDTO();
+                            sellerNotif.setUserId(existing.getSellerId());
+                            sellerNotif.setRelatedAuctionId(auctionId);
+                            sellerNotif.setType("AUCTION_ENDED");
+                            sellerNotif.setTitle("Auction Ended");
+                            sellerNotif.setMessage("Your auction for '" + itemName + "' has ended. " + winnerName + " won the auction.");
+                            sellerNotif.setRead(false);
+                            notificationDAO.insert(sellerNotif);
+
+                            // 3. Notify Losers
+                            server.repository.BidDAO bidDAO = new server.repository.BidDAO();
+                            java.util.List<com.auction.common.dto.BidDTO> bids = bidDAO.getBidsByAuctionId(auctionId);
+                            if (bids != null) {
+                                java.util.Set<Long> loserIds = new java.util.HashSet<>();
+                                for (com.auction.common.dto.BidDTO b : bids) {
+                                    if (!b.getBidderId().equals(winnerId)) {
+                                        loserIds.add(b.getBidderId());
+                                    }
+                                }
+                                for (Long loserId : loserIds) {
+                                    com.auction.common.dto.NotificationDTO loseNotif = new com.auction.common.dto.NotificationDTO();
+                                    loseNotif.setUserId(loserId);
+                                    loseNotif.setRelatedAuctionId(auctionId);
+                                    loseNotif.setType("AUCTION_LOST");
+                                    loseNotif.setTitle("Auction Lost");
+                                    loseNotif.setMessage("You lost the auction for '" + itemName + "'. " + winnerName + " won it.");
+                                    loseNotif.setRead(false);
+                                    notificationDAO.insert(loseNotif);
+                                }
+                            }
+                        } else {
+                            // Notify Seller no bids
+                            com.auction.common.dto.NotificationDTO sellerNotif = new com.auction.common.dto.NotificationDTO();
+                            sellerNotif.setUserId(existing.getSellerId());
+                            sellerNotif.setRelatedAuctionId(auctionId);
+                            sellerNotif.setType("AUCTION_ENDED");
+                            sellerNotif.setTitle("Auction Ended");
+                            sellerNotif.setMessage("Your auction for '" + itemName + "' has ended with no bids.");
+                            sellerNotif.setRead(false);
+                            notificationDAO.insert(sellerNotif);
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Failed to send auction end notifications: " + ex.getMessage());
+                    }
+
                     // Trả kết quả thành công về cho Client JavaFX
                     return Response.ok(null);
                 } else {
@@ -1305,7 +1374,7 @@ public class ClientHandler extends Thread {
                             buyerNotif.setRead(false);
                             buyerNotif.setType("PAYMENT_RECEIVED");
                             buyerNotif.setTitle("Payment Successful");
-                            buyerNotif.setMessage("You have successfully paid for " + itemName + " to " + seller.getUsername() + ".");
+                            buyerNotif.setMessage("You have successfully paid for " + itemName + " to " + seller.getUsername() + ". Balance change: -" + p.getAmount() + " $");
                             notificationDAO.insert(buyerNotif);
                             
                             // To Seller
@@ -1315,7 +1384,7 @@ public class ClientHandler extends Thread {
                             sellerNotif.setRead(false);
                             sellerNotif.setType("PAYMENT_RECEIVED");
                             sellerNotif.setTitle("Payment Received");
-                            sellerNotif.setMessage(buyer.getUsername() + " has successfully paid for " + itemName + " to you.");
+                            sellerNotif.setMessage(buyer.getUsername() + " has successfully paid for " + itemName + " to you. Balance change: +" + p.getAmount() + " $");
                             notificationDAO.insert(sellerNotif);
                         } catch (Exception ex) {
                             System.err.println("Failed to send payment notification: " + ex.getMessage());

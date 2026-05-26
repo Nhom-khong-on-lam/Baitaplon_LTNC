@@ -430,7 +430,7 @@ public class AdminAuctionApprovalController {
         String body = String.format("""
                 👤  Seller          : %s
                 📦  Category        : %s  %s
-                💰  Starting Price  : %,.0f ₫
+                💰  Starting Price  : %,.0f
                 📅  Start Time      : %s
                 ⏰  End Time        : %s
                 
