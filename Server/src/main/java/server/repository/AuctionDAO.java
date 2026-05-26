@@ -16,8 +16,8 @@ public class AuctionDAO {
 
     // ── INSERT ────────────────────────────────────────────────────────────────
     public long insert(AuctionDTO a) {
-        String sql = "INSERT INTO auction (item_id, seller_id, current_price, start_time, end_time, status, reserve_price) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO auction (item_id, seller_id, current_price, start_time, end_time, status) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

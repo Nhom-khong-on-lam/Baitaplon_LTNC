@@ -563,25 +563,26 @@ public class ClientHandler extends Thread {
             case "CREATE_AUCTION": {
                 Object[] data = (Object[]) req.getData();
 
-                // ĐÃ SỬA: Bốc ID người bán thay vì bốc cả Object User gây lệch byte
-                Long sellerId = data[0] != null ? ((Number) data[0]).longValue() : 1L;
-
-                String title = data.length > 1 && data[1] != null ? (String) data[1] : "Sản phẩm không tên";
-                String description = data.length > 2 && data[2] != null ? (String) data[2] : "";
-                String category = data.length > 3 && data[3] != null ? (String) data[3] : "Electronics";
-                String condition = data.length > 4 && data[4] != null ? (String) data[4] : "New";
-
+                Long sellerId       = data[0] != null ? ((Number) data[0]).longValue() : 1L;
+                String title        = data.length > 1 && data[1] != null ? (String) data[1] : "Untitled Product";
+                String description  = data.length > 2 && data[2] != null ? (String) data[2] : "";
+                String category     = data.length > 3 && data[3] != null ? (String) data[3] : "Electronics";
+                String condition    = data.length > 4 && data[4] != null ? (String) data[4] : "New";
                 double startPrice = 0.0;
                 if (data.length > 5 && data[5] != null) {
                     startPrice = ((Number) data[5]).doubleValue();
                 }
 
-                java.time.LocalDateTime startTime = data.length > 8 && data[8] != null ? (java.time.LocalDateTime) data[8] : java.time.LocalDateTime.now();
-                java.time.LocalDateTime endTime = data.length > 9 && data[9] != null ? (java.time.LocalDateTime) data[9] : java.time.LocalDateTime.now().plusDays(1);
+                java.time.LocalDateTime startTime = (data.length > 7 && data[7] instanceof java.time.LocalDateTime)
+                        ? (java.time.LocalDateTime) data[7]
+                        : java.time.LocalDateTime.now();
 
+                java.time.LocalDateTime endTime = (data.length > 8 && data[8] instanceof java.time.LocalDateTime)
+                        ? (java.time.LocalDateTime) data[8]
+                        : java.time.LocalDateTime.now().plusDays(1);
                 String imagePath = null;
-                if (data.length > 10 && data[10] != null) {
-                    imagePath = (String) data[10];
+                if (data.length > 9 && data[9] != null) {
+                    imagePath = (String) data[9];
                 }
 
 

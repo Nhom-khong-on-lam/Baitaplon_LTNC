@@ -48,7 +48,6 @@ public class Auction extends BaseEntity {
 
     private PaymentStatus paymentStatus;
 
-    private double reservePrice;
 
     public Auction() {// Constructor mặc định cho việc map dữ liệu từ DB hoặc phục vụ tuần tự hóa mạng
 
@@ -418,7 +417,5 @@ public class Auction extends BaseEntity {
             return 50.0;
         }
     }
-    public double getReservePrice() { return reservePrice; }
 
-    public void setReservePrice(double reservePrice) { this.reservePrice = reservePrice; }
 }
