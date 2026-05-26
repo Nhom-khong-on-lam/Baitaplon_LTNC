@@ -11,6 +11,8 @@ import com.auction.common.network.Request;
 import com.auction.common.network.Response;
 import server.database.DBConnection;
 import server.repository.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import java.io.EOFException;
 import java.io.ObjectInputStream;
@@ -29,6 +31,7 @@ public class ClientHandler extends Thread {
     private Socket clientSocket;
     private ObjectOutputStream objectOut; // Đổi từ out -> objectOut
     private ObjectInputStream in;
+    private static final ConcurrentHashMap<Long, ReentrantLock> AUCTION_LOCKS = new ConcurrentHashMap<>();
 
     public ClientHandler(Socket socket) {
         this.clientSocket = socket;
@@ -192,12 +195,12 @@ public class ClientHandler extends Thread {
                         // Gọi hàm updateActiveStatus(id, active) có sẵn trong DAO của bạn để tắt đi
                         boolean isUpdated = autoBidDAO.updateActiveStatus(existingId, false);
                         if (isUpdated) {
-                            responseToClient = new Response(true, "AUTOBID SUCCESS: AutoBid disabled and history log saved successfully!", null);
+                            responseToClient = new Response(true, "Auto-bid has been successfully turned off.", null);
                         } else {
-                            responseToClient = new Response(false, "DATABASE ERROR: Failed to update cancellation status in DB!", null);
+                            responseToClient = new Response(false, "Unable to turn off auto-bid. Please try again.", null);
                         }
                     } else {
-                        responseToClient = new Response(false, "AUTOBID WARNING: No active AutoBid configuration found to cancel!", null);
+                        responseToClient = new Response(false, "No active auto-bid configuration found to cancel.", null);
                     }
 
                 } else {
@@ -215,9 +218,9 @@ public class ClientHandler extends Thread {
 
                             int rows = ps.executeUpdate();
                             if (rows > 0) {
-                                responseToClient = new Response(true, "AUTOBID SUCCESS: AutoBid configured and activated successfully!", existingId);
+                                responseToClient = new Response(true, "Auto-bid has been successfully activated.", existingId);
                             } else {
-                                responseToClient = new Response(false, "AUTOBID ERROR: Failed to update AutoBid configuration!", null);
+                                responseToClient = new Response(false, "Unable to save auto-bid configuration. Please try again.", null);
                             }
                         } catch (java.sql.SQLException e) {
                             responseToClient = new Response(false, "SQL Error: " + e.getMessage(), null);
@@ -227,9 +230,9 @@ public class ClientHandler extends Thread {
                         autoBidDto.setActive(true); // Ép cứng trạng thái hoạt động trước khi lưu
                         long newId = autoBidDAO.insert(autoBidDto);
                         if (newId != -1) {
-                            responseToClient = new Response(true, "AUTOBID SUCCESS: Auto-bid activated successfully!", newId);
+                            responseToClient = new Response(true, "Auto-bid has been successfully activated.", newId);
                         } else {
-                            responseToClient = new Response(false, "Auto-bid successfully enabled!", null);
+                            responseToClient = new Response(false, "Unable to activate auto-bid. Please try again.", null);
                         }
                     }
                 }
@@ -375,7 +378,9 @@ public class ClientHandler extends Thread {
                 Double bidAmount = (Double) data[2];
 
                 // Mitigate Race Conditions: Ensure two users cannot simultaneously place a bid on the same room at the same millisecond
-                synchronized (String.valueOf(auctionId).intern()) {
+                ReentrantLock bidLock = AUCTION_LOCKS.computeIfAbsent(auctionId, k -> new ReentrantLock());
+                bidLock.lock();
+                try {
                     AuctionDAO auctionDAO = new AuctionDAO();
                     AuctionDTO auctionDto = auctionDAO.findById(auctionId);
 
@@ -445,7 +450,9 @@ public class ClientHandler extends Thread {
 
                     // Trả thẳng object phòng đấu giá mới nhất về cho Client hiển thị luôn
                     return Response.ok(finalAuctionState);
-                }
+                } finally {
+                bidLock.unlock();
+            }
             }
             case Request.ADMIN_DELETE_USER: {
                 try {
@@ -757,7 +764,7 @@ public class ClientHandler extends Thread {
 
                     } catch (SQLException e) {
                         conn.rollback(); // Hoàn tác dữ liệu ngay nếu có một bảng bị kẹt
-                        return Response.error("DATA CONSTRAINT ERROR: " + e.getMessage());
+                        return Response.error("Unable to delete auction. Please try again later.");
                     }
                 } catch (SQLException ex) {
                     ex.printStackTrace();
@@ -1010,11 +1017,11 @@ public class ClientHandler extends Thread {
                         // Trả số dư mới tinh (newBalance) về để Client vẽ lại giao diện
                         return Response.ok(newBalance);
                     } else {
-                        return Response.error("SYSTEM ERROR: Failed to save the new balance to the database.");
+                        return Response.error("Failed to save the new balance");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return Response.error("Failed to process deposit transaction:" + e.getMessage());
+                    return Response.error("Unable to process your deposit. Please try again later.");
                 }
             }
 
@@ -1050,7 +1057,7 @@ public class ClientHandler extends Thread {
                     List<Auction> clientAuctions = toClientAuctions(dtos, userDAO);
                     return Response.ok(clientAuctions);
                 } catch (Exception e) {
-                    return Response.error("Failed to fetch rejected list: " + e.getMessage());
+                    return Response.error("Failed to fetch rejected list. ");
                 }
             }
 
@@ -1125,7 +1132,7 @@ public class ClientHandler extends Thread {
 
                         // Fetch lại để lấy id chuẩn từ DB
                         payment = paymentDAO.getByAuctionId(auctionId);
-                        if (payment == null) return Response.error("INTERNAL ERROR: Failed to re-fetch payment record.");
+                        if (payment == null) return Response.error("Failed to re-fetch payment record.");
                     }
 
                     // cho chạy tiếp xuống dưới để trả về Object kèm theo trạng thái "COMPLETED"
@@ -1142,7 +1149,7 @@ public class ClientHandler extends Thread {
                     return Response.ok(payment); // Luôn trả về dữ liệu thành công
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return Response.error("Failed to load payment information: " + e.getMessage());
+                    return Response.error("Failed to load payment information: " );
                 }
             }
 
@@ -1156,7 +1163,7 @@ public class ClientHandler extends Thread {
                     UserDTO seller = userDAO.findById(p.getSellerId());
 
                     if (buyer == null || seller == null) {
-                        return Response.error("Transaction failed: Invalid account entity.");
+                        return Response.error("Invalid account entity.");
                     }
 
                     if (buyer.getBalance() < p.getAmount()) {
@@ -1205,7 +1212,7 @@ public class ClientHandler extends Thread {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return Response.error("Failed to process payment: " + e.getMessage());
+                    return Response.error("Failed to process payment. ");
                 }
             }
 
@@ -1362,7 +1369,7 @@ public class ClientHandler extends Thread {
                 result.add(auction);
             }
         } catch (Exception e) {
-            out.println("CRITICAL ERROR: Failed to optimize RAM for auction room: " + e.getMessage());
+            out.println("Failed to optimize RAM for auction room. ");
             e.printStackTrace();
         }
 
@@ -1513,7 +1520,6 @@ public class ClientHandler extends Thread {
                 }
             }
         } catch (Exception e) {
-            System.err.println("❌ [AUTOBID ERROR] Single-pass resolution failed: " + e.getMessage());
             e.printStackTrace();
         }
     }

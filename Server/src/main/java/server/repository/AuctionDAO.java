@@ -195,7 +195,7 @@ public class AuctionDAO {
     // ── UPDATE ────────────────────────────────────────────────────────────────
     // ── UPDATE (ĐÃ TỰ ĐỘNG SINH HÓA ĐƠN PENDING KHI KẾT THÚC PHIÊN) ────────────────
     public boolean update(AuctionDTO a) {
-        String updateAuctionSql = "UPDATE auction SET current_price=?, highest_bidder_id=?, end_time=?, status=? WHERE id=?";
+        String updateAuctionSql = "UPDATE auction SET current_price=?, highest_bidder_id=?, end_time=?, status=? WHERE id=? AND current_price < ?";
         String checkPaymentSql = "SELECT COUNT(*) FROM payment WHERE auction_id = ?";
         String insertPaymentSql = "INSERT INTO payment (auction_id, user_id, amount, status, created_at) VALUES (?, ?, ?, 'PENDING', NOW())";
 
@@ -215,6 +215,7 @@ public class AuctionDAO {
                 ps.setTimestamp(3, Timestamp.valueOf(a.getEndTime()));
                 ps.setString(4, a.getStatus());
                 ps.setLong(5, a.getId());
+                ps.setDouble(6, a.getCurrentPrice()); // chỉ update nếu giá trong DB vẫn thấp hơn giá mới
 
                 int rowsAffected = ps.executeUpdate();
                 if (rowsAffected == 0) {

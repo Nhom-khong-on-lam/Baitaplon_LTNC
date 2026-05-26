@@ -249,7 +249,7 @@ public class AuctionDetailController {
                             }
 
                             // 2. Chuỗi thông báo mặc định thân thiện cho khách hàng
-                            String userFriendlyMsg = "Connection timeout or server processing error.";
+                            String userFriendlyMsg = "Unable to place your bid. Please try again later.";
 
                             if (res != null && res.getMessage() != null) {
                                 String rawMsg = res.getMessage().toLowerCase(); // Chuyển hết về chữ thường
@@ -260,7 +260,7 @@ public class AuctionDetailController {
                                         rawMsg.contains("connection") ||
                                         rawMsg.contains("socket")) {
 
-                                    userFriendlyMsg = "System error: Data synchronization failed. Please try again later.";
+                                    userFriendlyMsg = "Someone placed a bid just before you. Please try again!";
                                 } else {
                                     // Nếu là thông báo lỗi nghiệp vụ thông thường (ví dụ: "Giá cược thấp quá")
                                     userFriendlyMsg = res.getMessage();
@@ -304,7 +304,7 @@ public class AuctionDetailController {
                         if (res != null && res.getMessage() != null) {
                             String rawMsg = res.getMessage();
                             if (rawMsg.contains("Exception")) {
-                                userFriendlyMsg = "System error: Extension failed due to internal data error.";
+                                userFriendlyMsg = "Extension failed due to internal data error.";
                             } else {
                                 userFriendlyMsg = rawMsg;
                             }
@@ -393,11 +393,11 @@ public class AuctionDetailController {
                             }
 
                             // 2. Lọc thông báo thân thiện lên màn hình UI
-                            String userFriendlyMsg = "Auto-bid configuration refused by server.";
+                            String userFriendlyMsg = "Unable to activate auto-bid. Please try again later.";
                             if (res != null && res.getMessage() != null) {
                                 String rawMsg = res.getMessage();
                                 if (rawMsg.contains("Exception")) {
-                                    userFriendlyMsg = "System error: Failed to save auto-bid configuration.";
+                                    userFriendlyMsg = "Failed to save auto-bid configuration.";
                                 } else {
                                     userFriendlyMsg = rawMsg;
                                 }
