@@ -179,7 +179,7 @@ public class AuctionDAO {
     // ── FIND WINNING BIDS (auctions user is highest bidder) ──────────────────
     public List<AuctionDTO> findWinningByUser(long userId) {
         List<AuctionDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM auction WHERE highest_bidder_id = ? ORDER BY end_time DESC";
+        String sql = "SELECT * FROM auction WHERE highest_bidder_id = ? AND status = 'FINISHED' AND end_time <= NOW() ORDER BY end_time DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, userId);
