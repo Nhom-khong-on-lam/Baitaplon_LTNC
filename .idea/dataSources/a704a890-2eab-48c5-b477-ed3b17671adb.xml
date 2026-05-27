@@ -720,7 +720,7 @@ is_read</ColNames>
     <column id="156" parent="35" name="accountStatus">
       <DefaultExpression>&apos;ACTIVE&apos;</DefaultExpression>
       <Position>6</Position>
-      <StoredType>enum(&apos;ACTIVE&apos;, &apos;SUSPENDED&apos;, &apos;BANNED&apos;)|0e</StoredType>
+      <StoredType>enum(&apos;ACTIVE&apos;, &apos;BANNED&apos;)|0e</StoredType>
     </column>
     <column id="157" parent="35" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
