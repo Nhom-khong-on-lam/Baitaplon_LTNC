@@ -34,8 +34,8 @@ jobs:
 
       # Bước 3: Biên dịch toàn bộ code (Bỏ qua chạy test để né lỗi Mockito)
       - name: Run Automated Tests
-        run: mvn clean compile
+        run: mvn clean test
 
       # Bước 4: Build thử dự án ra file JAR để check xem có lỗi đóng gói không
       - name: Build Application (Verify Compilation)
-        run: mvn package -DskipTests
+        run: mvn package

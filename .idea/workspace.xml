@@ -5,11 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="74deccd7-d9a3-49f1-a362-8125a45b0a33" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.github/workflows/CI-CD.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/CI-CD.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/CI-CD.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,27 +41,31 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.AuctionServer.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Launcher.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AuctionServer.executor": "Run",
+    "Application.Launcher.executor": "Run",
+    "JUnit.AuctionServiceTest.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "develop",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -78,7 +86,7 @@
       <workItem from="1779781205559" duration="6093000" />
       <workItem from="1779802609894" duration="3573000" />
       <workItem from="1779839933317" duration="6278000" />
-      <workItem from="1779851565723" duration="307000" />
+      <workItem from="1779851565723" duration="2505000" />
     </task>
     <servers />
   </component>

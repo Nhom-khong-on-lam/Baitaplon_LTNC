@@ -5,6 +5,7 @@ com\auction\common\dto\Auction_extension_logDTO.class
 com\auction\common\enums\AuctionStatus.class
 com\auction\common\network\Response.class
 com\auction\common\dto\Auction_watchDTO.class
+com\auction\common\model\Auction$2.class
 com\auction\common\model\User.class
 com\auction\common\dto\PaymentDTO.class
 com\auction\common\enums\PaymentStatus.class

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<?import java.lang.String?>
+<?import java.net.URL?>
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.auction.client.controller.SplashController"
+           fx:id="splashRoot"
+           styleClass="splash-root"
+           prefWidth="1100" prefHeight="700">
+    <stylesheets>
+        <URL value="@global.css"/>
+    </stylesheets>
+
+    <VBox alignment="CENTER" spacing="20">
+
+        <!-- Logo group -->
+        <VBox fx:id="logoBox" alignment="CENTER" spacing="6" opacity="0">
+            <Label text="AURUM" styleClass="splash-logo"/>
+            <Label text="AUCTION PLATFORM" styleClass="splash-tagline"/>
+        </VBox>
+
+        <!-- Progress bar -->
+        <VBox fx:id="progressBox" alignment="CENTER" spacing="10" opacity="0" maxWidth="280">
+
+            <ProgressBar fx:id="progressBar" styleClass="progress-bar"
+                         prefWidth="280" progress="0"/>
+            <Label fx:id="statusLabel" text="Initializing..."
+                   style="-fx-font-size:11px; -fx-text-fill:#243650; -fx-letter-spacing:1px;"/>
+        </VBox>
+
+        <!-- Version -->
+        <Label text="v1.0.0  ·  © 2025 AURUM" styleClass="splash-version"
+               style="-fx-padding:30 0 0 0;"/>
+    </VBox>
+
+</StackPane>
