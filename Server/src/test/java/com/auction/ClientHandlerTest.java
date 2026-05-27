@@ -1,7 +1,6 @@
 package com.auction;
 
 import com.auction.common.network.Request;
-import com.auction.common.network.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -23,71 +22,87 @@ public class ClientHandlerTest {
     void setUp() throws IOException {
         mockSocket = mock(Socket.class);
         bufferOut = new ByteArrayOutputStream();
-
-        // Cấu hình Socket trả về luồng ghi thực tế trên bộ nhớ RAM để tránh lỗi ObjectOutputStream nghẽn
         when(mockSocket.getOutputStream()).thenReturn(bufferOut);
     }
 
     /**
-     * Hàm helper: Tạo luồng đọc thực tế trên RAM chứa sẵn mã định danh Header Handshake của Java
-     * và danh sách các Object Request. Đọc xong sẽ tự động kết thúc luồng (-1) an toàn.
+     * Helper: Serialize một hoặc nhiều Object vào luồng RAM có Header hợp lệ của Java Serialization.
      */
     private InputStream createMockInputStream(Object... objects) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        // Ghi dữ liệu Object thật kèm Header Handshake hợp lệ của Java vào RAM
         try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
             for (Object obj : objects) {
                 oos.writeObject(obj);
             }
             oos.flush();
         }
-
-        byte[] data = baos.toByteArray();
-        return new ByteArrayInputStream(data);
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 
     // =========================================================================
-    // TEST CASE 1: ĐĂNG NHẬP VỚI PAYLOAD SAI ĐỊNH DẠNG DỮ LIỆU
+    // TEST 1: LOGIN với payload mảng rỗng (String[]{}) — phải trả Response lỗi, KHÔNG crash
     // =========================================================================
     @Test
     @Timeout(value = 2, unit = TimeUnit.SECONDS)
     void testRun_LoginWithInvalidPayload() throws IOException {
-        // SỬA LỖI: Thay 'new Object()' không có Serializable bằng một String[] trống (đã có Serializable)
+        // String[]{} — mảng 0 phần tử, truy cập creds[0] sẽ ném ArrayIndexOutOfBoundsException
+        // nếu không có guard. ClientHandler phải xử lý an toàn và KHÔNG ném ra ngoài.
         Request malformedReq = new Request(Request.LOGIN, new String[]{});
 
-        // Nạp request vào luồng bộ nhớ thực tế trên RAM
-        InputStream mockIn = createMockInputStream(malformedReq);
-        when(mockSocket.getInputStream()).thenReturn(mockIn);
+        when(mockSocket.getInputStream()).thenReturn(createMockInputStream(malformedReq));
 
-        ClientHandler clientHandler = new ClientHandler(mockSocket);
-
-        // Chạy hàm run(). Đi qua logic kiểm tra an toàn và thoát ra mượt mà trong vài mili-giây!
-        assertDoesNotThrow(() -> clientHandler.run());
+        ClientHandler handler = new ClientHandler(mockSocket);
+        assertDoesNotThrow(() -> handler.run());
     }
 
     // =========================================================================
-    // TEST CASE 2: KHÁCH HÀNG NGẮT KẾT NỐI (Chỉ truyền Header bắt tay, không gửi dữ liệu)
+    // TEST 2: LOGIN với payload null — kiểm tra thêm nhánh null trong guard
+    // =========================================================================
+    @Test
+    @Timeout(value = 2, unit = TimeUnit.SECONDS)
+    void testRun_LoginWithNullPayload() throws IOException {
+        Request nullPayloadReq = new Request(Request.LOGIN, null);
+
+        when(mockSocket.getInputStream()).thenReturn(createMockInputStream(nullPayloadReq));
+
+        ClientHandler handler = new ClientHandler(mockSocket);
+        assertDoesNotThrow(() -> handler.run());
+    }
+
+    // =========================================================================
+    // TEST 3: Client ngắt kết nối ngay lập tức (chỉ gửi Stream Header, không có Object)
+    // ClientHandler phải bắt EOFException âm thầm và đóng socket sạch sẽ.
     // =========================================================================
     @Test
     @Timeout(value = 2, unit = TimeUnit.SECONDS)
     void testRun_ClientDisconnectsImmediately() throws IOException {
-        // SỬA LỖI: Tạo luồng chỉ chứa duy nhất mã bắt tay (Stream Header) của Java Serialization,
-        // ngay sau đó luồng sẽ kết thúc trả về -1 (Giả lập ngắt kết nối an toàn mà không ném Runtime Exception làm crash JUnit)
+        // Tạo luồng chỉ có Header bắt tay của Java Serialization, không có Object nào.
+        // readObject() sẽ ném EOFException — đây là hành vi bình thường khi client ngắt kết nối.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
             oos.flush();
         }
 
-        InputStream immediateEofIn = new ByteArrayInputStream(baos.toByteArray());
-        when(mockSocket.getInputStream()).thenReturn(immediateEofIn);
+        when(mockSocket.getInputStream()).thenReturn(new ByteArrayInputStream(baos.toByteArray()));
 
-        ClientHandler clientHandler = new ClientHandler(mockSocket);
+        ClientHandler handler = new ClientHandler(mockSocket);
+        assertDoesNotThrow(() -> handler.run());
 
-        // Khối catch(EOFException) hoặc catch(IOException) trong ClientHandler.java sẽ tự dọn dẹp âm thầm
-        assertDoesNotThrow(() -> clientHandler.run());
-
-        // Đảm bảo hệ thống tự động đóng socket giải phóng tài nguyên
+        // Xác nhận ClientHandler tự đóng socket sau khi xử lý xong
         verify(mockSocket, atLeastOnce()).close();
+    }
+
+    // =========================================================================
+    // TEST 4: Gửi một Request với action không tồn tại — server phải không crash
+    // =========================================================================
+    @Test
+    @Timeout(value = 2, unit = TimeUnit.SECONDS)
+    void testRun_UnknownAction_ShouldNotThrow() throws IOException {
+        Request unknownReq = new Request("UNKNOWN_ACTION_XYZ", "some_data");
+
+        when(mockSocket.getInputStream()).thenReturn(createMockInputStream(unknownReq));
+
+        ClientHandler handler = new ClientHandler(mockSocket);
+        assertDoesNotThrow(() -> handler.run());
     }
 }
