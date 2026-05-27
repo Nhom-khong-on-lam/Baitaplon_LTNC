@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74deccd7-d9a3-49f1-a362-8125a45b0a33" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/CI-CD.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/CI-CD.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/test/java/com/auction/AuctionServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-    </list>
+    <list default="true" id="74deccd7-d9a3-49f1-a362-8125a45b0a33" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,6 +36,7 @@
     "Application.AuctionServer.executor": "Run",
     "Application.Launcher.executor": "Run",
     "JUnit.AuctionServiceTest.executor": "Run",
+    "JUnit.UserDAOTest.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -86,7 +77,7 @@
       <workItem from="1779781205559" duration="6093000" />
       <workItem from="1779802609894" duration="3573000" />
       <workItem from="1779839933317" duration="6278000" />
-      <workItem from="1779851565723" duration="2505000" />
+      <workItem from="1779851565723" duration="3242000" />
     </task>
     <servers />
   </component>
