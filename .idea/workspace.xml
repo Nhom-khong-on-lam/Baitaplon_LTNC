@@ -5,17 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="74deccd7-d9a3-49f1-a362-8125a45b0a33" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.github/workflows/CI-CD.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" beforeDir="false" afterPath="$PROJECT_DIR$/Common/src/main/java/com/auction/common/model/Auction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/AuctionDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/AuctionDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/NotificationDAO.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="GitHub Workflow" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -71,6 +77,8 @@
       <workItem from="1779772997021" duration="6389000" />
       <workItem from="1779781205559" duration="6093000" />
       <workItem from="1779802609894" duration="3573000" />
+      <workItem from="1779839933317" duration="6278000" />
+      <workItem from="1779851565723" duration="307000" />
     </task>
     <servers />
   </component>
