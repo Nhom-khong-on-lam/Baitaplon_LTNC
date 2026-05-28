@@ -6,121 +6,45 @@
   <component name="ChangeListManager">
     <list default="true" id="74deccd7-d9a3-49f1-a362-8125a45b0a33" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.ArtFactoryTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.AuthServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.CloudinaryServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.ElectronicsFactoryTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.ItemServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.ServerConnectionTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.UserServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.VehicleFactoryTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/TEST-com.auction.client.service.AuctionServiceTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.ArtFactoryTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.AuthServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.CloudinaryServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.ElectronicsFactoryTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.ItemServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.ServerConnectionTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.UserServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.VehicleFactoryTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/target/surefire-reports/com.auction.client.service.AuctionServiceTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/ArtTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/AuctionDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/AuctionObserverTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/AuctionTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/Auction_extension_logDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/Auction_watchDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/AutoBidConfigTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/AutoBidDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/BidDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/BidTransactionTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/DashboardDataTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/ElectronicsTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/ItemDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/ItemImageDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/ItemTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/NotificationDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/PaymentDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/RequestTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/ResponseTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-ArtTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-AuctionDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-AuctionObserverTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-AuctionTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-Auction_extension_logDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-Auction_watchDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-AutoBidConfigTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-AutoBidDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-BidDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-BidTransactionTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-DashboardDataTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-ElectronicsTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-ItemDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-ItemImageDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-ItemTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-NotificationDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-PaymentDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-RequestTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-ResponseTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-UserDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-UserTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-User_SessionDTOTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/TEST-VehicleTest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/UserDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/UserTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/User_SessionDTOTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Common/target/surefire-reports/VehicleTest.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Server/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionExtensionLogDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionExtensionLogDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionServerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionServerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionWatchDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AuctionWatchDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/AutoBidDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/AutoBidDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/BidDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/BidDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/ClientHandlerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ClientHandlerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/DBConnectionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/DBConnectionTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemImageDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/ItemImageDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/NotificationDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/NotificationDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/PaymentDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserSessionDAOTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/test/java/com/auction/UserSessionDAOTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminUsersController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/AdminUsersController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_users.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/com/auction/client/admin_users.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/admin_users.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/admin_users.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionApprovalController$7.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionApprovalController$7.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionApprovalController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionApprovalController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionsController$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionsController$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionsController$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionsController$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionsController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminAuctionsController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminDashboardController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminDashboardController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminMainController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminMainController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminUsersController$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminUsersController$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminUsersController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AdminUsersController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AuctionDetailController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AuctionDetailController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AuctionsController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/AuctionsController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/CreateAuctionController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/CreateAuctionController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/DashboardController$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/DashboardController$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/DashboardController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/DashboardController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/LoginController$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/LoginController$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/LoginController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/LoginController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MainController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MainController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MyBidsController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MyBidsController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MyProductsController$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MyProductsController$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MyProductsController$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MyProductsController$6.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MyProductsController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/MyProductsController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/PaymentDialogHelper.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/PaymentDialogHelper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/ProfileController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/ProfileController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/RegisterController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/RegisterController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/SplashController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/controller/SplashController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/service/AuctionService.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/service/AuctionService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/target/classes/com/auction/client/service/AuthService.class" beforeDir="false" afterPath="$PROJECT_DIR$/Client/target/classes/com/auction/client/service/AuthService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" beforeDir="false" afterPath="$PROJECT_DIR$/Common/target/classes/com/auction/common/model/Auction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/network/ClientHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/server/repository/UserDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/AuctionServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/AuctionServer.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/network/ClientHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionExtensionLogDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionExtensionLogDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionServerTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionServerTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionWatchDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AuctionWatchDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/Auction_extension_logDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/Auction_watchDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AutoBidDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AutoBidDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/AutoBidDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/BidDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/BidDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/BidDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ClientHandlerTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ClientHandlerTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/DBConnectionTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/DBConnectionTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemImageDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemImageDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/ItemImageDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/NotificationDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/NotificationDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/NotificationDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/PaymentDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/PaymentDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/PaymentDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/UserDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/UserDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/UserDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/UserSessionDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/test-classes/com/auction/UserSessionDAOTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/target/test-classes/com/auction/User_SessionDTOTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/target/classes/server/repository/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/Server/target/classes/server/repository/UserDAO.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,53 +73,53 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.AuctionServer.executor": "Run",
-    "Application.Launcher.executor": "Run",
-    "JUnit.ArtFactoryTest.executor": "Run",
-    "JUnit.AuctionDAOTest.executor": "Run",
-    "JUnit.AuctionExtensionLogDAOTest.executor": "Run",
-    "JUnit.AuctionServerTest.executor": "Run",
-    "JUnit.AuctionServiceTest.executor": "Run",
-    "JUnit.AuctionWatchDAOTest.executor": "Run",
-    "JUnit.AuthServiceTest.executor": "Run",
-    "JUnit.AutoBidDAOTest.executor": "Run",
-    "JUnit.BidDAOTest.executor": "Run",
-    "JUnit.ClientHandlerTest.executor": "Run",
-    "JUnit.CloudinaryServiceTest.executor": "Run",
-    "JUnit.DBConnectionTest.executor": "Run",
-    "JUnit.ElectronicsFactoryTest.executor": "Run",
-    "JUnit.ItemDAOTest.executor": "Run",
-    "JUnit.ItemImageDAOTest.executor": "Run",
-    "JUnit.ItemServiceTest.executor": "Run",
-    "JUnit.NotificationDAOTest.executor": "Run",
-    "JUnit.PaymentDAOTest.executor": "Run",
-    "JUnit.ServerConnectionTest.executor": "Run",
-    "JUnit.UserDAOTest.executor": "Run",
-    "JUnit.UserSessionDAOTest.executor": "Run",
-    "JUnit.VehicleFactoryTest.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "develop",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.AuctionServer.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Launcher.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArtFactoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionExtensionLogDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionServerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuctionWatchDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AutoBidDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BidDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ClientHandlerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CloudinaryServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.DBConnectionTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ElectronicsFactoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ItemDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ItemImageDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ItemServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.NotificationDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PaymentDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServerConnectionTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserSessionDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.VehicleFactoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

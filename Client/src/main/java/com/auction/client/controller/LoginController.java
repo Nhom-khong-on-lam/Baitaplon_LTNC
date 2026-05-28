@@ -52,39 +52,31 @@ public class LoginController {
     }
 
     private void doLogin(String user, String pass) {
-        // Chạy network call trên background thread để tránh đơ UI
-        Task<User> loginTask = new Task<>() {
+        Task<com.auction.common.network.Response> loginTask = new Task<>() {
             @Override
-            protected User call() {
-                return authService.authenticate(user, pass);
+            protected com.auction.common.network.Response call() {
+                return authService.login(user, pass);
             }
         };
 
         loginTask.setOnSucceeded(ev -> {
-            User currentUser = loginTask.getValue();
+            com.auction.common.network.Response response = loginTask.getValue();
 
             loginBtn.setText("Sign In");
             loginBtn.setDisable(false);
-            System.out.println("DEBUG currentUser = " + currentUser);
 
-            if (currentUser == null) {
-                showError("Invalid username or password.");
+            if (response == null || !response.isSuccess()) {
+                String msg = (response != null) ? response.getMessage() : "Cannot connect to server.";
+                showError(msg);
                 AnimationUtil.shake(loginPass);
                 return;
             }
 
-            Object status = currentUser.getAccountStatus();
-            boolean isActive = (status instanceof String)
-                    ? "ACTIVE".equalsIgnoreCase((String) status)
-                    : status != null && status.toString().equalsIgnoreCase("ACTIVE");
-
-            if (!isActive) {
-                showError("Your account has been suspended. Contact support.");
-                return;
-            }
+            User currentUser = (User) response.getData();
 
             showSuccess("Login successful! Redirecting...");
             SessionManager.get().login(currentUser);
+            SessionManager.get().setToken(response.getToken());
             AnimationUtil.pulse(loginBtn);
 
             PauseTransition nav = new PauseTransition(Duration.millis(600));

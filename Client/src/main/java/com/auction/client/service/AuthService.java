@@ -107,19 +107,6 @@ public class AuthService {
         return new ArrayList<>();
     }
 
-    public boolean deleteUser(Long userId) {
-        try {
-            Request  request = new Request(Request.ADMIN_DELETE_USER, userId);
-            attachToken(request);
-
-            // 🚀 Nhận gói tin phản hồi chuẩn từ Server và ép kiểu về Response
-            Response res = (Response) connection.sendRequest(request);
-            return res != null && res.isSuccess();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     // ── VALIDATION ───────────────────────────────────────────────────────────
     public boolean isValidEmail(String email) {
