@@ -2,101 +2,147 @@ package com.auction;
 
 import com.auction.common.dto.NotificationDTO;
 import com.auction.common.dto.UserDTO;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import server.repository.NotificationDAO;
-import server.repository.UserDAO;
+import server.repository.UserDAO; // 1. IMPORT USERDAO ĐỂ ĐỒNG BỘ KHÓA NGOẠI
 
+import java.time.LocalDateTime;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("Kiểm thử NotificationDAO")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Cho phép chia sẻ biến mồi qua các hàm @Test
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class NotificationDAOTest {
 
     private NotificationDAO notificationDAO;
     private UserDAO userDAO;
-    private long validUserId; // Dùng để hứng ID thật từ Database
 
-    @BeforeEach
-    void setUp() {
+    private long testUserId = -1;       // ID của User mồi nhận thông báo
+    private long createdNotificationId = -1; // ID của thông báo vừa tạo
+
+    @BeforeAll
+    void initAll() {
         notificationDAO = new NotificationDAO();
         userDAO = new UserDAO();
 
-        // 1. TẠO USER TẠM THỜI ĐỂ VƯỢ QUA LỖI FOREIGN KEY CỦA MYSQL
-        UserDTO tempUser = new UserDTO();
-        tempUser.setUsername("test_notif_user_" + System.currentTimeMillis()); // Thêm timestamp để tên không bị trùng
-        tempUser.setPassword("123456");
-        tempUser.setEmail("testnotif@uet.edu.vn");
+        // 2. CHỦ ĐỘNG TẠO USER MỒI ĐỂ TRÁNH LỖI PHỤ THUỘC TRONG DB
+        try {
+            UserDTO mockUser = new UserDTO();
+            mockUser.setUsername("notif_receiver_" + System.currentTimeMillis());
+            mockUser.setPassword("123456");
+            mockUser.setEmail("notif_" + System.currentTimeMillis() + "@uet.edu.vn");
 
-        validUserId = userDAO.insert(tempUser);
-        assertTrue(validUserId > 0, "Phải tạo được User tạm thời để test Notification");
-    }
-
-    @AfterEach
-    void tearDown() {
-        // 2. DỌN DẸP SẠCH SẼ (Nhờ ON DELETE CASCADE, xóa User sẽ tự động bay luôn các Notification của test này)
-        userDAO.delete(validUserId);
-    }
-
-    @Test
-    void testInsertAndFindByUserId() {
-        // Arrange: Chuẩn bị dữ liệu (Test tạo thông báo có related_auction_id và không có related_bid_id)
-        NotificationDTO newNotif = new NotificationDTO(
-                validUserId,
-                "Đấu giá thành công",
-                "Bạn đã thắng phiên đấu giá siêu xe",
-                "AUCTION_WON",
-                null,
-                null  // related_bid_id = null
-        );
-
-        // Act: Lưu xuống DB
-        long newId = notificationDAO.insert(newNotif);
-        assertTrue(newId > 0, "Lưu thông báo thất bại, ID phải > 0");
-
-        // Act: Đọc lên từ DB
-        List<NotificationDTO> userNotifs = notificationDAO.findByUserId(validUserId);
-
-        // Assert: Kiểm tra tính đúng đắn
-        assertFalse(userNotifs.isEmpty(), "Danh sách thông báo không được rỗng");
-
-        NotificationDTO retrievedNotif = userNotifs.get(0);
-        assertEquals("Đấu giá thành công", retrievedNotif.getTitle());
-        assertEquals("AUCTION_WON", retrievedNotif.getType());
-        assertFalse(retrievedNotif.isRead(), "Thông báo mới tạo mặc định phải là chưa đọc (false)");
-        assertNull(retrievedNotif.getRelatedAuctionId(), "related_auction_id phải là null");
-        assertNull(retrievedNotif.getRelatedBidId(), "related_bid_id phải là null");
-    }
-
-    @Test
-    void testMarkAsRead() {
-        // 1. Tạo và lưu một thông báo
-        NotificationDTO notif = new NotificationDTO(validUserId, "Test Read", "Message", "SYSTEM", null, null);
-        long notifId = notificationDAO.insert(notif);
-
-        // 2. Đánh dấu đã đọc
-        boolean isMarked = notificationDAO.markAsRead(notifId);
-        assertTrue(isMarked, "Lệnh update trạng thái đã đọc phải trả về true");
-
-        // 3. Lấy lên và kiểm tra lại trạng thái
-        List<NotificationDTO> notifs = notificationDAO.findByUserId(validUserId);
-        assertTrue(notifs.get(0).isRead(), "Trạng thái is_read phải được đổi thành true trong DB");
-    }
-
-    @Test
-    void testMarkAllAsRead() {
-        // 1. Tạo 2 thông báo mới (cả 2 đều chưa đọc)
-        notificationDAO.insert(new NotificationDTO(validUserId, "TB 1", "Noi dung 1", "SYSTEM", null, null));
-        notificationDAO.insert(new NotificationDTO(validUserId, "TB 2", "Noi dung 2", "SYSTEM", null, null));
-
-        // 2. Đánh dấu ĐỌC TẤT CẢ
-        int rowsUpdated = notificationDAO.markAllAsRead(validUserId);
-        assertEquals(2, rowsUpdated, "Phải có đúng 2 thông báo được cập nhật trạng thái");
-
-        // 3. Kiểm tra lại xem tất cả đã là true chưa
-        List<NotificationDTO> notifs = notificationDAO.findByUserId(validUserId);
-        for (NotificationDTO n : notifs) {
-            assertTrue(n.isRead(), "Tất cả thông báo của user này đều phải là đã đọc (true)");
+            testUserId = userDAO.insert(mockUser);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        // Đảm bảo phải tạo được User mồi thành công mới bắt đầu test thông báo
+        assertTrue(testUserId > 0, "Phải tạo được User tạm thời để test Notification");
+    }
+
+    @AfterAll
+    void tearDownAll() {
+        // 3. DỌN SẠCH DỮ LIỆU RÁC THEO THỨ TỰ NGƯỢC (REVERSE ORDER)
+        try {
+            // Khi User bị xóa, cơ chế ON DELETE CASCADE (nếu có trong DB) hoặc xóa thủ công
+            // sẽ quét sạch bảng notification liên quan, nhưng xóa User là bước gốc an toàn nhất.
+            if (testUserId > 0) {
+                userDAO.delete(testUserId);
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi dọn dẹp dữ liệu test thông báo: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("1. Test gửi thông báo mới (Insert)")
+    void testInsertNotification() {
+        NotificationDTO notif = new NotificationDTO();
+        notif.setUserId(testUserId); // Gán ID của User mồi vừa sinh ra
+        notif.setTitle("Đấu giá thành công!");
+        notif.setMessage("Chúc mừng bạn đã chiến thắng cuộc đấu giá mã số #10.");
+        notif.setType("SYSTEM");
+        notif.setRead(false); // Mặc định là chưa đọc
+        notif.setCreatedAt(LocalDateTime.now());
+        notif.setExpiresAt(LocalDateTime.now().plusDays(7));
+
+        // Cột liên quan đến Đấu giá và Lượt ra giá đặt NULL cho đơn giản, không cần mồi thêm bảng khác
+        notif.setRelatedAuctionId(null);
+        notif.setRelatedBidId(null);
+
+        // Gọi hàm insert của bạn, hứng lấy ID tự sinh từ MySQL
+        createdNotificationId = notificationDAO.insert(notif);
+
+        assertTrue(createdNotificationId > 0, "Gửi thông báo thất bại, ID trả về phải lớn hơn 0");
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("2. Test đếm số thông báo chưa đọc")
+    void testCountUnread() {
+        int unreadCount = notificationDAO.countUnread(testUserId);
+        // Vì ở bước 1 chúng ta đã chèn thành công 1 thông báo chưa đọc (is_read = false)
+        assertEquals(1, unreadCount, "Số lượng thông báo chưa đọc phải chính xác bằng 1");
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("3. Test lấy danh sách thông báo chưa đọc")
+    void testGetUnreadNotifications() {
+        List<NotificationDTO> unreadList = notificationDAO.getUnreadNotifications(testUserId);
+
+        assertNotNull(unreadList, "Danh sách không được phép null");
+        assertFalse(unreadList.isEmpty(), "Danh sách không được trống");
+        assertEquals(createdNotificationId, unreadList.get(0).getId(), "ID thông báo chưa đọc không khớp!");
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("4. Test đánh dấu một thông báo là đã đọc")
+    void testMarkAsRead() {
+        boolean success = notificationDAO.markAsRead(createdNotificationId);
+        assertTrue(success, "Đánh dấu đã đọc thất bại");
+
+        // Kiểm tra lại xem số lượng chưa đọc đã giảm về 0 chưa
+        int unreadCountAfter = notificationDAO.countUnread(testUserId);
+        assertEquals(0, unreadCountAfter, "Thông báo phải chuyển sang trạng thái đã đọc");
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("5. Test lấy toàn bộ danh sách thông báo của User")
+    void testFindByUserId() {
+        List<NotificationDTO> allNotifs = notificationDAO.findByUserId(testUserId);
+
+        assertNotNull(allNotifs);
+        assertEquals(1, allNotifs.size(), "User này phải có đúng 1 thông báo tổng cộng");
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("6. Test đánh dấu đọc tất cả thông báo của User")
+    void testMarkAllAsRead() {
+        // Tạo thêm 1 thông báo chưa đọc mới để thử nghiệm tính năng đọc tất cả
+        NotificationDTO secondNotif = new NotificationDTO();
+        secondNotif.setUserId(testUserId);
+        secondNotif.setTitle("Thông báo số 2");
+        secondNotif.setMessage("Nội dung thông báo số 2");
+
+        // ĐỔI TỪ "ALERT" THÀNH "SYSTEM" CHO KHỚP ENUM DATABASE CỦA BẠN
+        secondNotif.setType("SYSTEM");
+
+        secondNotif.setRead(false);
+        notificationDAO.insert(secondNotif);
+
+        // Thực hiện cập nhật đọc tất cả
+        int rowsUpdated = notificationDAO.markAllAsRead(testUserId);
+        assertEquals(1, rowsUpdated, "Phải cập nhật thành công 1 thông báo chưa đọc còn lại");
+
+        // Đảm bảo không còn thông báo nào chưa đọc
+        assertEquals(0, notificationDAO.countUnread(testUserId));
     }
 }

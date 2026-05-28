@@ -454,23 +454,6 @@ public class ClientHandler extends Thread {
                 bidLock.unlock();
             }
             }
-            case Request.ADMIN_DELETE_USER: {
-                try {
-                    Long userId = (Long) req.getData();
-
-                    // Gọi xuống UserDAO thực thi lệnh SQL: DELETE FROM user WHERE id = ?
-                    boolean success = userDAO.deleteUserById(userId);
-
-                    if (success) {
-                        // 🚀 GIẢI PHÁP: Return trực tiếp gói tin về luồng xử lý trung tâm, không dùng out.writeObject và break nữa
-                        return Response.ok("User has been permanently deleted from the system.");
-                    } else {
-                        return Response.error("Cannot delete user due to existing auction data references/constraints.");
-                    }
-                } catch (Exception e) {
-                    return Response.error("Internal server error during deletion: " + e.getMessage());
-                }
-            }
 
             case Request.ADMIN_UPDATE_USER_STATUS: {
                 try {
@@ -1064,13 +1047,6 @@ public class ClientHandler extends Thread {
                     }
                 }
                 return Response.ok(transactions);
-            }
-            // BỔ SUNG VÀO TRONG HÀM handleRequest(Request req) CỦA ClientHandler.java
-            case "DELETE_USER": {
-                Long userId = (Long) req.getData();
-                // Gọi xuống UserDAO để chạy lệnh DELETE SQL
-                boolean ok = userDAO.deleteUserById(userId);
-                return ok ? Response.ok(null) : Response.error("Failed to delete this user from the Database.");
             }
 
             case "UPDATE_USER_STATUS": {

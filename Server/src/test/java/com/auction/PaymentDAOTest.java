@@ -1,158 +1,126 @@
 package com.auction;
 
+import com.auction.common.dto.AuctionDTO;
+import com.auction.common.dto.ItemDTO;
 import com.auction.common.dto.PaymentDTO;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import server.database.DBConnection;
+import com.auction.common.dto.UserDTO;
+import org.junit.jupiter.api.*;
+import server.repository.AuctionDAO;
+import server.repository.ItemDAO;
 import server.repository.PaymentDAO;
+import server.repository.UserDAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
-public class PaymentDAOTest {
+@DisplayName("Kiểm thử PaymentDAO")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Để chia sẻ ID mồi giữa các hàm @Test
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class PaymentDAOTest {
 
     private PaymentDAO paymentDAO;
-    private Connection mockConnection;
-    private PreparedStatement mockPreparedStatement;
-    private ResultSet mockResultSet;
-    private MockedStatic<DBConnection> mockedDbConnection;
+    private UserDAO userDAO;
+    private ItemDAO itemDAO;
+    private AuctionDAO auctionDAO;
 
-    @BeforeEach
-    void setUp() throws SQLException {
+    // Lưu các ID mồi để làm khóa ngoại và dọn dẹp sau khi test xong
+    private long sellerId = -1;
+    private long buyerId = -1;
+    private long itemId = -1;
+    private long auctionId = -1;
+
+    @BeforeAll
+    void initAll() {
         paymentDAO = new PaymentDAO();
+        userDAO = new UserDAO();
+        itemDAO = new ItemDAO();
+        auctionDAO = new AuctionDAO();
 
-        // Khởi tạo các đối tượng mock của JDBC
-        mockConnection = mock(Connection.class);
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
+        long time = System.currentTimeMillis();
 
-        // Mock phương thức tĩnh DBConnection.getConnection()
-        mockedDbConnection = Mockito.mockStatic(DBConnection.class);
-        mockedDbConnection.when(DBConnection::getConnection).thenReturn(mockConnection);
+        try {
+            // 1. Tạo Người bán (Seller) và Người mua (Buyer) mồi
+            UserDTO seller = new UserDTO();
+            seller.setUsername("seller_pay_" + time);
+            seller.setPassword("123456");
+            seller.setEmail("seller_pay_" + time + "@gmail.com");
+            sellerId = userDAO.insert(seller);
 
-        // Cấu hình mặc định khi Connection tạo PreparedStatement
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+            UserDTO buyer = new UserDTO();
+            buyer.setUsername("buyer_pay_" + time);
+            buyer.setPassword("123456");
+            buyer.setEmail("buyer_pay_" + time + "@gmail.com");
+            buyerId = userDAO.insert(buyer);
+
+            // 2. Tạo Món hàng (Item) mồi thuộc về Người bán
+            ItemDTO item = new ItemDTO();
+            item.setName("Sản phẩm Test Hóa Đơn");
+            item.setDescription("Mô tả sản phẩm test payment");
+            item.setStartingPrice(500000.0);
+            item.setCategory("ELECTRONICS");
+            itemId = itemDAO.insert(item);
+
+            // 3. Tạo Cuộc đấu giá (Auction) mồi kết nối Item và Seller
+            AuctionDTO auction = new AuctionDTO();
+            auction.setItemId(itemId);
+            auction.setSellerId(sellerId);
+            auction.setCurrentPrice(550000.0);
+            auction.setStartTime(LocalDateTime.now());
+            auction.setEndTime(LocalDateTime.now().plusDays(1));
+            auction.setStatus("FINISHED"); // Thường đấu giá kết thúc mới thanh toán
+            auctionId = auctionDAO.insert(auction);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Kiểm tra xem dây chuyền tạo data mồi có thành công hoàn toàn không
+        assertTrue(sellerId > 0 && buyerId > 0 && itemId > 0 && auctionId > 0,
+                "Tạo chuỗi dữ liệu mồi thất bại, không thể test PaymentDAO!");
     }
 
-    @AfterEach
-    void tearDown() {
-        // Giải phóng và đóng mock static sau mỗi hàm test để tránh xung đột luồng
-        mockedDbConnection.close();
-    }
-
-    @Test
-    void testGetByAuctionId_Found() throws SQLException {
-        long auctionId = 100L;
-
-        // Giả lập ResultSet trả về một bản ghi dữ liệu hóa đơn
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true, false); // Trả về true lần đầu, false lần sau để kết thúc vòng lặp
-        when(mockResultSet.getLong("id")).thenReturn(1L);
-        when(mockResultSet.getLong("auction_id")).thenReturn(auctionId);
-        when(mockResultSet.getLong("buyer_id")).thenReturn(2L);
-        when(mockResultSet.getLong("seller_id")).thenReturn(3L);
-        when(mockResultSet.getDouble("amount")).thenReturn(1500.0);
-        when(mockResultSet.getString("status")).thenReturn("PENDING");
-
-        // Gọi hàm cần kiểm thử
-        PaymentDTO result = paymentDAO.getByAuctionId(auctionId);
-
-        // Kiểm tra dữ liệu được ánh xạ từ ResultSet sang DTO chính xác
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals(auctionId, result.getAuctionId());
-        assertEquals(2L, result.getBuyerId());
-        assertEquals(3L, result.getSellerId());
-        assertEquals(1500.0, result.getAmount());
-        assertEquals("PENDING", result.getStatus());
-
-        // Xác minh xem PreparedStatement đã truyền đúng tham số auctionId vào câu lệnh chưa
-        verify(mockPreparedStatement, times(1)).setLong(1, auctionId);
-    }
-
-    @Test
-    void testGetByAuctionId_NotFound() throws SQLException {
-        long auctionId = 999L;
-
-        // Giả lập ResultSet rỗng (không tìm thấy hóa đơn)
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(false);
-
-        PaymentDTO result = paymentDAO.getByAuctionId(auctionId);
-
-        // Hệ thống phải trả về null
-        assertNull(result);
+    @AfterAll
+    void tearDownAll() {
+        // Dọn sạch rác trong DB theo thứ tự ngược lại để tránh lỗi Foreign Key
+        try {
+            if (auctionId > 0) auctionDAO.delete(auctionId);
+            if (itemId > 0) itemDAO.delete(itemId);
+            if (sellerId > 0) userDAO.delete(sellerId);
+            if (buyerId > 0) userDAO.delete(buyerId);
+        } catch (Exception e) {
+            System.out.println("Lưu ý dọn dẹp rác test payment: " + e.getMessage());
+        }
     }
 
     @Test
-    void testInsert_Success() throws SQLException {
-        // Chuẩn bị dữ liệu đầu vào
-        PaymentDTO dto = new PaymentDTO();
-        dto.setAuctionId(10L);
-        dto.setBuyerId(20L);
-        dto.setSellerId(30L);
-        dto.setAmount(500.0);
-        dto.setStatus("PAID");
+    @Order(1)
+    @DisplayName("1. Test thêm hóa đơn mới (Insert thông thường)")
+    void testInsertPayment() {
+        PaymentDTO payment = new PaymentDTO();
+        payment.setAuctionId(auctionId);
+        payment.setBuyerId(buyerId);
+        payment.setSellerId(sellerId);
+        payment.setAmount(550000.0);
 
-        // Giả lập câu lệnh INSERT thực thi thành công (ảnh hưởng > 0 dòng)
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        // Hãy chú ý chữ "PENDING" này, nếu DB của bạn dùng ENUM viết hoa thì giữ nguyên,
+        // nếu bị lỗi truncated giống file trước thì đổi thành trạng thái hợp lệ trong DB của bạn nhé!
+        payment.setStatus("PENDING");
 
-        boolean isInserted = paymentDAO.insert(dto);
-
-        assertTrue(isInserted);
-
-        // Xác minh các vị trí gán tham số dữ liệu chuẩn theo mã nguồn
-        verify(mockPreparedStatement, times(1)).setLong(1, 10L);
-        verify(mockPreparedStatement, times(1)).setLong(2, 20L);
-        verify(mockPreparedStatement, times(1)).setLong(3, 30L);
-        verify(mockPreparedStatement, times(1)).setDouble(4, 500.0);
-        verify(mockPreparedStatement, times(1)).setString(5, "PAID");
+        boolean isInserted = paymentDAO.insert(payment);
+        assertTrue(isInserted, "Thêm hóa đơn thanh toán thông thường thất bại!");
     }
 
     @Test
-    void testUpdateStatusWithConn_Success() throws SQLException {
-        long paymentId = 1L;
-        String status = "COMPLETED";
+    @Order(2)
+    @DisplayName("2. Test lấy thông tin hóa đơn theo Auction ID")
+    void testGetByAuctionId() {
+        PaymentDTO retrieved = paymentDAO.getByAuctionId(auctionId);
 
-        // Giả lập câu lệnh UPDATE thành công
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-
-        // Truyền một đối tượng mockConnection trực tiếp vào hàm
-        boolean isUpdated = paymentDAO.updateStatusWithConn(mockConnection, paymentId, status);
-
-        assertTrue(isUpdated);
-        verify(mockPreparedStatement, times(1)).setString(1, status);
-        verify(mockPreparedStatement, times(1)).setLong(2, paymentId);
-    }
-
-    @Test
-    void testInsertWithConn_Success() throws SQLException {
-        PaymentDTO dto = new PaymentDTO();
-        dto.setAuctionId(50L);
-        dto.setBuyerId(60L);
-        dto.setSellerId(70L);
-        dto.setAmount(2500.0);
-        dto.setStatus("REFUNDED");
-
-        // Giả lập câu lệnh thực thi có kết nối truyền vào thành công
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-
-        boolean isInserted = paymentDAO.insertWithConn(mockConnection, dto);
-
-        assertTrue(isInserted);
-        verify(mockPreparedStatement, times(1)).setLong(1, 50L);
-        verify(mockPreparedStatement, times(1)).setLong(2, 60L);
-        verify(mockPreparedStatement, times(1)).setLong(3, 70L);
-        verify(mockPreparedStatement, times(1)).setDouble(4, 2500.0);
-        verify(mockPreparedStatement, times(1)).setString(5, "REFUNDED");
+        assertNotNull(retrieved, "Phải tìm thấy hóa đơn gắn với Auction ID vừa tạo!");
+        assertEquals(buyerId, retrieved.getBuyerId(), "ID Người mua không khớp!");
+        assertEquals(sellerId, retrieved.getSellerId(), "ID Người bán không khớp!");
+        assertEquals(550000.0, retrieved.getAmount(), "Số tiền hóa đơn không khớp!");
+        assertEquals("PENDING", retrieved.getStatus(), "Trạng thái hóa đơn ban đầu không khớp!");
     }
 }

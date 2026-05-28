@@ -187,22 +187,15 @@ public class AdminUsersController {
         // Actions: Ban/Unban + Delete
         colActions.setCellFactory(col -> new TableCell<>() {
             private final Button banBtn = new Button("Ban");
-            private final Button delBtn = new Button("Delete");
-            private final HBox   box    = new HBox(8, banBtn, delBtn);
+            private final HBox   box    = new HBox(8, banBtn);
 
             {
                 banBtn.setStyle("-fx-padding:4 12; -fx-font-size:11px;");
-                delBtn.setStyle("-fx-padding:4 12; -fx-font-size:11px;");
-                delBtn.getStyleClass().add("btn-danger");
                 box.setAlignment(Pos.CENTER);
 
                 banBtn.setOnAction(e -> {
                     User u = getTableView().getItems().get(getIndex());
                     handleToggleBan(u);
-                });
-                delBtn.setOnAction(e -> {
-                    User u = getTableView().getItems().get(getIndex());
-                    handleDelete(u);
                 });
             }
 
@@ -218,7 +211,6 @@ public class AdminUsersController {
                 banBtn.setText(banned ? "Unban" : "Ban");
                 banBtn.getStyleClass().setAll(banned ? "btn-secondary" : "btn-primary");
                 banBtn.setDisable(isSelf);
-                delBtn.setDisable(isSelf);
 
                 setGraphic(box);
             }
@@ -270,32 +262,6 @@ public class AdminUsersController {
     }
 
     // ── Thay thế hàm handleDelete cũ bằng hàm này ─────────────────────────────────────────────
-    private void handleDelete(User user) {
-        Alert confirm = new Alert(AlertType.CONFIRMATION);
-        confirm.setTitle("Delete User");
-        confirm.setHeaderText("Delete " + user.getUsername() + "?");
-        confirm.setContentText("⚠️ This action cannot be undone. All data will be removed.");
-
-        confirm.showAndWait().ifPresent(result -> {
-            if (result == ButtonType.OK) {
-                new Thread(() -> {
-                    // Gọi sang Service hứng kết quả boolean từ Server
-                    boolean isSuccess = authService.deleteUser(user.getId());
-
-                    javafx.application.Platform.runLater(() -> {
-                        if (isSuccess) {
-                            // Xóa hoàn toàn khỏi mảng dữ liệu đang hiển thị trên bảng
-                            allUsers.removeIf(u -> u.getId().equals(user.getId()));
-                            loadTable(allUsers); // Hàm load lại bảng giao diện của bạn
-                            showInfo("User \"" + user.getUsername() + "\" has been permanently deleted.");
-                        } else {
-                            showError("Deletion failed! This user may have active auctions or valid bids.");
-                        }
-                    });
-                }).start();
-            }
-        });
-    }
 
     // Hàm phụ hiển thị lỗi phục vụ cho việc thông báo trực quan
     private void showError(String msg) {

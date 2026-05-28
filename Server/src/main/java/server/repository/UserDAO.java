@@ -80,17 +80,6 @@ public class UserDAO {
         return -1;
     }
 
-    public boolean deleteUserById(long userId) {
-        String sql = "DELETE FROM user WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, userId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("SQL Error while deleting user: " + e.getMessage());
-            return false;
-        }
-    }
 
     public boolean updateStatus(long userId, String status) {
         String sql = "UPDATE user SET accountStatus = ? WHERE id = ?";

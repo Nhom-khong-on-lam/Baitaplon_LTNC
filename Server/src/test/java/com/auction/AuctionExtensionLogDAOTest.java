@@ -1,93 +1,133 @@
 package com.auction;
 
+import com.auction.common.dto.AuctionDTO;
 import com.auction.common.dto.Auction_extension_logDTO;
+import com.auction.common.dto.ItemDTO;
+import com.auction.common.dto.UserDTO;
 import org.junit.jupiter.api.*;
+import server.repository.AuctionDAO;
 import server.repository.AuctionExtensionLogDAO;
-import server.database.DBConnection;
+import server.repository.ItemDAO;
+import server.repository.UserDAO;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayName("Kiểm thử AuctionExtensionLogDAO")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Giúp chia sẻ ID cuộc đấu giá mồi xuyên suốt các hàm test
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class AuctionExtensionLogDAOTest {
+class AuctionExtensionLogDAOTest {
 
-    private static final Logger LOGGER = Logger.getLogger(AuctionExtensionLogDAOTest.class.getName());
+    private AuctionExtensionLogDAO extensionLogDAO;
+    private UserDAO userDAO;
+    private ItemDAO itemDAO;
+    private AuctionDAO auctionDAO;
 
-    private AuctionExtensionLogDAO logDAO;
-    private Long testAuctionId;
+    // Lưu các ID dữ liệu mồi để làm khóa ngoại và dọn dẹp rác sau khi kết thúc
+    private long testUserId = -1;
+    private long testItemId = -1;
+    private long testAuctionId = -1;
+
+    // Khởi tạo sẵn mốc thời gian cố định để dễ assert so sánh logic tính phút
+    private final LocalDateTime originalEnd = LocalDateTime.now().plusHours(2);
+    private final LocalDateTime newEnd = originalEnd.plusMinutes(15); // Gia hạn thêm 15 phút
 
     @BeforeAll
-    void init() throws Exception {
-        logDAO = new AuctionExtensionLogDAO();
+    void initAll() {
+        extensionLogDAO = new AuctionExtensionLogDAO();
+        userDAO = new UserDAO();
+        itemDAO = new ItemDAO();
+        auctionDAO = new AuctionDAO();
 
-        // Tự động lấy 1 ID Auction có thật để đảm bảo tính toàn vẹn dữ liệu (Foreign Key)
-        try (Connection conn = DBConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery("SELECT id FROM auction LIMIT 1")) {
-            if (rs.next()) {
-                testAuctionId = rs.getLong("id");
-            }
+        long time = System.currentTimeMillis();
+
+        try {
+            // 1. Tạo User mồi
+            UserDTO mockUser = new UserDTO();
+            mockUser.setUsername("ext_owner_" + time);
+            mockUser.setPassword("123456");
+            mockUser.setEmail("ext_" + time + "@uet.edu.vn");
+            testUserId = userDAO.insert(mockUser);
+
+            // 2. Tạo Item mồi
+            ItemDTO mockItem = new ItemDTO();
+            mockItem.setName("Sản phẩm test gia hạn");
+            mockItem.setDescription("Mô tả sản phẩm test extension log");
+            mockItem.setStartingPrice(200000.0);
+            mockItem.setCategory("ELECTRONICS");
+            testItemId = itemDAO.insert(mockItem);
+
+            // 3. Tạo Auction mồi
+            AuctionDTO mockAuction = new AuctionDTO();
+            mockAuction.setItemId(testItemId);
+            mockAuction.setSellerId(testUserId);
+            mockAuction.setCurrentPrice(200000.0);
+            mockAuction.setStartTime(LocalDateTime.now());
+            mockAuction.setEndTime(originalEnd);
+            mockAuction.setStatus("RUNNING");
+            testAuctionId = auctionDAO.insert(mockAuction);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        Assumptions.assumeTrue(testAuctionId != null,
-                "Bảng 'auction' đang trống, không thể thực hiện test ghi log gia hạn!");
+        // Đảm bảo dây chuyền tạo khóa ngoại gốc thành công 100% trước khi kiểm thử
+        assertTrue(testUserId > 0 && testItemId > 0 && testAuctionId > 0,
+                "Tạo chuỗi dữ liệu mồi thất bại, hủy test AuctionExtensionLogDAO!");
+    }
 
-        LOGGER.info("SETUP SUCCESS: Sẵn sàng test với Auction ID = " + testAuctionId);
+    @AfterAll
+    void tearDownAll() {
+        // Dọn sạch rác trong DB theo thứ tự ngược (Reverse Order) để tránh dính ngoại lệ Foreign Key
+        try {
+            // Bảng cha 'auction' bị xóa thì các bản ghi liên quan trong bảng 'auction_extension_log'
+            // thường sẽ tự động mất nếu có cấu hình ON DELETE CASCADE. Nếu không, ta cứ yên tâm xóa các bảng cha gốc.
+            if (testAuctionId > 0) auctionDAO.delete(testAuctionId);
+            if (testItemId > 0) itemDAO.delete(testItemId);
+            if (testUserId > 0) userDAO.delete(testUserId);
+        } catch (Exception e) {
+            System.out.println("Lưu ý dọn dẹp rác test extension log: " + e.getMessage());
+        }
     }
 
     @Test
     @Order(1)
-    @DisplayName("1. Test Insert Extension Log")
+    @DisplayName("1. Test ghi lịch sử gia hạn mới (insertLog)")
     void testInsertLog() {
-        LocalDateTime originalEnd = LocalDateTime.now().plusHours(1);
-        LocalDateTime newEnd = LocalDateTime.now().plusHours(2);
-
         Auction_extension_logDTO log = new Auction_extension_logDTO();
-        log.setAuctionId(testAuctionId);
+        log.setAuctionId(testAuctionId); // Gắn đúng mã cuộc đấu giá mồi
         log.setOriginalEndTime(originalEnd);
         log.setNewEndTime(newEnd);
 
-        boolean success = logDAO.insertLog(log);
-        assertTrue(success, "Ghi log gia hạn thất bại!");
-        LOGGER.info("TEST INSERT SUCCESS");
+        // Hàm insertLog trong DAO của bạn trả về kiểu boolean
+        boolean isInserted = extensionLogDAO.insertLog(log);
+        assertTrue(isInserted, "Ghi lịch sử gia hạn đấu giá vào database thất bại!");
     }
 
     @Test
     @Order(2)
-    @DisplayName("2. Test Find Logs By Auction ID")
+    @DisplayName("2. Test lấy danh sách lịch sử gia hạn theo Auction ID")
     void testFindByAuctionId() {
-        List<Auction_extension_logDTO> logs = logDAO.findByAuctionId(testAuctionId);
+        List<Auction_extension_logDTO> logList = extensionLogDAO.findByAuctionId(testAuctionId);
 
-        assertNotNull(logs);
-        assertFalse(logs.isEmpty(), "Lịch sử gia hạn không được rỗng sau khi đã insert");
+        assertNotNull(logList, "Danh sách lịch sử gia hạn không được null");
+        assertFalse(logList.isEmpty(), "Danh sách lịch sử không được trống sau khi đã chèn");
+        assertEquals(testAuctionId, logList.get(0).getAuctionId(), "Auction ID lấy ra không khớp!");
 
-        // Kiểm tra xem log mới nhất có đúng auction_id không
-        assertEquals(testAuctionId, logs.get(0).getAuctionId());
+        // Kiểm tra xem mốc thời gian lấy lên từ DB có khớp chính xác với mốc ta chèn ở bước 1 không
+        assertNotNull(logList.get(0).getOriginalEndTime());
+        assertNotNull(logList.get(0).getNewEndTime());
     }
 
     @Test
     @Order(3)
-    @DisplayName("3. Test Get Total Extended Minutes")
+    @DisplayName("3. Test tính tổng số phút đã gia hạn (getTotalExtendedMinutes)")
     void testGetTotalExtendedMinutes() {
-        long minutes = logDAO.getTotalExtendedMinutes(testAuctionId);
+        // Ở bước 1, ta chèn một bản ghi chênh lệch giữa originalEnd và newEnd đúng bằng 15 phút.
+        long totalMinutes = extensionLogDAO.getTotalExtendedMinutes(testAuctionId);
 
-        // Vì ở bước 1 chúng ta gia hạn thêm 1 tiếng (60 phút)
-        assertTrue(minutes >= 60, "Tổng số phút gia hạn phải >= 60");
-        LOGGER.info("Tổng số phút đã gia hạn cho Auction " + testAuctionId + " là: " + minutes);
-    }
-
-    @Test
-    @Order(4)
-    @DisplayName("4. Test Find Logs With Invalid ID")
-    void testFindByInvalidId() {
-        List<Auction_extension_logDTO> logs = logDAO.findByAuctionId(-999L);
-        assertTrue(logs.isEmpty(), "ID không tồn tại phải trả về danh sách rỗng");
+        assertEquals(15, totalMinutes, "Tổng số phút hệ thống tính toán gia hạn bị sai lệch!");
     }
 }

@@ -2,74 +2,107 @@ package com.auction;
 
 import com.auction.common.dto.UserDTO;
 import com.auction.common.dto.User_SessionDTO;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import server.repository.UserDAO;
 import server.repository.UserSessionDAO;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("Kiểm thử UserSessionDAO")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Giúp chia sẻ ID người dùng và Token xuyên suốt các bước test
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserSessionDAOTest {
 
-    private UserSessionDAO sessionDAO;
+    private UserSessionDAO userSessionDAO;
     private UserDAO userDAO;
 
-    private String testToken = "TEST_TOKEN_XYZ_123";
-    private long validUserId; // Sẽ lưu ID thật của User được tạo lúc test
+    private long testUserId = -1;       // ID của User mồi để làm khóa ngoại
+    private String testToken;           // Token ngẫu nhiên sinh ra để test
 
-    @BeforeEach
-    void setUp() {
-        sessionDAO = new UserSessionDAO();
+    @BeforeAll
+    void initAll() {
+        userSessionDAO = new UserSessionDAO();
         userDAO = new UserDAO();
 
-        // 1. TẠO MỘT USER TẠM THỜI ĐỂ CÓ ID HỢP LỆ CHO KHÓA NGOẠI
-        UserDTO tempUser = new UserDTO();
-        tempUser.setUsername("test_session_user");
-        tempUser.setPassword("123456");
-        tempUser.setEmail("testsession@uet.edu.vn");
+        // 1. CHỦ ĐỘNG MỒI USER MỚI ĐỂ NÉ LỖI KHÓA NGOẠI (FOREIGN KEY)
+        try {
+            UserDTO mockUser = new UserDTO();
+            mockUser.setUsername("session_user_" + System.currentTimeMillis());
+            mockUser.setPassword("password_session");
+            mockUser.setEmail("session_" + System.currentTimeMillis() + "@uet.edu.vn");
+            mockUser.setAccountStatus("ACTIVE");
 
-        validUserId = userDAO.insert(tempUser);
-        assertTrue(validUserId > 0, "Phải tạo được User tạm thời để test");
+            testUserId = userDAO.insert(mockUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Sinh mã token ngẫu nhiên dạng UUID không lo bị trùng lặp dữ liệu dưới DB
+        testToken = "TOKEN-" + UUID.randomUUID().toString();
+
+        // Đảm bảo phải có User gốc thành công thì mới bắt đầu bài test phiên làm việc
+        assertTrue(testUserId > 0, "Không thể mồi được người dùng tạm thời, hủy toàn bộ bài test Session!");
     }
-    @AfterEach
-    void tearDown() {
-        // 2. DỌN DẸP DỮ LIỆU SAU KHI TEST XONG
-        // Nhờ cơ chế ON DELETE CASCADE bạn đã cài đặt, khi xóa User, các Session của User đó cũng tự động bay màu
-       sessionDAO.deleteByToken(testToken);
-       userDAO.delete(validUserId);
+
+    @AfterAll
+    void tearDownAll() {
+        // 2. DỌN SẠCH DỮ LIỆU RÁC THEO THỨ TỰ NGƯỢC (REVERSE ORDER)
+        try {
+            // Xóa triệt để Token session trước (nếu bước test số 3 lỡ thất bại)
+            userSessionDAO.deleteByToken(testToken);
+
+            // Xóa người dùng mồi sau cùng để không dính ràng buộc
+            if (testUserId > 0) {
+                userDAO.delete(testUserId);
+            }
+        } catch (Exception e) {
+            System.out.println("Lưu ý khi dọn dẹp rác session test: " + e.getMessage());
+        }
     }
 
     @Test
-    void testInsertAndFindByToken() {
-        // Sử dụng validUserId (ID thật vừa được cấp) thay vì số 999 ảo
-        User_SessionDTO newSession = new User_SessionDTO();
-        newSession.setUserId(validUserId);
-        newSession.setToken(testToken);
-        newSession.setExpiresAt(LocalDateTime.now().plusDays(1));
-        newSession.setCreatedAt(LocalDateTime.now());
+    @Order(1)
+    @DisplayName("1. Test thêm mới phiên đăng nhập (Insert)")
+    void testInsertSession() {
+        User_SessionDTO session = new User_SessionDTO();
+        session.setUserId(testUserId); // Gắn ID User mồi vừa sinh từ DB lên
+        session.setToken(testToken);   // Sử dụng Token UUID duy nhất
+        session.setCreatedAt(LocalDateTime.now());
+        session.setExpiresAt(LocalDateTime.now().plusHours(2)); // Hết hạn sau 2 tiếng
 
-        boolean success = sessionDAO.insert(newSession);
+        // Hàm insert của bạn trả về kiểu boolean
+        boolean isInserted = userSessionDAO.insert(session);
 
-        assertTrue(success, "Insert thất bại");
-
-        User_SessionDTO retrievedSession = sessionDAO.findByToken(testToken);
-
-        assertNotNull(retrievedSession, "Không tìm thấy session vừa tạo");
-        assertEquals(validUserId, retrievedSession.getUserId());
-        assertEquals(testToken, retrievedSession.getToken());
+        // Sử dụng assertTrue nguyên bản của JUnit 5
+        assertTrue(isInserted, "Thêm phiên làm việc mới vào database thất bại!");
     }
 
     @Test
+    @Order(2)
+    @DisplayName("2. Test tìm kiếm phiên đăng nhập bằng mã Token")
+    void testFindByToken() {
+        // Thực hiện tìm kiếm bằng mã token đã lưu ở bài test 1
+        User_SessionDTO retrieved = userSessionDAO.findByToken(testToken);
+
+        assertNotNull(retrieved, "Phải tìm thấy thông tin phiên đăng nhập tương ứng với Token!");
+        assertEquals(testUserId, retrieved.getUserId(), "User ID liên kết với Session lấy ra không khớp!");
+        assertEquals(testToken, retrieved.getToken(), "Chuỗi Token lấy ra không khớp!");
+        assertNotNull(retrieved.getExpiresAt(), "Thời gian hết hạn không được để null!");
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("3. Test xóa phiên đăng nhập khi đăng xuất (Delete By Token)")
     void testDeleteByToken() {
-        User_SessionDTO session = new User_SessionDTO(null, validUserId, testToken, LocalDateTime.now().plusHours(1), LocalDateTime.now());
-        sessionDAO.insert(session);
+        // Thực hiện đăng xuất / xóa session
+        boolean isDeleted = userSessionDAO.deleteByToken(testToken);
+        assertTrue(isDeleted, "Xóa phiên làm việc tương ứng với mã Token thất bại!");
 
-        boolean isDeleted = sessionDAO.deleteByToken(testToken);
-        assertTrue(isDeleted, "Phải xóa thành công token");
-
-        User_SessionDTO afterDelete = sessionDAO.findByToken(testToken);
-        assertNull(afterDelete, "Session phải bị xóa hoàn toàn khỏi DB");
+        // Kiểm tra lại xem Token đã thực sự biến mất khỏi hệ thống chưa
+        User_SessionDTO afterDeleted = userSessionDAO.findByToken(testToken);
+        assertNull(afterDeleted, "Session phải hoàn toàn biến mất (trả về null) sau khi đã thực hiện lệnh xóa!");
     }
 }

@@ -5,6 +5,7 @@ com\auction\client\service\CloudinaryService.class
 com\auction\client\controller\AdminAuctionApprovalController$1.class
 com\auction\client\manager\AuctionManager.class
 com\auction\client\factory\VehicleFactory.class
+com\auction\client\MainLauncher.class
 com\auction\client\controller\ProfileController.class
 com\auction\client\controller\AdminAuctionsController$5.class
 com\auction\client\controller\AdminUsersController$3.class

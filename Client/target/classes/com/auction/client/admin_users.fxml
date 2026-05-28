@@ -24,7 +24,7 @@
     <HBox alignment="CENTER_LEFT" spacing="12">
         <VBox spacing="3" HBox.hgrow="ALWAYS">
             <Label style="-fx-font-size:18px;" styleClass="section-title" text="Manage Users" />
-            <Label styleClass="section-subtitle" text="View, ban, or remove user accounts from the system." />
+            <Label styleClass="section-subtitle" text="View, ban user accounts from the system." />
         </VBox>
         <Label fx:id="totalLabel" styleClass="section-subtitle" text="0 users total" />
     </HBox>
