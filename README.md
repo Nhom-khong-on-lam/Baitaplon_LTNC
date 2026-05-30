@@ -157,7 +157,7 @@ java --module-path <đường-dẫn-javafx-sdk>/lib \
 
 ---
 
-## ✅ Danh Sách Chức Năng Đã Hoàn Thành
+## Danh Sách Chức Năng Đã Hoàn Thành
 
 **Người dùng**
 - [x] Đăng ký / Đăng nhập / Đăng xuất
