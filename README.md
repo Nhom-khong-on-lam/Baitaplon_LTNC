@@ -1,64 +1,202 @@
-# Hệ Thống Đấu Giá Trực Tuyến (Online Bidding System)
+#  Auction System — Hệ Thống Đấu Giá Trực Tuyến
 
-## 1. Mô tả chi tiết bài toán và phạm vi hệ thống
-Hệ thống Đấu Giá Trực Tuyến là một phần mềm Client-Server toàn diện, cho phép người dùng tham gia đấu giá sản phẩm theo thời gian thực với cơ chế cạnh tranh minh bạch.
-- **Mục tiêu cốt lõi:** Áp dụng toàn diện OOP, xây dựng hệ thống giao tiếp mạng bằng Java Socket thuần túy (không dùng framework HTTP), và xử lý đồng thời an toàn (chống race condition, lost update) khi nhiều người đặt giá cùng lúc.
-- **Đối tượng sử dụng (3 vai trò):** Admin (Quản trị viên có toàn quyền kiểm duyệt), User đóng vai trò linh hoạt: Seller (Người bán tạo phiên) và Bidder (Người mua đặt giá).
-- **Kiến trúc phân tầng (6 lớp):** Hệ thống được tổ chức thành 6 lớp rõ ràng: Client (MVC nội bộ: FXML -> Controller -> Service) -> Network (TCP/UDP) -> Server (Business Logic theo luồng Thread-per-client) -> DAO (11 class) -> Database (11 bảng) -> và Module Common dùng chung.
+> Bài tập lớn môn Lập Trình Nâng Cao — Mô hình Client–Server, giao tiếp TCP Socket, giao diện JavaFX.
 
-## 2. Công nghệ sử dụng, môi trường chạy và yêu cầu cài đặt
-- **Ngôn ngữ & Nền tảng:** Java 21 (JDK 21), quản lý dự án bằng Maven.
-- **Giao tiếp mạng:**
-    - **TCP Socket:** Duy trì kết nối liên tục (Persistent Connection) cho toàn bộ phiên làm việc.
-    - **UDP Socket:** Cơ chế Auto-Discovery (Server broadcast, Client tự động bắt IP trong mạng LAN).
-- **Giao diện & UI:** JavaFX 21 (với 15 màn hình FXML) và **JavaFX LineChart** (vẽ biểu đồ).
-- **Cơ sở dữ liệu:** MySQL / TiDB. Hệ thống kết nối thẳng tới Database đám mây (TiDB Cloud) qua `HikariCP` (Connection Pool tối đa 20 kết nối).
-- **Thiết kế & Tối ưu:**
-    - Design Patterns: Singleton, Factory Method, Observer, Strategy.
-    - Xử lý đồng thời (Concurrency): `ReentrantLock`, `ConcurrentHashMap`.
-- **Dịch vụ Cloud (Third-party):** Cloudinary (Lưu trữ ảnh), Jakarta Mail (Gửi thông báo).
-- **Chất lượng mã (CI/CD):** Unit Test với JUnit 5, tích hợp GitHub Actions tự động test & build khi có Push/Pull Request.
-- **Yêu cầu cài đặt:** Chỉ cần cài JDK 21 và Maven. **Không cần cài đặt CSDL cục bộ** (hệ thống đã trỏ đến TiDB Cloud). Yêu cầu có kết nối Internet.
+---
 
-## 3. Cấu trúc thư mục hoặc các module chính
-Dự án áp dụng thiết kế đa module (Multi-module Maven) chia thành 3 phần chính, phục vụ cho kiến trúc 6 lớp:
-- **`Common` (Shared Module):** Chứa các tài nguyên dùng chung: Abstract class (BaseEntity, Item), Models (User, Auction,...), DTO, Enums, gói mạng tuần tự hóa (Request/Response), giao diện Observer và Factory.
-- **`Server` (Business & Data Access):**
-- **Network / Business:** Lắng nghe kết nối TCP, UDP Broadcast. Quản lý mỗi client bằng một luồng `ClientHandler` riêng (Thread-per-client). Xử lý logic vòng đời phiên đấu giá, thuật toán Auto-bid, Anti-sniping.
-- **DAO:** Gồm 11 class đảm nhiệm việc đọc/ghi SQL tập trung (UserDAO, BidDAO...).
-- **Database:** Quản lý kết nối HikariCP, thao tác trực tiếp với TiDB.
-- **`Client` (JavaFX MVC):** Xây dựng theo mô hình MVC nội bộ. Không chứa logic nghiệp vụ và không kết nối trực tiếp CSDL. Chứa 15 màn hình FXML, Controllers xử lý sự kiện UI, Service đóng gói gói tin gửi lên Server, và cơ chế tự động cập nhật UI qua `Platform.runLater()`.
+## Mô Tả Bài Toán
 
-## 4. Vị trí các file `.jar`
-Để đóng gói ứng dụng thông qua quá trình CI/CD hoặc build thủ công, chạy lệnh sau tại thư mục gốc của dự án:
-```bash
-mvn clean install
+Hệ thống cho phép người dùng đăng ký tài khoản, đăng sản phẩm lên đấu giá (Electronics, Art, Vehicle), đặt giá thầu theo thời gian thực, và thanh toán sau khi phiên kết thúc. Admin duyệt phiên đấu giá và quản lý người dùng.
+
+Giao tiếp qua **TCP Socket** (port `8080`) để truyền dữ liệu và **UDP Broadcast** (port `8888`) để Client tự phát hiện Server trong mạng LAN.
+
+---
+
+## Công Nghệ & Môi Trường
+
+| Thành phần       | Chi tiết                                      |
+|------------------|-----------------------------------------------|
+| Ngôn ngữ         | Java 21                                       |
+| Giao diện        | JavaFX 21.0.6 + FXML                          |
+| Build tool       | Apache Maven (multi-module)                   |
+| Cơ sở dữ liệu    | MySQL — TiDB Cloud (`auction_db`)             |
+| Connection pool  | HikariCP 5.1.0                                |
+| Lưu ảnh          | Cloudinary (cloudinary-http44 1.36.0)         |
+| Mã hóa mật khẩu  | jBCrypt 0.4                                   |
+| Email            | Jakarta Mail 2.0.1                            |
+| Kiểm thử         | JUnit 5.10 + Mockito 5.x + TestFX 4.0.18      |
+
+**Yêu cầu cài đặt:**
+- JDK 21+
+- Apache Maven 3.8+
+- Kết nối Internet (TiDB Cloud) hoặc MySQL local
+
+---
+
+## Cấu Trúc Thư Mục
+
+```text
+Baitaplon_LTNC/
+├── pom.xml                          ← Parent POM (multi-module)
+│
+├── Common/                          ← Dùng chung giữa Server & Client
+│   └── src/main/java/com/auction/common/
+│       ├── dto/                     ← AuctionDTO, BidDTO, UserDTO, PaymentDTO, ...
+│       ├── enums/                   ← AuctionStatus, Category, SystemRole, ...
+│       ├── model/                   ← Auction, Item, User, BidTransaction, ...
+│       ├── network/                 ← Request.java, Response.java
+│       └── observer/                ← Observer pattern (AuctionObserver)
+│
+├── Server/                          ← Xử lý logic & database
+│   └── src/main/java/server/
+│       ├── network/
+│       │   ├── AuctionServer.java   ← Điểm khởi động Server
+│       │   └── ClientHandler.java   ← Xử lý từng kết nối Client
+│       ├── repository/              ← AuctionDAO, BidDAO, UserDAO, PaymentDAO, ...
+│       ├── database/DBConnection.java
+│       └── resources/db.properties  ← Cấu hình kết nối DB
+│
+├── Client/                          ← Giao diện JavaFX
+│   └── src/main/java/com/auction/client/
+│       ├── Launcher.java            ← Entry point
+│       ├── MainApp.java
+│       ├── controller/              ← Controller cho từng màn hình
+│       ├── service/                 ← AuctionService, AuthService, ServerConnection, ...
+│       ├── factory/                 ← ItemFactory (Art, Electronics, Vehicle)
+│       └── manager/                 ← AuctionManager, SceneManager, SessionManager
+│   └── src/main/resources/com/auction/client/
+│       ├── *.fxml                   ← Giao diện từng màn hình
+│       └── global.css
+│
+├── dist/                            ← Thư mục chứa file thực thi (.jar)
+│   ├── Client-1.0-SNAPSHOT.jar
+│   ├── Common-1.0-SNAPSHOT.jar
+│   └── Server-1.0-SNAPSHOT.jar
+│
+└── diagram/
+    ├── database.sql                 ← Script tạo CSDL
+    ├── auction_db_diagram.png       ← Sơ đồ quan hệ bảng
+    ├── ClientDiagram.png            ← Sơ đồ kiến trúc Client
+    └── ServerDiagram.png            ← Sơ đồ kiến trúc Server
 ```
-Sau khi Maven chạy thành công (bao gồm cả việc pass toàn bộ Unit Test), các file `.jar` sẽ nằm ở:
-- **Server:** `Server/target/Server-1.0-SNAPSHOT.jar`
-- **Client:** `Client/target/Client-1.0-SNAPSHOT.jar`
 
-## 5. Hướng dẫn chạy Server/Client theo thứ tự cụ thể
-**Bắt buộc phải chạy Server trước để Client có thể phát hiện qua UDP.**
+---
 
-- **Bước 1: Khởi động Server**
-    - Mở dự án bằng IDE. Tại module `Server`, chạy hàm `main` của lớp `server.network.AuctionServer`.
-    - Console sẽ thông báo Server lắng nghe TCP và liên tục phát tín hiệu UDP Broadcast trên cổng 8888.
-- **Bước 2: Khởi động Client**
-    - Tại module `Client`, chạy lớp `com.auction.client.MainApp` (qua IDE) hoặc gõ terminal: `mvn javafx:run -pl Client`.
-    - **Lưu ý:** Nhờ tính năng **UDP Auto-Discovery**, Client sẽ lắng nghe cổng 8888 và tự động lấy địa chỉ IP của Server trong mạng LAN mà không cần bạn cấu hình thủ công. (Nếu sau 3 giây không tìm thấy, hệ thống tự động fallback về `localhost`).
+## Vị Trí File `.jar`
 
-## 6. Danh sách chức năng đã hoàn thành
-Hệ thống giải quyết trọn vẹn nghiệp vụ vòng đời đấu giá với các tính năng kỹ thuật ấn tượng:
-- **Tự động tìm kiếm Server (Auto-Discovery):** Client tự nhận diện IP mạng LAN qua tín hiệu UDP broadcast từ Server.
-- **Xử lý Đấu giá đồng thời an toàn:** Sử dụng `ReentrantLock` theo từng phiên, đảm bảo không xảy ra hiện tượng mất dữ liệu (Lost Update) hay ghi đè (Race Condition) khi nhiều người đặt giá cùng tíc tắc.
-- **Cập nhật Live theo thời gian thực:** Áp dụng Observer Pattern qua TCP, đẩy thông báo giá mới, cảnh báo bị vượt giá tới toàn bộ Client ngay lập tức.
-- **Các chức năng nâng cao (Nổi bật):**
-    - **Auto-Bidding (Đấu giá tự động):** Ứng dụng *Strategy Pattern* để xử lý 2 chiến lược: 1 người dùng auto-bid độc lập, hoặc nhiều người cùng cài auto-bid cạnh tranh nhau, hệ thống tự động tính ra người chiến thắng với mức giá hợp lý nhất.
-    - **Anti-sniping (Gia hạn phiên đấu giá):** Thuật toán chống chiến thuật bắn tỉa (sniping). Nếu có lượt bid trong 180 giây cuối cùng, thời gian kết thúc lập tức cộng thêm 180 giây, đảm bảo môi trường đấu giá công bằng.
-    - **Bid History Visualization:** Nhúng biểu đồ đường (JavaFX LineChart) hiển thị biến động giá realtime theo thời gian, mỗi điểm tọa độ mới được vẽ lên ngay khi có bid hợp lệ nhờ cơ chế Observer.
-- **Các chức năng nền tảng:** Phân quyền (Admin/Seller/Bidder), mã hóa mật khẩu BCrypt, upload ảnh lên Cloudinary, gửi email với Jakarta Mail.
+Sau khi build bằng Maven, các file `.jar` thành phẩm nằm tại thư mục `dist/` ở gốc dự án:
 
-## 7. Link báo cáo PDF và video demo
-- **Link báo cáo chi tiết (PDF):** [Nhấn vào đây để xem báo cáo (https://drive.google.com/file/d/1bkRsQyDM5F3pwcHMTEQO43wso0gMvH-i/view?usp=sharing)]
-- **Link Video Demo hệ thống:** [Nhấn vào đây để xem video demo (https://drive.google.com/file/d/1e8WuRbYqmkW8xjRAt-6LvrtfisDIK732/view?usp=sharing)]
+| Module    | Đường dẫn                               |
+|-----------|-----------------------------------------|
+| `Common`  | `dist/Common-1.0-SNAPSHOT.jar`          |
+| `Server`  | `dist/Server-1.0-SNAPSHOT.jar`          |
+| `Client`  | `dist/Client-1.0-SNAPSHOT.jar`          |
+
+---
+
+##  Hướng Dẫn Chạy
+
+### Bước 1 — Khởi tạo Database
+
+```bash
+mysql -u <username> -p < diagram/database.sql
+```
+
+Cấu hình lại kết nối trong `Server/src/main/resources/db.properties` nếu cần:
+
+```properties
+db.url=jdbc:mysql://<host>:<port>/auction_db
+db.user=<username>
+db.password=<password>
+db.driver=com.mysql.cj.jdbc.Driver
+```
+
+---
+
+### Bước 2 — Build toàn bộ dự án
+
+```bash
+cd Baitaplon_LTNC
+mvn clean package -DskipTests
+```
+
+---
+
+### Bước 3 — Chạy Server *(chạy trước)*
+
+Từ thư mục gốc dự án, chạy:
+
+```bash
+java -cp "dist/Server-1.0-SNAPSHOT.jar:dist/Common-1.0-SNAPSHOT.jar" \
+     server.network.AuctionServer
+```
+
+> **Windows** thay `:` bằng `;` (Ví dụ: `-cp "dist/Server-1.0-SNAPSHOT.jar;dist/Common-1.0-SNAPSHOT.jar"`)
+
+Khi thành công, console hiển thị:
+```
+ [UDP Beacon] Đang phát sóng tìm Client ngầm từng giây...
+ [TCP Server] Đang mở tại cổng: 8080
+```
+
+---
+
+### Bước 4 — Chạy Client *(sau khi Server sẵn sàng)*
+
+Mở terminal khác từ thư mục gốc, chạy:
+
+```bash
+java --module-path <đường-dẫn-javafx-sdk>/lib \
+     --add-modules javafx.controls,javafx.fxml \
+     -cp "dist/Client-1.0-SNAPSHOT.jar:dist/Common-1.0-SNAPSHOT.jar" \
+     com.auction.client.Launcher
+```
+
+> **Windows** thay `:` bằng `;`
+> Client tự phát hiện IP Server qua UDP Broadcast trong mạng LAN.
+
+---
+
+## ✅ Danh Sách Chức Năng Đã Hoàn Thành
+
+**Người dùng**
+- [x] Đăng ký / Đăng nhập / Đăng xuất
+- [x] Xem & chỉnh sửa thông tin cá nhân
+- [x] Cập nhật thông tin ngân hàng (số tài khoản, tên ngân hàng)
+- [x] Nạp số dư tài khoản
+
+**Sản phẩm & Đấu giá**
+- [x] Đăng sản phẩm lên đấu giá (3 loại: Electronics, Art, Vehicle)
+- [x] Xem danh sách phiên đấu giá đang mở / đang diễn ra
+- [x] Xem chi tiết phiên đấu giá (giá hiện tại, thời gian còn lại, lịch sử đặt giá)
+- [x] Đặt giá thầu thủ công (manual bid)
+- [x] Đặt giá thầu tự động (auto bid — tự động tăng đến mức tối đa)
+- [x] Theo dõi phiên đấu giá (watch/unwatch)
+- [x] Xem danh sách sản phẩm đã đăng & giá thầu của tôi
+
+**Thanh toán & Thông báo**
+- [x] Xử lý thanh toán sau khi phiên đấu giá kết thúc
+- [x] Hệ thống thông báo trong app
+- [x] Gửi email qua Jakarta Mail
+
+**Quản trị (Admin)**
+- [x] Dashboard thống kê (người dùng, phiên đấu giá, doanh thu)
+- [x] Duyệt / Từ chối phiên đấu giá chờ duyệt
+- [x] Quản lý toàn bộ phiên đấu giá
+- [x] Quản lý người dùng (khoá / mở tài khoản)
+
+**Kiến trúc**
+- [x] TCP Socket + UDP Broadcast tự phát hiện Server trong LAN
+- [x] Design Pattern: Factory Method, Observer
+- [x] Connection Pool với HikariCP
+- [x] Upload ảnh sản phẩm lên Cloudinary
+- [x] Unit Test: JUnit 5 + Mockito + TestFX
+
+---
+
+## Báo Cáo & Demo
+
+| Tài nguyên   | Link                          |
+|--------------|-------------------------------|
+|  Báo cáo PDF | *(https://drive.google.com/file/d/1bkRsQyDM5F3pwcHMTEQO43wso0gMvH-i/view?usp=sharing)*     |
+|  Video Demo  | *(https://drive.google.com/file/d/1e8WuRbYqmkW8xjRAt-6LvrtfisDIK732/view?usp=sharing)*     |
