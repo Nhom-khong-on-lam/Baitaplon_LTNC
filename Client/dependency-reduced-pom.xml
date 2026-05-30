@@ -20,6 +20,14 @@
         </configuration>
       </plugin>
       <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+        <configuration>
+          <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
         <version>0.0.8</version>
@@ -27,7 +35,7 @@
           <execution>
             <id>default-cli</id>
             <configuration>
-              <mainClass>com.auction.client.MainApp</mainClass>
+              <mainClass>com.auction.client.Launcher</mainClass>
               <launcher>app</launcher>
               <jlinkZipName>app</jlinkZipName>
               <jlinkImageName>app</jlinkImageName>
@@ -51,7 +59,7 @@
               <shadedArtifactAttached>false</shadedArtifactAttached>
               <transformers>
                 <transformer>
-                  <mainClass>com.auction.client.MainLauncher</mainClass>
+                  <mainClass>com.auction.client.Launcher</mainClass>
                 </transformer>
               </transformers>
               <filters>
@@ -122,12 +130,6 @@
           <groupId>org.junit.jupiter</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-inline</artifactId>
-      <version>5.2.0</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testfx</groupId>

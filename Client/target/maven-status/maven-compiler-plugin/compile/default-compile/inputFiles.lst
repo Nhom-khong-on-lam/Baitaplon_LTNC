@@ -17,14 +17,12 @@ C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\controller
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\controller\RegisterController.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\controller\SceneManager.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\controller\SessionManager.java
-C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\controller\SplashController.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\factory\ArtFactory.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\factory\ElectronicsFactory.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\factory\ItemFactory.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\factory\VehicleFactory.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\Launcher.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\MainApp.java
-C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\MainLauncher.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\manager\AuctionManager.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\service\AuctionService.java
 C:\Users\ADMIN\Baitaplon_LTNC\Client\src\main\java\com\auction\client\service\AuthService.java
