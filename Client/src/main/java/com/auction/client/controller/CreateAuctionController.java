@@ -77,7 +77,13 @@ public class CreateAuctionController {
 
         fieldTitle.setText(auction.getTitle());
         fieldDesc.setText(auction.getDescription());
-        fieldCategory.setValue(auction.getCategory());
+        String cat = auction.getItem() != null ? auction.getItem().getCategory() : auction.getCategory();
+        if (cat != null && !cat.isEmpty()) {
+            fieldCategory.getItems().stream()
+                    .filter(item -> item.equalsIgnoreCase(cat))
+                    .findFirst()
+                    .ifPresent(fieldCategory::setValue);
+        }
         fieldStartPrice.setText(String.valueOf((int) auction.getItem().getStartingPrice()));
         fieldEndTime.setText(auction.getEndTimeFormatted());
         imageHint.setText("Image uploaded ✓");

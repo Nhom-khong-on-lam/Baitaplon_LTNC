@@ -663,28 +663,30 @@ public class ClientHandler extends Thread {
                 java.time.LocalDateTime endTime = (java.time.LocalDateTime) data[5];
                 String imagePath  = (data.length > 6) ? (String) data[6] : null;
 
-
-
                 AuctionDAO auctionDAO = new AuctionDAO();
                 AuctionDTO existing = auctionDAO.findById(auctionId);
                 if (existing == null) return Response.error("Auction not found.");
 
-                String currentStatus = existing.getStatus();
-                if (!"PENDING_APPROVAL".equalsIgnoreCase(currentStatus)) {
-                    return Response.error("Cannot edit: the auction has already been approved or is currently active.");
+                if (!"PENDING_APPROVAL".equalsIgnoreCase(existing.getStatus())) {
+                    return Response.error("Cannot edit: auction has been approved or is active.");
                 }
 
-                existing.setCurrentPrice(startPrice);  // giữ lại dòng này
-                existing.setEndTime(endTime);
-
-                boolean ok = auctionDAO.update(existing);
-                if (!ok) return Response.error("Failed to update auction.");
-
                 try (java.sql.Connection conn = server.database.DBConnection.getConnection()) {
-                    long itemId = auctionDAO.getItemIdByAuctionId(auctionId);
+                    conn.setAutoCommit(false);
 
-                    String updateItemSql = "UPDATE item SET name=?, description=?, category=?, starting_price=? WHERE id=?";
-                    try (java.sql.PreparedStatement ps = conn.prepareStatement(updateItemSql)) {
+                    // Update end_time trực tiếp, KHÔNG qua auctionDAO.update() vì có điều kiện giá chặn
+                    String sqlAuction = "UPDATE auction SET end_time=?, current_price=? WHERE id=?";
+                    try (java.sql.PreparedStatement ps = conn.prepareStatement(sqlAuction)) {
+                        ps.setTimestamp(1, java.sql.Timestamp.valueOf(endTime));
+                        ps.setDouble(2, startPrice);
+                        ps.setLong(3, auctionId);
+                        ps.executeUpdate();
+                    }
+
+                    // Update item
+                    long itemId = auctionDAO.getItemIdByAuctionId(auctionId);
+                    String sqlItem = "UPDATE item SET name=?, description=?, category=?, starting_price=? WHERE id=?";
+                    try (java.sql.PreparedStatement ps = conn.prepareStatement(sqlItem)) {
                         ps.setString(1, title);
                         ps.setString(2, desc);
                         ps.setString(3, category.toUpperCase());
@@ -693,6 +695,7 @@ public class ClientHandler extends Thread {
                         ps.executeUpdate();
                     }
 
+                    // Update ảnh nếu có
                     if (imagePath != null && !imagePath.isBlank()) {
                         String checkSql = "SELECT COUNT(*) FROM item_image WHERE item_id=?";
                         boolean hasImage = false;
@@ -702,25 +705,20 @@ public class ClientHandler extends Thread {
                                 if (rs.next()) hasImage = rs.getInt(1) > 0;
                             }
                         }
-                        if (hasImage) {
-                            String updateImgSql = "UPDATE item_image SET image_url=? WHERE item_id=?";
-                            try (java.sql.PreparedStatement ps = conn.prepareStatement(updateImgSql)) {
-                                ps.setString(1, imagePath);
-                                ps.setLong(2, itemId);
-                                ps.executeUpdate();
-                            }
-                        } else {
-                            String insertImgSql = "INSERT INTO item_image (item_id, image_url) VALUES (?,?)";
-                            try (java.sql.PreparedStatement ps = conn.prepareStatement(insertImgSql)) {
-                                ps.setLong(1, itemId);
-                                ps.setString(2, imagePath);
-                                ps.executeUpdate();
-                            }
+                        String imgSql = hasImage
+                                ? "UPDATE item_image SET image_url=? WHERE item_id=?"
+                                : "INSERT INTO item_image (item_id, image_url) VALUES (?,?)";
+                        try (java.sql.PreparedStatement ps = conn.prepareStatement(imgSql)) {
+                            if (hasImage) { ps.setString(1, imagePath); ps.setLong(2, itemId); }
+                            else          { ps.setLong(1, itemId);      ps.setString(2, imagePath); }
+                            ps.executeUpdate();
                         }
                     }
 
+                    conn.commit();
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    return Response.error("Failed to update auction.");
                 }
 
                 return Response.ok(null);
