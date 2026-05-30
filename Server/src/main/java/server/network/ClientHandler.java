@@ -367,7 +367,25 @@ public class ClientHandler extends Thread {
             case Request.ADMIN_GET_USERS: {
                 java.util.List<UserDTO> dtos = userDAO.findAll();
                 java.util.List<User> users = new java.util.ArrayList<>();
-                for (UserDTO dto : dtos) users.add(toClientUser(dto));
+
+                // Query đếm số bid của từng user
+                java.util.Map<Long, Integer> bidCountByUser = new java.util.HashMap<>();
+                String sqlBidCount = "SELECT bidder_id, COUNT(*) as cnt FROM bid GROUP BY bidder_id";
+                try (java.sql.Connection conn = server.database.DBConnection.getConnection();
+                     java.sql.PreparedStatement ps = conn.prepareStatement(sqlBidCount);
+                     java.sql.ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        bidCountByUser.put(rs.getLong("bidder_id"), rs.getInt("cnt"));
+                    }
+                } catch (java.sql.SQLException e) {
+                    e.printStackTrace();
+                }
+
+                for (UserDTO dto : dtos) {
+                    User u = toClientUser(dto);
+                    u.setbidCount(bidCountByUser.getOrDefault(dto.getId(), 0)); // Set số bid
+                    users.add(u);
+                }
                 return Response.ok(users);
             }
 
