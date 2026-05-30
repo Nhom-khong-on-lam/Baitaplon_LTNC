@@ -23,8 +23,7 @@ Giao tiếp qua **TCP Socket** (port `8080`) để truyền dữ liệu và **UD
 | Connection pool  | HikariCP 5.1.0                                |
 | Lưu ảnh          | Cloudinary (cloudinary-http44 1.36.0)         |
 | Mã hóa mật khẩu  | jBCrypt 0.4                                   |
-| Email            | Jakarta Mail 2.0.1                            |
-| Kiểm thử         | JUnit 5.10 + Mockito 5.x + TestFX 4.0.18      |
+| Kiểm thử         | JUnit 5.10 + Mockito 5.x                      |
 
 **Yêu cầu cài đặt:**
 - JDK 21+
@@ -96,63 +95,30 @@ Sau khi build bằng Maven, các file `.jar` thành phẩm nằm tại thư mụ
 
 ##  Hướng Dẫn Chạy
 
-### Bước 1 — Khởi tạo Database
-
-```bash
-mysql -u <username> -p < diagram/database.sql
-```
-
-Cấu hình lại kết nối trong `Server/src/main/resources/db.properties` nếu cần:
-
-```properties
-db.url=jdbc:mysql://<host>:<port>/auction_db
-db.user=<username>
-db.password=<password>
-db.driver=com.mysql.cj.jdbc.Driver
-```
-
----
-
-### Bước 2 — Build toàn bộ dự án
-
-```bash
-cd Baitaplon_LTNC
-mvn clean package -DskipTests
-```
-
----
-
-### Bước 3 — Chạy Server *(chạy trước)*
+### Chạy Server *(chạy trước)*
 
 Từ thư mục gốc dự án, chạy:
 
 ```bash
-java -cp "dist/Server-1.0-SNAPSHOT.jar:dist/Common-1.0-SNAPSHOT.jar" \
-     server.network.AuctionServer
+java -jar dist/Server-1.0-SNAPSHOT.jar
 ```
-
-> **Windows** thay `:` bằng `;` (Ví dụ: `-cp "dist/Server-1.0-SNAPSHOT.jar;dist/Common-1.0-SNAPSHOT.jar"`)
 
 Khi thành công, console hiển thị:
 ```
- [UDP Beacon] Đang phát sóng tìm Client ngầm từng giây...
- [TCP Server] Đang mở tại cổng: 8080
+? [TCP Server] Listening on port: 8080
+? [UDP Beacon] Broadcasting for background clients every second...
 ```
 
 ---
 
-### Bước 4 — Chạy Client *(sau khi Server sẵn sàng)*
+### Chạy Client *(sau khi Server sẵn sàng)*
 
 Mở terminal khác từ thư mục gốc, chạy:
 
 ```bash
-java --module-path <đường-dẫn-javafx-sdk>/lib \
-     --add-modules javafx.controls,javafx.fxml \
-     -cp "dist/Client-1.0-SNAPSHOT.jar:dist/Common-1.0-SNAPSHOT.jar" \
-     com.auction.client.Launcher
+java -jar dist/Client-1.0-SNAPSHOT.jar
 ```
 
-> **Windows** thay `:` bằng `;`
 > Client tự phát hiện IP Server qua UDP Broadcast trong mạng LAN.
 
 ---
@@ -177,7 +143,7 @@ java --module-path <đường-dẫn-javafx-sdk>/lib \
 **Thanh toán & Thông báo**
 - [x] Xử lý thanh toán sau khi phiên đấu giá kết thúc
 - [x] Hệ thống thông báo trong app
-- [x] Gửi email qua Jakarta Mail
+
 
 **Quản trị (Admin)**
 - [x] Dashboard thống kê (người dùng, phiên đấu giá, doanh thu)
@@ -187,10 +153,10 @@ java --module-path <đường-dẫn-javafx-sdk>/lib \
 
 **Kiến trúc**
 - [x] TCP Socket + UDP Broadcast tự phát hiện Server trong LAN
-- [x] Design Pattern: Factory Method, Observer
+- [x] Design Pattern: Singleton, Factory Method, Observer
 - [x] Connection Pool với HikariCP
 - [x] Upload ảnh sản phẩm lên Cloudinary
-- [x] Unit Test: JUnit 5 + Mockito + TestFX
+- [x] Unit Test: JUnit 5 + Mockito
 
 ---
 
