@@ -104,7 +104,11 @@ mvn clean package -DskipTests
 ```
 
 > Lệnh này biên dịch toàn bộ source code và sinh ra các file `.jar` trong thư mục `dist/`.  
-> **macOS** — nếu chưa có Maven, cài qua Homebrew trước: `brew install maven`
+**Nếu chưa có Maven, cài đặt theo hệ điều hành:**
+
+- **macOS**: `brew install maven`
+- **Ubuntu/Debian**: `sudo apt install maven`
+- **Windows**: Tải tại [maven.apache.org](https://maven.apache.org/download.cgi), giải nén và thêm vào PATH.
 
 ---
 
