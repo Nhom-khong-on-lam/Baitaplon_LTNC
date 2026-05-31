@@ -31,4 +31,4 @@ jobs:
         run: mvn clean test -DskipTests
 
       - name: Build Application
-        run: mvn package -DskipTests
+        run: mvn clean test

@@ -95,7 +95,20 @@ Sau khi build bằng Maven, các file `.jar` thành phẩm nằm tại thư mụ
 
 ##  Hướng Dẫn Chạy
 
-### Chạy Server *(chạy trước)*
+### Bước 1: Build dự án *(bắt buộc chạy lần đầu)*
+
+Từ thư mục gốc dự án, chạy:
+
+```bash
+mvn clean package -DskipTests
+```
+
+> Lệnh này biên dịch toàn bộ source code và sinh ra các file `.jar` trong thư mục `dist/`.  
+> **macOS** — nếu chưa có Maven, cài qua Homebrew trước: `brew install maven`
+
+---
+
+### Bước 2: Chạy Server *(chạy trước)*
 
 Từ thư mục gốc dự án, chạy:
 
@@ -111,7 +124,7 @@ Khi thành công, console hiển thị:
 
 ---
 
-### Chạy Client *(sau khi Server sẵn sàng)*
+### Bước 3: Chạy Client *(sau khi Server sẵn sàng)*
 
 Mở terminal khác từ thư mục gốc, chạy:
 
