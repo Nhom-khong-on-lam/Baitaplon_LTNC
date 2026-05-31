@@ -1,9 +1,0 @@
-com\auction\ArtFactoryTest.class
-com\auction\VehicleFactoryTest.class
-com\auction\ItemServiceTest.class
-com\auction\ServerConnectionTest.class
-com\auction\AuctionServiceTest.class
-com\auction\ElectronicsFactoryTest.class
-com\auction\CloudinaryServiceTest.class
-com\auction\AuthServiceTest.class
-com\auction\UserServiceTest.class
