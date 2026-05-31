@@ -151,9 +151,16 @@ java -jar dist/Client-1.0-SNAPSHOT.jar
 - [x] Quản lý toàn bộ phiên đấu giá
 - [x] Quản lý người dùng (khoá / mở tài khoản)
 
+**Tính năng nâng cao**
+- [x] Auto-bidding: đặt giá tự động với maxBid + stepIncrement (Strategy pattern)
+- [x] Anti-sniping: tự động gia hạn 180 giây khi có bid vào cuối phiên
+- [x] Biểu đồ lịch sử giá realtime (JavaFX LineChart + Observer)
+- [x] CI/CD: GitHub Actions tự động chạy JUnit + build JAR khi push
+- [x] Concurrency an toàn: ReentrantLock theo từng phiên, tránh race condition
+
 **Kiến trúc**
 - [x] TCP Socket + UDP Broadcast tự phát hiện Server trong LAN
-- [x] Design Pattern: Singleton, Factory Method, Observer
+- [x] Design Pattern: Singleton, Factory Method, Observer, Strategy
 - [x] Connection Pool với HikariCP
 - [x] Upload ảnh sản phẩm lên Cloudinary
 - [x] Unit Test: JUnit 5 + Mockito
