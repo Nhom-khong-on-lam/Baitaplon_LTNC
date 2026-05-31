@@ -1,0 +1,1048 @@
+/* ════════════════════════════════════════════════════════════
+   AURUM — Arctic Minimal Design System
+   Nền trắng xám · Sidebar xanh đen · Accent xanh #2563eb
+   ════════════════════════════════════════════════════════════ */
+
+/* ─── ROOT ──────────────────────────────────────────────── */
+.root {
+    -fx-font-family: "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
+    -fx-background-color: #f4f6f9;
+    -fx-font-size: 13px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SPLASH SCREEN
+   ════════════════════════════════════════════════════════════ */
+.splash-root {
+    -fx-background-color: #0f1923;
+}
+.splash-logo {
+    -fx-font-size: 42px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-letter-spacing: 8px;
+}
+.splash-tagline {
+    -fx-font-size: 13px;
+    -fx-text-fill: #a5b4fc;
+    -fx-letter-spacing: 3px;
+}
+.splash-progress {
+    -fx-accent: #7c3aed;
+    -fx-control-inner-background: #312e81;
+    -fx-pref-height: 3px;
+}
+.splash-version {
+    -fx-font-size: 10px;
+    -fx-text-fill: #6d28d9;
+    -fx-letter-spacing: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   AUTH SCREENS (Login / Register)
+   ════════════════════════════════════════════════════════════ */
+.auth-root {
+    -fx-background-color: #f4f6f9;
+}
+
+/* Left panel — dark navy */
+.auth-left {
+    -fx-background-color: #0f1923;
+    -fx-min-width: 420px;
+    -fx-pref-width: 420px;
+}
+.auth-brand {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-letter-spacing: 5px;
+}
+.auth-brand-sub {
+    -fx-font-size: 10px;
+    -fx-text-fill: #c0c8d8;
+    -fx-letter-spacing: 3px;
+}
+.auth-headline {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-wrap-text: true;
+}
+.auth-headline-sub {
+    -fx-font-size: 13px;
+    -fx-text-fill: #dde4f0;
+    -fx-wrap-text: true;
+}
+.auth-feature-icon {
+    -fx-font-size: 18px;
+}
+.auth-feature-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #dde4f0;
+}
+
+/* Right panel — form area */
+.auth-right {
+    -fx-background-color: #ffffff;
+    -fx-padding: 60 64 60 64;
+}
+.auth-form-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f1923;
+}
+.auth-form-sub {
+    -fx-font-size: 13px;
+    -fx-text-fill: #8a9ab0;
+}
+.auth-field-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+    -fx-letter-spacing: 0.5px;
+}
+.auth-input {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 10 14;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1a202c;
+    -fx-prompt-text-fill: #a0aec0;
+    -fx-pref-height: 42px;
+}
+.auth-input:focused {
+    -fx-border-color: #2563eb;
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.15), 8, 0, 0, 0);
+}
+.auth-input-error {
+    -fx-border-color: #ef4444;
+    -fx-background-color: #fff5f5;
+}
+.auth-msg {
+    -fx-font-size: 12px;
+    -fx-min-height: 16px;
+    -fx-wrap-text: true;
+}
+.auth-btn-primary {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-background-radius: 8;
+    -fx-padding: 12 0;
+    -fx-cursor: hand;
+    -fx-pref-height: 44px;
+    -fx-max-width: Infinity;
+}
+.auth-btn-primary:hover {
+    -fx-background-color: #1d4ed8;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.35), 12, 0, 0, 3);
+}
+.auth-btn-primary:pressed {
+    -fx-background-color: #1e40af;
+    -fx-scale-x: 0.99;
+    -fx-scale-y: 0.99;
+}
+.auth-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2563eb;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-underline: false;
+}
+.auth-link:hover {
+    -fx-text-fill: #1d4ed8;
+    -fx-underline: true;
+}
+.auth-divider-label {
+    -fx-text-fill: #cbd5e0;
+    -fx-font-size: 11px;
+    -fx-padding: 0 10;
+}
+.remember-check .box {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+.remember-check:selected .box {
+    -fx-background-color: #2563eb;
+    -fx-border-color: #2563eb;
+}
+.remember-check .mark {
+    -fx-background-color: white;
+}
+.remember-label {
+    -fx-text-fill: #4a5568;
+    -fx-font-size: 12px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MAIN SHELL (Sidebar + Topbar + Content)
+   ════════════════════════════════════════════════════════════ */
+.main-root {
+    -fx-background-color: #f4f6f9;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+    -fx-background-color: #0f172a;
+    -fx-pref-width: 230px;
+    -fx-min-width: 230px;
+    -fx-max-width: 230px;
+}
+.sidebar-logo-area {
+    -fx-padding: 24 20 20 20;
+    -fx-border-color: rgba(255,255,255,0.15);
+    -fx-border-width: 0 0 1 0;
+}
+.sidebar-logo {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-letter-spacing: 4px;
+}
+.sidebar-logo-dot {
+    -fx-font-size: 18px;
+    -fx-text-fill: white;
+}
+.sidebar-tagline {
+    -fx-font-size: 9px;
+    -fx-text-fill: #ffffff;
+    -fx-letter-spacing: 2px;
+}
+.sidebar-avatar {
+    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-content-display: center;
+}
+.sidebar-section {
+    -fx-font-size: 9px;
+    -fx-text-fill: #ffffff;
+    -fx-letter-spacing: 3px;
+    -fx-padding: 18 20 6 20;
+}
+.nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 20 10 20;
+    -fx-cursor: hand;
+    -fx-max-width: Infinity;
+    -fx-background-radius: 0;
+    -fx-graphic-text-gap: 10;
+}
+.nav-btn .label {
+    -fx-text-fill: #ffffff;
+}
+.nav-btn:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-text-fill: #ffffff;
+}
+.nav-btn:hover .label {
+    -fx-text-fill: #ffffff;
+}
+.nav-btn-active {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #60a5fa;
+    -fx-border-width: 0 0 0 4;
+}
+.nav-btn-active .label {
+    -fx-text-fill: #ffffff;
+}
+
+.sidebar-user-area {
+    -fx-background-color: rgba(0,0,0,0.25);
+    -fx-padding: 14 20 14 20;
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-width: 1 0 0 0;
+}
+.sidebar-user-name {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+.sidebar-user-role {
+    -fx-font-size: 10px;
+    -fx-text-fill: #c0c8d8;
+}
+.sidebar-avatar {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-background-radius: 50;
+    -fx-min-width: 34px; -fx-max-width: 34px;
+    -fx-min-height: 34px; -fx-max-height: 34px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER;
+}
+
+/* ── Topbar ──────────────────────────────────────────────── */
+.topbar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e8edf4;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 28 0 28;
+    -fx-pref-height: 60px;
+    -fx-min-height: 60px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);
+}
+.topbar-page-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a202c;
+}
+.topbar-breadcrumb {
+    -fx-font-size: 11px;
+    -fx-text-fill: #a0aec0;
+}
+.topbar-search {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 7 16 7 16;
+    -fx-font-size: 12px;
+    -fx-text-fill: #1a202c;
+    -fx-prompt-text-fill: #a0aec0;
+    -fx-pref-width: 220px;
+}
+.topbar-search:focused {
+    -fx-border-color: #2563eb;
+}
+.topbar-icon-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #718096;
+    -fx-font-size: 16px;
+    -fx-padding: 6 8;
+    -fx-cursor: hand;
+    -fx-background-radius: 8;
+}
+.topbar-icon-btn:hover {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #2563eb;
+}
+.topbar-avatar-btn {
+    -fx-background-color: #eff6ff;
+    -fx-background-radius: 50;
+    -fx-min-width: 34px; -fx-max-width: 34px;
+    -fx-min-height: 34px; -fx-max-height: 34px;
+    -fx-text-fill: #2563eb;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-border-color: #bfdbfe;
+    -fx-border-radius: 50;
+    -fx-border-width: 1.5;
+}
+.topbar-avatar-btn:hover {
+    -fx-background-color: #dbeafe;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.2), 8, 0, 0, 0);
+}
+
+/* ── Content area ────────────────────────────────────────── */
+.content-area {
+    -fx-background-color: #f4f6f9;
+    -fx-padding: 28;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DASHBOARD
+   ════════════════════════════════════════════════════════════ */
+.welcome-card {
+    -fx-background-color: #0f1923;
+    -fx-background-radius: 14;
+    -fx-padding: 28 32;
+}
+.welcome-greeting {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+.welcome-sub {
+    -fx-font-size: 12px;
+    -fx-text-fill: #4a6a88;
+}
+.welcome-badge {
+    -fx-background-color: #1e3a5f;
+    -fx-background-radius: 20;
+    -fx-text-fill: #60a5fa;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 12;
+}
+.welcome-quick-btn {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 8;
+    -fx-padding: 9 18;
+    -fx-cursor: hand;
+}
+.welcome-quick-btn:hover {
+    -fx-background-color: #1d4ed8;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.4), 10, 0, 0, 3);
+}
+.welcome-quick-btn-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: #60a5fa;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 8;
+    -fx-border-color: #1e3a5f;
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-padding: 9 18;
+    -fx-cursor: hand;
+}
+.welcome-quick-btn-ghost:hover {
+    -fx-background-color: #162030;
+    -fx-border-color: #2563eb;
+}
+
+/* Stat cards */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e8edf4;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 20 22;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);
+}
+.stat-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.1), 14, 0, 0, 4);
+    -fx-border-color: #bfdbfe;
+    -fx-scale-x: 1.012;
+    -fx-scale-y: 1.012;
+}
+.stat-icon-box {
+    -fx-background-radius: 10;
+    -fx-min-width: 42px; -fx-max-width: 42px;
+    -fx-min-height: 42px; -fx-max-height: 42px;
+    -fx-alignment: CENTER;
+}
+.stat-icon-blue  { -fx-background-color: #eff6ff; }
+.stat-icon-green { -fx-background-color: #f0fdf4; }
+.stat-icon-amber { -fx-background-color: #fffbeb; }
+.stat-icon-purple{ -fx-background-color: #faf5ff; }
+.stat-icon {
+    -fx-font-size: 18px;
+}
+.stat-value {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a202c;
+}
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #718096;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 0.3px;
+}
+.stat-delta-up {
+    -fx-font-size: 11px;
+    -fx-text-fill: #16a34a;
+    -fx-font-weight: bold;
+}
+.stat-revenue {
+    -fx-text-fill: #2563eb;
+}
+.stat-delta-down {
+    -fx-font-size: 11px;
+    -fx-text-fill: #dc2626;
+    -fx-font-weight: bold;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION HEADERS
+   ════════════════════════════════════════════════════════════ */
+.section-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e8edf4;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 22 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);
+}
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a202c;
+}
+.section-subtitle {
+    -fx-font-size: 11px;
+    -fx-text-fill: #a0aec0;
+}
+.section-link-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2563eb;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+.section-link-btn:hover {
+    -fx-text-fill: #1d4ed8;
+    -fx-underline: true;
+}
+
+/* ════════════════════════════════════════════════════════════
+   AUCTION CARDS (list view)
+   ════════════════════════════════════════════════════════════ */
+.auction-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e8edf4;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 16 18;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);
+}
+.auction-card:hover {
+    -fx-border-color: #93c5fd;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.12), 16, 0, 0, 4);
+    -fx-background-color: #fafcff;
+    -fx-scale-x: 1.008;
+    -fx-scale-y: 1.008;
+}
+.auction-card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a202c;
+}
+.auction-card-sub {
+    -fx-font-size: 11px;
+    -fx-text-fill: #718096;
+}
+.auction-card-price {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2563eb;
+}
+.auction-card-price-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #a0aec0;
+    -fx-letter-spacing: 0.5px;
+}
+.auction-card-thumb {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 8;
+    -fx-min-width: 72px; -fx-max-width: 72px;
+    -fx-min-height: 72px; -fx-max-height: 72px;
+    -fx-alignment: CENTER;
+}
+
+/* Category badges */
+.badge {
+    -fx-background-radius: 20;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 10;
+}
+.badge-blue   { -fx-background-color: #eff6ff; -fx-text-fill: #2563eb; }
+.badge-green  { -fx-background-color: #f0fdf4; -fx-text-fill: #16a34a; }
+.badge-amber  { -fx-background-color: #fffbeb; -fx-text-fill: #d97706; }
+.badge-purple { -fx-background-color: #faf5ff; -fx-text-fill: #7c3aed; }
+.badge-red    { -fx-background-color: #fff5f5; -fx-text-fill: #dc2626; }
+.badge-gray   { -fx-background-color: #f1f5f9; -fx-text-fill: #64748b; }
+
+/* Status pills */
+.pill-running  { -fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-background-radius: 20; -fx-padding: 3 10; -fx-font-size:10px; -fx-font-weight:bold; }
+.pill-ending   { -fx-background-color: #fff7ed; -fx-text-fill: #c2410c; -fx-background-radius: 20; -fx-padding: 3 10; -fx-font-size:10px; -fx-font-weight:bold; }
+.pill-finished { -fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-background-radius: 20; -fx-padding: 3 10; -fx-font-size:10px; -fx-font-weight:bold; }
+.pill-pending  { -fx-background-color: #fef9c3; -fx-text-fill: #854d0e; -fx-background-radius: 20; -fx-padding: 3 10; -fx-font-size:10px; -fx-font-weight:bold; }
+
+/* Countdown */
+.timer-normal   { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1a202c; -fx-font-family: "Courier New", monospace; }
+.timer-warning  { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #d97706; -fx-font-family: "Courier New", monospace; }
+.timer-critical { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #dc2626; -fx-font-family: "Courier New", monospace; }
+.timer-ended    { -fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #64748b; }
+
+/* ── Auction Tab Bar (All / Live / Ended) ──────────────────── */
+.tab-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 22;
+    -fx-cursor: hand;
+    -fx-background-radius: 8 8 0 0;
+    -fx-border-color: transparent transparent #e2e8f0 transparent;
+    -fx-border-width: 0 0 2 0;
+}
+.tab-btn:hover {
+    -fx-text-fill: #2563eb;
+    -fx-background-color: #f0f6ff;
+}
+.tab-btn-active {
+    -fx-text-fill: #2563eb;
+    -fx-border-color: transparent transparent #2563eb transparent;
+    -fx-border-width: 0 0 2.5 0;
+    -fx-background-color: transparent;
+}
+
+/* ── Ended Auction Card Variant ──────────────────────────── */
+.auction-card-price-ended {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #64748b;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TABLE VIEW
+   ════════════════════════════════════════════════════════════ */
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #e8edf4;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-table-cell-border-color: #f1f5f9;
+}
+.table-view .column-header-background {
+    -fx-background-color: #f8fafc;
+}
+.table-view .column-header {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e8edf4;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .column-header .label {
+    -fx-text-overrun: clip;       /* Ép cắt thẳng chữ, không hiện ... */
+    -fx-ellipsis-string: "";      /* Xóa chuỗi ba chấm */
+    -fx-padding: 0 2 0 2;         /* Thu hẹp khoảng cách lề của chữ */
+    -fx-alignment: CENTER_LEFT;   /* Căn trái cho thoáng */
+}
+
+/* Tăng chiều cao hàng tiêu đề để chữ không bị kẹt */
+.table-view .column-header, .table-view .filler {
+    -fx-size: 45;
+    -fx-min-height: 45;
+}
+.table-view .column-header .label {
+    -fx-text-fill: #718096;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-letter-spacing: 0.5px;
+}
+.table-view .filler {
+    -fx-background-color: #f8fafc;
+}
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-text-fill: #1a202c;
+    -fx-table-cell-border-color: #f1f5f9;
+    -fx-cell-size: 46px;
+}
+.table-row-cell:odd  { -fx-background-color: #fafbfd; }
+.table-row-cell:hover { -fx-background-color: #eff6ff; }
+.table-row-cell:selected {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e40af;
+}
+.table-cell {
+    -fx-text-fill: #1a202c;
+    -fx-font-size: 13px;
+    -fx-padding: 0 12;
+}
+
+/* ════════════════════════════════════════════════════════════
+   BUTTONS (reusable)
+   ════════════════════════════════════════════════════════════ */
+.btn-primary {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 8;
+    -fx-padding: 9 20;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #1d4ed8;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.3), 10, 0, 0, 3);
+}
+.btn-primary:pressed { -fx-background-color: #1e40af; }
+
+.btn-secondary {
+    -fx-background-color: white;
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 8;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-padding: 9 20;
+    -fx-cursor: hand;
+}
+.btn-secondary:hover {
+    -fx-border-color: #93c5fd;
+    -fx-background-color: #f8fafc;
+}
+
+.btn-danger {
+    -fx-background-color: white;
+    -fx-text-fill: #dc2626;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 8;
+    -fx-border-color: #fecaca;
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-padding: 9 20;
+    -fx-cursor: hand;
+}
+.btn-danger:hover {
+    -fx-background-color: #fff5f5;
+    -fx-border-color: #ef4444;
+}
+
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2563eb;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-padding: 9 16;
+    -fx-background-radius: 8;
+}
+.btn-ghost:hover { -fx-background-color: #eff6ff; }
+
+/* ════════════════════════════════════════════════════════════
+   FORM INPUTS
+   ════════════════════════════════════════════════════════════ */
+.form-input {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 9 14;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1a202c;
+    -fx-prompt-text-fill: #a0aec0;
+    -fx-pref-height: 40px;
+}
+.form-input:focused {
+    -fx-border-color: #2563eb;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.12), 6, 0, 0, 0);
+}
+.form-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+    -fx-letter-spacing: 0.3px;
+}
+.form-hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: #a0aec0;
+}
+.form-error {
+    -fx-font-size: 11px;
+    -fx-text-fill: #dc2626;
+}
+.combo-box-base {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 4 10;
+    -fx-font-size: 13px;
+    -fx-pref-height: 40px;
+}
+.combo-box-base:focused { -fx-border-color: #2563eb; }
+.combo-box-base .list-cell { -fx-text-fill: #1a202c; }
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);
+}
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #2563eb;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DIALOG
+   ════════════════════════════════════════════════════════════ */
+.custom-dialog {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.14), 24, 0, 0, 8);
+}
+.dialog-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a202c;
+}
+.dialog-sub {
+    -fx-font-size: 13px;
+    -fx-text-fill: #718096;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TOAST NOTIFICATIONS
+   ════════════════════════════════════════════════════════════ */
+.toast-success {
+    -fx-background-color: #f0fdf4;
+    -fx-border-color: #bbf7d0;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 12 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 4);
+}
+.toast-success .toast-msg { -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 13px; }
+
+.toast-error {
+    -fx-background-color: #fff5f5;
+    -fx-border-color: #fecaca;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 12 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 4);
+}
+.toast-error .toast-msg { -fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-font-size: 13px; }
+
+.toast-info {
+    -fx-background-color: #eff6ff;
+    -fx-border-color: #bfdbfe;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 12 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 4);
+}
+.toast-info .toast-msg { -fx-text-fill: #1d4ed8; -fx-font-weight: bold; -fx-font-size: 13px; }
+
+/* ════════════════════════════════════════════════════════════
+   PROFILE
+   ════════════════════════════════════════════════════════════ */
+.profile-avatar-large {
+    -fx-background-color: #eff6ff;
+    -fx-background-radius: 50;
+    -fx-min-width: 80px; -fx-max-width: 80px;
+    -fx-min-height: 80px; -fx-max-height: 80px;
+    -fx-text-fill: #2563eb;
+    -fx-font-weight: bold;
+    -fx-font-size: 28px;
+    -fx-alignment: CENTER;
+    -fx-border-color: #bfdbfe;
+    -fx-border-radius: 50;
+    -fx-border-width: 2;
+}
+.profile-name {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a202c;
+}
+.profile-role-badge {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #2563eb;
+    -fx-background-radius: 20;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 12;
+}
+.profile-info-key {
+    -fx-font-size: 11px;
+    -fx-text-fill: #718096;
+    -fx-font-weight: bold;
+    -fx-pref-width: 130px;
+}
+.profile-info-val {
+    -fx-font-size: 13px;
+    -fx-text-fill: #1a202c;
+}
+
+/* ════════════════════════════════════════════════════════════
+   BID HISTORY TIMELINE
+   ════════════════════════════════════════════════════════════ */
+.bid-row {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #e8edf4;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 10 14;
+}
+.bid-row:hover {
+    -fx-border-color: #93c5fd;
+    -fx-background-color: #fafcff;
+}
+.bid-row-leading {
+    -fx-background-color: #f0fdf4;
+    -fx-border-color: #bbf7d0;
+}
+.bid-dot {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 50;
+    -fx-min-width: 10px; -fx-max-width: 10px;
+    -fx-min-height: 10px; -fx-max-height: 10px;
+}
+.bid-dot-lead {
+    -fx-background-color: #16a34a;
+    -fx-background-radius: 50;
+    -fx-min-width: 10px; -fx-max-width: 10px;
+    -fx-min-height: 10px; -fx-max-height: 10px;
+}
+.bid-line {
+    -fx-background-color: #e2e8f0;
+    -fx-pref-width: 2px;
+    -fx-min-width: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DETAIL SCREEN — large price display
+   ════════════════════════════════════════════════════════════ */
+.detail-price-big {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2563eb;
+}
+.detail-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #a0aec0;
+    -fx-letter-spacing: 1px;
+}
+.detail-timer-box {
+    -fx-background-color: #0f1923;
+    -fx-background-radius: 10;
+    -fx-padding: 14 20;
+}
+.detail-timer-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #60a5fa;
+    -fx-font-family: "Courier New", monospace;
+}
+.detail-timer-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #2a4060;
+    -fx-letter-spacing: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ADMIN PANEL
+   ════════════════════════════════════════════════════════════ */
+.admin-stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e8edf4;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 18 22;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);
+}
+
+/* ════════════════════════════════════════════════════════════
+   SCROLLPANE
+   ════════════════════════════════════════════════════════════ */
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+.scroll-bar { -fx-background-color: transparent; }
+.scroll-bar .thumb {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 4;
+    -fx-pref-width: 5px;
+}
+.scroll-bar .thumb:hover { -fx-background-color: #93c5fd; }
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button { -fx-background-color: transparent; -fx-padding: 0; }
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow  { -fx-shape: ""; -fx-padding: 0; }
+
+/* ════════════════════════════════════════════════════════════
+   PROGRESS BAR
+   ════════════════════════════════════════════════════════════ */
+.progress-bar {
+    -fx-accent: #2563eb;
+    -fx-control-inner-background: #e2e8f0;
+    -fx-pref-height: 6px;
+    -fx-background-radius: 3;
+}
+.progress-bar > .bar { -fx-background-radius: 3; }
+
+/* ════════════════════════════════════════════════════════════
+   CONTEXT MENU / DROPDOWN
+   ════════════════════════════════════════════════════════════ */
+.context-menu {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 4);
+    -fx-padding: 4 0;
+}
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 8 16;
+}
+.menu-item .label { -fx-text-fill: #374151; -fx-font-size: 13px; }
+.menu-item:hover  { -fx-background-color: #f1f5f9; }
+.menu-item:focused { -fx-background-color: #eff6ff; }
+.menu-item:focused .label { -fx-text-fill: #2563eb; }
+
+/* ── HIỂN THỊ TRỤC TỌA ĐỘ VÀ LƯỚI CHO BIỂU ĐỒ ── */
+
+/* 1. Hiện đường kẻ trục Ox (nằm ngang) và trục Oy (thẳng đứng) */
+.chart .axis:bottom {
+    -fx-border-color: #94a3b8 transparent transparent transparent;
+    -fx-border-width: 2 0 0 0;
+}
+.chart .axis:left {
+    -fx-border-color: transparent #94a3b8 transparent transparent;
+    -fx-border-width: 0 2 0 0;
+}
+
+/* 2. Hiện các vạch chia nhỏ (Tick marks) trên trục */
+.chart .axis-tick-mark {
+    -fx-stroke: #94a3b8;
+    -fx-stroke-width: 2;
+}
+
+/* 3. Hiện màu chữ cho các con số tọa độ (Giờ, Giá tiền) */
+.chart .axis {
+    -fx-tick-label-fill: #1e293b;
+    -fx-font-size: 11px;
+}
+
+/* 4. Hiện tên của 2 trục (Trục Ox, Trục Oy) */
+.chart .axis-label {
+    -fx-text-fill: #1e293b;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+/* 5. Hiện đường lưới ngầm bên trong biểu đồ để dễ ngắm toạ độ */
+.chart-horizontal-grid-lines,
+.chart-vertical-grid-lines {
+    -fx-stroke: #cbd5e0;
+    -fx-stroke-width: 1;
+    -fx-stroke-dash-array: 4 4; /* Tạo nét đứt cho giao diện hiện đại */
+}
